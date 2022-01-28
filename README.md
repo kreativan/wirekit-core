@@ -1,5 +1,5 @@
 # WIREKIT Core
 Build lightning-fast and feature-rich websites with ProcessWire.
 
-* website: wirekit.dev
-* demo: start.wirekit.dev/core/
+* Website: <a herf="wirekit.dev" target="_blank">wirekit.dev</a>
+* Demo: <a href="start.wirekit.dev/core/" target="_blank">start.wirekit.dev/core/</a> 
