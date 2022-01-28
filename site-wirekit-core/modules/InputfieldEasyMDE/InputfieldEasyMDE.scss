@@ -1,0 +1,4 @@
+body.easymde-fullscreen {
+	.InputfieldImageEdit__inner{ filter:none !important; -webkit-filter:none !important; }
+}
+.InputfieldRepeater.has-easymde-fullscreen { position:relative; z-index:10 !important; }

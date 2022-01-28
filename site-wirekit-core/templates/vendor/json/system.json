@@ -1,0 +1,61 @@
+[
+  {
+    "type": "text",
+    "name": "default_lang",
+    "label": "Default Language Code",
+    "required": true,
+    "default": "en",
+    "grid_size": "1-1",
+    "desc": "Default languge code eg: <code>en</code> for english"
+  },
+  {
+    "type": "heading",
+    "text": "Site Info",
+    "icon": "fa-info-circle",
+    "style": "font-size: 1rem;"
+  },
+  {
+    "type": "text",
+    "name": "site_name",
+    "label": "Site Name (Company Name)",
+    "desc": "Used site-wide in company & contact info, emails, invoices etc...",
+    "required": false,
+    "default": "",
+    "grid_size": "1-1",
+    "multilang": true
+  },
+  {
+    "type": "text",
+    "name": "email",
+    "label": "Email Address",
+    "desc": "This email will also be used to recieve submitions from the site.",
+    "required": false,
+    "default": "",
+    "grid_size": "1-2"
+  },
+  {
+    "type": "text",
+    "name": "site_email",
+    "label": "Site Email",
+    "desc": "Used as <code>email->from</code> when sending emails from the website.",
+    "required": false,
+    "default": "",
+    "grid_size": "1-2"
+  },
+  {
+    "type": "text",
+    "name": "phone",
+    "label": "Phone",
+    "required": false,
+    "default": "",
+    "grid_size": "1-2"
+  },
+  {
+    "type": "text",
+    "name": "address",
+    "label": "Address",
+    "required": false,
+    "default": "",
+    "grid_size": "1-2"
+  }
+]

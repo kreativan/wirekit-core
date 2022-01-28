@@ -1,0 +1,1130 @@
+<?php namespace ProcessWire;
+
+/**
+ * An Inputfield for handling predefined or user input tags
+ * 
+ * ~~~~~
+ * // create a text tags Inputifeld
+ * $f = $modules->get('InputfieldTextTags');
+ * $f->attr('name', 'tags');
+ * 
+ * // allow for user-entered tags input (true or false, default=false)
+ * $f->allowUserTags = true;
+ * 
+ * // predefined selectable tags (tag and optional label)
+ * $f->addTag('foo');
+ * $f->addTag('bar', 'This is Bar'); // optional label 
+ * $f->addTag('baz', 'This is Baz'); // optional label
+ * 
+ * // set currently entered/selected tags
+ * $f->val('foo bar');
+ * $f->val([ 'foo', 'bar' ]); // this also works
+ * ~~~~~
+ * 
+ * @property array|string $tagsList Array of tags [ 'tag' => 'label' ], or newline separated string of "tag=label", or use addTag() to populate.
+ * @property string $tagsUrl Remote URL to find tags from, must have a '{q}' in it somewhere, which will be replaced with the query. 
+ * @property int|bool $allowUserTags Allow user-entered tags?
+ * @property int|bool $closeAfterSelect Close select dropdown box after user makes selection?
+ * @property int $maxItems Max selectable items, 0 for no limit, 1 for single-select mode, or 2+ to limit selection to that number.
+ * @property bool|int $useAjax
+ * @property string $delimiter One of 's' (for space ' '), 'p' (for pipe '|') or 'c' (for comma).
+ * @property string $value
+ * @property string $placeholder Placeholder string to show when no options selected. 
+ * @property-read array $arrayValue
+ * @property string|null $pageSelector
+ *
+ * ProcessWire 3.x, Copyright 2021 by Ryan Cramer
+ * https://processwire.com
+ *
+ */
+class InputfieldTextTags extends Inputfield implements 
+	InputfieldHasTextValue, InputfieldSupportsArrayValue, InputfieldSupportsPageSelector, 
+	InputfieldHasSelectableOptions, InputfieldHasSortableValue {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('Text Tags', __FILE__), // Module Title
+			'summary' => __('Enables input of user entered tags or selection of predefined tags.', __FILE__), // Module Summary
+			'version' => 5,
+			'icon' => 'tags',
+		);
+	}
+
+	/**
+	 * Cache for getRenderReadyTags() method
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $renderReadyTags = array();
+
+	/**
+	 * Tags set in 'value' attribute that were not in predefined list
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $addedTags = array();
+	
+	/**
+	 * Construct
+	 * 
+	 * #pw-internal
+	 * 
+	 */
+	public function __construct() {
+		$this->set('tagsList', array());
+		$this->set('tagsUrl', '');
+		$this->set('allowUserTags', 0);
+		$this->set('closeAfterSelect', 1);
+		$this->set('delimiter', 's'); 
+		$this->set('maxItems', 0);
+		parent::set('useAjax', false); // parent and boolean intentional
+		$this->setAttribute('placeholder', '');
+		parent::__construct();
+	}
+
+	/**
+	 * Wired to PW
+	 * 
+	 * #pw-internal
+	 * 
+	 */
+	public function wired() {
+		parent::wired();
+		$languages = $this->wire()->languages;
+		if($languages) {
+			foreach($languages as $language) {
+				if($language->isDefault()) continue;
+				$this->set("tagsList$language->id", array());
+				parent::set("placeholder$language->id", '');
+			}
+		}
+	}
+
+	/**
+	 * Get property
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param string $key
+	 * @return array|mixed|null|string
+	 * 
+	 */
+	public function get($key) {
+		if($key === 'arrayValue') return $this->getArrayValue();
+		return parent::get($key);
+	}
+
+	/**
+	 * Set property
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 * @return Inputfield|InputfieldTextTags|WireData
+	 * 
+	 */
+	public function set($key, $value) {
+		if(strpos($key, 'tagsList') === 0) {
+			if($key === 'tagsList') return $this->setTagsList($value);
+			list(,$languageId) = explode('tagsList', $key, 2);
+			return $this->setTagsList($value, (int) $languageId); 
+		} else if($key === 'allowUserTags' || $key === 'closeAfterSelect' || $key === 'useAjax' || $key === 'maxItems') {
+			$value = (int) $value;
+		}
+		return parent::set($key, $value);
+	}
+	
+	/**
+	 * Get all attributes in an associative array
+	 *
+	 * @return array
+	 *
+	 */
+	public function getAttributes() {
+		$attrs = parent::getAttributes();
+		if(!empty($attrs['placeholder'])) {
+			// placeholder attribute, languages support
+			list($languages, $language) = array($this->wire()->languages, $this->wire()->user->language);
+			if($languages && "$language" && !$language->isDefault()) {
+				$placeholder = parent::get("placeholder$language->id");
+				if(strlen($placeholder)) $attrs['placeholder'] = $placeholder;
+			}
+		}
+		return $attrs;
+	}
+
+	/**
+	 * Set attribute
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param array|string $key
+	 * @param array|int|string $value
+	 * @return self|Inputfield
+	 * 
+	 */
+	public function setAttribute($key, $value) {
+		if($key === 'value') {
+			if(is_object($value) && $value instanceof WireArray) {
+				$value = explode('|', (string) $value);
+			}
+			if(is_array($value)) {
+				$value = $this->tagArrayToString($value);
+			}
+		}
+		return parent::setAttribute($key, $value);
+	}
+
+	/**
+	 * Get array value
+	 * 
+	 * For InputfieldSupportsArrayValue interface
+	 * 
+	 * #pw-internal
+	 * 
+	 * @return array
+	 * 
+	 */
+	public function getArrayValue() {
+		$value = parent::getAttribute('value');
+		$value = $this->tagStringToArray($value);
+		return $value;
+	}
+
+	/**
+	 * Set value as an array
+	 * 
+	 * For InputfieldSupportsArrayValue interface
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param array $value
+	 * 
+	 */
+	public function setArrayValue(array $value) {
+		$this->setAttribute('value', $value);
+	}
+
+	/**
+	 * Convert string of tags to array
+	 * 
+	 * #pw-internal
+	 *
+	 * @param string $tagString
+	 * @return array
+	 *
+	 */
+	public function tagStringToArray($tagString) {
+		$tagString = trim($tagString);
+		$tagArray = array();
+		if(!strlen($tagString)) return $tagArray;
+		$a = explode($this->delimiter(), $tagString); 
+		foreach($a as $key => $tag) {
+			$tag = trim("$tag");
+			if(!strlen($tag)) continue;
+			if(strpos($tag, '_') === 0 && ctype_digit(substr($tag, 1))) $tag = ltrim($tag, '_');
+			$tagArray[$tag] = $tag;
+		}
+		return $tagArray;
+	}
+
+	/**
+	 * Convert array of tags to string
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param array $tagArray
+	 * @return string
+	 * 
+	 */
+	public function tagArrayToString(array $tagArray) {
+		return trim(implode($this->delimiter(), $tagArray)); 
+	}
+
+	/**
+	 * Given tags string or array, return array of [ 'tag' => 'label' ]
+	 * 
+	 * Public API usages likely would prefer the static InputfieldTextTags::tagsArray() method instead. 
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param string|array $tags
+	 * @param Language|int|string|null $language
+	 * @return array
+	 * 
+	 */
+	public function tagsToLabels($tags, $language = null) {
+		if(!is_array($tags)) $tags = $this->tagStringToArray($tags);
+		if(empty($tags)) return array();
+		$labels = $this->getTagLabels($language);
+		$a = array();
+		foreach($tags as $tag) {
+			$label = isset($labels[$tag]) ? $labels[$tag] : $tag;
+			$a[$tag] = $label;
+		}
+		return $a;
+	}
+	
+	/**
+	 * Convert string of tagsList (tag definitions) to array
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param string $tagString
+	 * @param bool $allowLabels
+	 * @return array
+	 * 
+	 */
+	protected function tagsListStringToArray($tagString, $allowLabels = true) {
+		
+		$tagString = trim($tagString);
+		$tagArray = array();
+		
+		if(!strlen($tagString)) return $tagArray;
+
+		$regex = $allowLabels ? '/[\r\n\t]+/' : '/[\s\r\n\t]+/';
+		$a = preg_split($regex, $tagString);
+		
+		foreach($a as $key => $tag) {
+			$tag = trim("$tag");
+			if(!strlen($tag)) continue;
+			if(strpos($tag, '=') !== false) {
+				list($tag, $label) = explode('=', $tag, 2);
+				if(!$allowLabels) $label = $tag;
+			} else {
+				$label = $tag;
+			}
+			if(strpos($tag, '_') === 0 && ctype_digit(substr($tag, 1))) {
+				$tagIsLabel = $tag === $label;
+				$tag = ltrim($tag, '_');
+				if($tagIsLabel) $label = $tag;
+			}
+			$tagArray[$tag] = $label;
+		}
+		
+		return $tagArray;
+	}
+
+	/**
+	 * Convert given tags array to tagsList definition string
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param array $tags
+	 * @param string $delimiter
+	 * @return string
+	 *
+	 */
+	protected function tagsListArrayToString(array $tags, $delimiter = "\n") {
+		$items = array();
+		foreach($tags as $tagName => $tagLabel) {
+			if($tagName === $tagLabel) {
+				$items[$tagName] = $tagName;
+			} else {
+				$items[$tagName] = "$tagName=$tagLabel";
+			}
+		}
+		return implode($delimiter, $items);
+	}
+
+	/**
+	 * Get all selectable tags and labels, optionally for specific language
+	 * 
+	 * #pw-group-settings
+	 * 
+	 * @param Language|int|string|null $language
+	 * @param bool $getArray
+	 * @return array|string
+	 * 
+	 */
+	public function getTagsList($language = null, $getArray = true) {
+		$tags = parent::get('tagsList'); /** @var array $tags */
+		if($language) {
+			$key = $this->languageKey($language, 'tagsList');
+			if($key !== 'tagsList') {
+				$langTags = parent::get($key); /** @var array $langTags */
+				foreach($langTags as $key => $value) {
+					$tags[$key] = $value;
+				}
+			}
+		}
+		if(!$getArray) return $this->tagsListArrayToString($tags);
+		return $tags;
+	}
+	
+	/**
+	 * Set all selectable tags and labels, optionally for specific language
+	 * 
+	 * #pw-group-settings
+	 * 
+	 * @param array|string $tags Array of [ 'tag' => 'label', 'tag2' => 'label2' ] or newline string of "tag=label\ntag2=label2\n..."
+	 * @param Language|int|string|null $language 
+	 * @return self
+	 * 
+	 */
+	public function setTagsList($tags, $language = null) {
+		if(is_string($tags)) $tags = $this->tagsListStringToArray($tags);
+		$key = $language === null ? 'tagsList' : $this->languageKey($language, 'tagsList');
+		parent::set($key, $tags); 
+		return $this;
+	}
+	
+	/**
+	 * Add a predefined tag 
+	 * 
+	 * #pw-group-settings
+	 * 
+	 * @param string $tag
+	 * @param string $label
+	 * @param Language|int|string|null $language
+	 * @return self
+	 * 
+	 */
+	public function addTag($tag, $label = '', $language = null) {
+		$key = $this->languageKey($language, 'tagsList');
+		$tagsList = $this->get($key);
+		if(!strlen($label)) $label = $tag;
+		$tagsList[$tag] = $label;
+		parent::set($key, $tagsList);
+		if($language && $key !== 'tagsList') {
+			$tagsList = $this->tagsList;
+			if(!isset($tagsList[$tag])) {
+				$tagsList[$tag] = $tag;
+				parent::set('tagsList', $tagsList);
+			}
+		}
+		return $this;
+	}
+
+	/**
+	 * Remove tag
+	 * 
+	 * #pw-group-settings
+	 * 
+	 * @param string $tag
+	 * @return self
+	 * 
+	 */
+	public function removeTag($tag) {
+		$tagsList = parent::get('tagsList');
+		unset($tagsList[$tag]); 
+		$languages = $this->wire()->languages;
+		if(!$languages) return $this;
+		foreach($languages as $language) {
+			if($language->isDefault()) continue;
+			$tagsList = parent::get("tagsList$language");
+			if(!is_array($tagsList)) continue;
+			if(!empty($tagsList[$tag])) unset($tagsList[$tag]); 
+		}
+		return $this;
+	}
+
+	/**
+	 * Get labels for all tags
+	 * 
+	 * #pw-group-settings
+	 * 
+	 * @param Language|int|string|null $language 
+	 * @return array
+	 * 
+	 */
+	public function getTagLabels($language = null) {
+		return $this->getTagsList($language);
+	}
+
+	/**
+	 * Get label for given tag
+	 * 
+	 * #pw-group-settings
+	 * 
+	 * - Returns given tag if it has no label. 
+	 * - Returns blank string if given tag is not in list and user entered tags are not allowed.
+	 * 
+	 * @param string $tag
+	 * @param Language|int|string|null $language 
+	 * @return mixed
+	 * 
+	 */
+	public function getTagLabel($tag, $language = null) {
+		if(!$language && $this->wire()->langauges) $language = $this->wire()->user->language;
+		$tags = $this->getTagsList($language);
+		if(isset($tags[$tag])) return $tags[$tag];
+		if($this->allowUserTags()) return $tag;
+		return '';
+	}
+	
+	/**
+	 * Set label for tag
+	 * 
+	 * #pw-group-settings
+	 *
+	 * @param string $tag
+	 * @param string $label
+	 * @param Language|int|string|null $language
+	 * @return self
+	 *
+	 */
+	public function setTagLabel($tag, $label, $language = null) {
+		return $this->addTag($tag, $label, $language);
+	}
+	
+	/**
+	 * Get property name for non-default language
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param string|int|Language $language
+	 * @param string $key
+	 * @return string
+	 * @throws WireException
+	 *
+	 */
+	protected function languageKey($language, $key) {
+		if(!$language) return $key;
+		$languages = $this->wire()->languages;
+		if(!$languages) return $key;
+		if(!wireInstanceOf($language, 'Language')) $language = $languages->get($language);
+		if(!$language) throw new WireException('Invalid language');
+		if(!$language->isDefault()) $key .= $language->id;
+		return $key;
+	}
+
+	/**
+	 * Render ready
+	 * 
+	 * #pw-internal
+	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return bool
+	 * @throws WireException
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		/** @var JqueryUI $jQueryUI */
+		$jQueryUI = $this->wire()->modules->get('JqueryUI');
+		$jQueryUI->use('selectize');
+		$this->addClass('InputfieldNoFocus', 'wrapClass');
+		$tags = $this->getRenderReadyTags();
+		
+		if($this->hasField) {
+			// page editor: populate selectable tags to ProcessWire.config JS
+			$config = $this->wire()->config;
+			$cfgName = $this->getJsCfgName();
+			$data = $config->$cfgName ? $config->$cfgName : array();
+			$data = array_unique(array_merge($data, $tags));
+			$config->js($cfgName, $data);
+		}
+
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	/**
+	 * Render Inputfield
+	 * 
+	 * #pw-internal
+	 *
+	 * @return string
+	 *
+	 */
+	public function ___render() {
+		
+		$config = $this->wire()->config;
+		$tagsUrl = $this->useAjax() ? $this->tagsUrl : '';
+
+		if($tagsUrl && strpos($tagsUrl, '://') === false) {
+			if(strpos($tagsUrl, '//') === 0) {
+				$tagsUrl = ($config->https ? 'https:' : 'http:') . $tagsUrl;
+			} else if(strpos($tagsUrl, '/') === 0) {
+				$tagsUrl = $config->urls->httpRoot . ltrim($tagsUrl, '/');
+			} else {
+				$tagsUrl = $config->urls->httpRoot . $tagsUrl;
+			}
+		}
+		
+		$attrs = $this->getAttributes();
+		unset($attrs['class']);
+		
+		$tags = $this->getRenderReadyTags();
+		$this->renderReadyTags = array(); // reset cache
+		$classes = (count($tags) || $tagsUrl ? array('InputfieldTextTagsSelect') : array('InputfieldTextTagsInput'));
+		
+		if(!$this->allowUserTags) $classes[] = 'InputfieldTextTagsSelectOnly';
+	
+		$opts = array(
+			'allowUserTags' => $this->allowUserTags(),
+			'closeAfterSelect' => $this->closeAfterSelect,
+			'createOnBlur' => $this->allowUserTags() && $this->isTextField(), 
+			'delimiter' => $this->delimiter(),
+			'maxItems' => $this->maxItems,
+			'tagsUrl' => $tagsUrl,
+		);
+
+		if($this->hasField) {
+			// page editor
+			$opts['cfgName'] = $this->getJsCfgName();
+		} else {
+			// other usages
+			$opts['tags'] = $tags;
+		}
+		
+		$attrs['data-opts'] = json_encode($opts, JSON_UNESCAPED_UNICODE); 
+		$attrs['class'] = trim(implode(' ', $classes));
+		$attrs['value'] = $this->encodeNumericTags($this->val());
+		
+		if(empty($attrs['type'])) $attrs['type'] = 'text';
+		
+		$attrStr = $this->getAttributesString($attrs);
+		 
+		$out = "<input $attrStr />";
+		
+		return $out;
+	}
+
+	/**
+	 * Get JS config property name used in ProcessWire.config[propertyName]
+	 * 
+	 * @return string
+	 * 
+	 */
+	protected function getJsCfgName() {
+		return ($this->hasField ? $this->className() . '_' . $this->hasField->name . '__tags' : '');
+	}
+
+	/**
+	 * Get tags ready for use by renderReady() or render()
+	 * 
+	 * @return array|string
+	 * @throws WireException
+	 * 
+	 */
+	protected function getRenderReadyTags() {
+		
+		if(count($this->renderReadyTags)) return $this->renderReadyTags;
+	
+		$language = $this->wire()->user->language;
+		$tags = $this->getTagsList($language && $language->id ? $language : null);
+		
+		if($this->allowUserTags) {
+			$value = $this->tagStringToArray($this->val());
+			foreach($value as $tag) {
+				if(!isset($tags[$tag])) $tags[$tag] = $tag;
+			}
+		}
+		
+		$a = $tags;
+		$tags = array();
+		foreach($a as $tag => $label) {
+			// ensure no digit-only tags which do not survive json_encode()
+			if(ctype_digit("$tag")) $tag = "_$tag";
+			$tags[$tag] = $label;
+		}
+		
+		$this->renderReadyTags = $tags;
+		
+		return $tags;
+	}
+	
+	/**
+	 * Render value
+	 * 
+	 * #pw-internal
+	 * 
+	 * @return string
+	 * 
+	 */
+	public function ___renderValue() {
+		return $this->wire()->sanitizer->entities($this->val()); 
+	}
+
+	/**
+	 * Process input
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param WireInputData $input
+	 * @return $this
+	 * 
+	 */
+	public function ___processInput(WireInputData $input) {
+		parent::___processInput($input);
+		$val = $this->val();
+		$value = $this->validateValue($val);
+		if($val !== $value) $this->val($value);
+		if($this->isPageField() && count($this->addedTags)) {
+			// populate POST var recognized by InputfieldPage
+			$input['_' . $this->attr('name') . '_add_items'] = implode("\n", $this->addedTags);
+			$this->addedTags = array();
+		}
+		return $this;
+	}
+
+	/**
+	 * Encode numeric tags (like page IDs) so they aren’t lost by JSON encoding
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param string|array $tags
+	 * @param bool $getArray
+	 * @return array|string
+	 * 
+	 */
+	protected function encodeNumericTags($tags, $getArray = false) {
+		if(!is_array($tags)) $tags = $this->tagStringToArray($tags);
+		foreach($tags as $key => $tag) {
+			if(ctype_digit("$tag")) $tags[$key] = "_$tag";
+		}
+		return $getArray ? $tags : implode($this->delimiter(), $tags);
+	}
+
+	/**
+	 * Validate and return given tags string
+	 * 
+	 * #pw-internal
+	 *
+	 * @param string|array $tags
+	 * @return string
+	 *
+	 */
+	protected function validateValue($tags) {
+		
+		$sanitizer = $this->wire()->sanitizer;
+		$allowUserTags = $this->allowUserTags();
+		$isPageField = $this->isPageField();
+		$validTags = $this->getTagsList();
+		$delimiter = $this->delimiter();
+		$maxItems = (int) $this->maxItems;
+		
+		if(!is_array($tags)) $tags = $this->tagStringToArray($tags);
+		
+		if($maxItems > 0) {
+			while(count($tags) > $maxItems) array_pop($tags);
+		}
+
+		foreach(array_keys($tags) as $tag) {
+			if(isset($validTags[$tag])) {
+				// tag is known/valid
+			} else if($isPageField && $this->tagsUrl && ctype_digit(ltrim($tag, '_'))) {
+				// tag is page ID from ajax: will be validated by InputfieldPage
+			} else if(!$allowUserTags && ($isPageField || !$this->tagsUrl)) {
+				// user tags not allowed
+				unset($tags[$tag]);
+				$this->error(sprintf($this->_('Removed invalid tag value: %s'), $tag));
+			} else {
+				// newly added tag
+				$tag = $sanitizer->text($tag);
+				$label = $tag;
+				if(strpos($tag, $delimiter) !== false) $tag = str_replace($delimiter, '-', $tag);
+				$this->addedTags[$tag] = $label;
+				if($isPageField) unset($tags[$tag]); // stuffed into addedTags which is handled by processInput()
+			}
+		}
+	
+		return trim(implode($delimiter, $tags));
+	}
+
+	/**
+	 * Add a selectable option
+	 *
+	 * For InputfieldHasSelectableOptions interface
+	 * 
+	 * #pw-internal
+	 *
+	 * @param string|int $value
+	 * @param string|null $label
+	 * @param array|null $attributes
+	 * @return self|$this
+	 *
+	 */
+	public function addOption($value, $label = null, array $attributes = null) {
+		return $this->addTag($value, $label);
+	}
+
+	/**
+	 * Add selectable option with label, optionally for specific language
+	 *
+	 * For InputfieldHasSelectableOptions interface
+	 * 
+	 * #pw-internal
+	 *
+	 * @param string|int $value
+	 * @param string $label
+	 * @param Language|null $language
+	 * @return self|$this
+	 *
+	 */
+	public function addOptionLabel($value, $label, $language = null) {
+		return $this->addTag($value, $label, $language);
+	}
+
+	/**
+	 * Set page selector 
+	 * 
+	 * For InputfieldSupportsPageSelector interface
+	 * 
+	 * @param string $selector
+	 * @return bool Returns boolean false if page selector not supported for current settings
+	 * 
+	 */
+	public function setPageSelector($selector) {
+		if($this->hasInputfield) {
+			if(!$this->hasInputfield->getSetting('useAjax')) return false;
+			if(!strlen($this->tagsUrl)) $this->tagsUrl = $this->hasInputfield->getSetting('tagsUrl');
+		} 
+		if(!strlen($this->tagsUrl) || !$this->useAjax()) return false;
+		if(strlen($selector)) $this->pageSelector = $selector;
+		return true;
+	}
+	
+	/**
+	 * Static utility function to convert a tags string to an array of [ 'tag' => 'label' ]
+	 *
+	 * There isn’t currently a dedicated FieldtypeTextTags module, so if you want to convert a string of tags
+	 * (as would be returned from a $page “text” field value) you can use this static helper method to convert
+	 * the string of tags to an array of labels indexed by tag.
+	 *
+	 * Note: returned tags and labels are entity-encoded when current $page API var output formatting is ON.
+	 * 
+	 * ~~~~~
+	 * $field = $fields->get('tags'); // tags field using FieldtypeText
+	 * $tags = $page->get('tags'); // page value (string of tags, i.e. "foo bar baz")
+	 * $labels = InputfieldTextTags::tagsArray($field, $tags);
+	 * foreach($labels as $tag => $label) {
+	 *   echo "<li>$tag: $label</li>";
+	 * }
+	 * ~~~~~
+	 * 
+	 * #pw-group-helpers
+	 *
+	 * @param Field $field
+	 * @param string|array|null $tags
+	 * @return array
+	 *
+	 */
+	public static function tagsArray(Field $field, $tags = null) {
+		if(is_string($tags) && !strlen($tags)) return array();
+		/** @var InputfieldTextTags $inputfield */
+		$inputfield = $field->wire()->modules->getModule('InputfieldTextTags', array('noInit' => true));
+		$inputfield->setTagsList($field->get('tagsList'));
+		$languages = $field->wire()->languages;
+		if($languages) {
+			$userLanguage = $field->wire()->user->language;
+			foreach($languages as $language) {
+				if($language->isDefault() || $language->id != $userLanguage->id) continue;
+				$tagsList = $field->get("tagsList$language");
+				if(!empty($tagsList)) $inputfield->setTagsList($tagsList, $language);
+			}
+		} else {
+			$userLanguage = null;
+		}
+		if($tags === null) {
+			// return all tags to labels
+			$labels = $inputfield->getTagsList($userLanguage);
+		} else {
+			// return tags to labels matching given tags
+			$labels = $inputfield->tagsToLabels($tags, $userLanguage);
+		}
+		if($field->wire()->page->of()) {
+			// entity encode labels when page output formatting is on
+			$sanitizer = $field->wire()->sanitizer;
+			$a = $labels;
+			$labels = array();
+			foreach($a as $tag => $label) {
+				$tag = $sanitizer->entities1($tag);
+				$label = $sanitizer->entities($label);
+				$labels[$tag] = $label;
+			}
+		}
+		return $labels;
+	}
+
+	/**
+	 * Get or set delimiter
+	 * 
+	 * @param bool $getName Get delimiter name rather than character?
+	 * @return string
+	 * 
+	 */
+	protected function delimiter($getName = false) {
+		$ds = array('s' => ' ', 'c' => ',', 'p' => '|');
+		$d = $this->isPageField() ? 'p' : $this->delimiter;
+		if($getName) return $d;
+		if(isset($ds[$d])) return $ds[$d]; 
+		if(in_array($d, $ds)) return $d;
+		return ' ';
+	}
+
+	/**
+	 * Are we collecting input for a Page field?
+	 * 
+	 * @return bool|Field|Inputfield
+	 * 
+	 */
+	protected function isPageField() {
+		if($this->hasField && $this->hasFieldtype instanceof FieldtypePage) {
+			return $this->hasField;
+		} else if($this->hasInputfield && $this->hasInputfield instanceof InputfieldPage) {
+			return $this->hasInputfield;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Are we collecting input for a text field?
+	 * 
+	 * @return bool
+	 * 
+	 */
+	protected function isTextField() {
+		if($this->hasInputfield) return wireInstanceOf($this->hasInputfield, 'InputfieldText');
+		$fieldtype = $this->hasFieldtype;
+		return (!$fieldtype || "$fieldtype" === 'FieldtypeText');
+	}
+
+	/**
+	 * Allow user-entered tags? (considering Page field 'addable' context when applicable)
+	 * 
+	 * @return bool
+	 * 
+	 */
+	protected function allowUserTags() {
+		$pageField = $this->isPageField();
+		if($pageField) return (bool) $pageField->get('addable');
+		return (bool) $this->allowUserTags;
+	}
+
+	/**
+	 * Is ajax mode enabled?
+	 * 
+	 * @return bool
+	 * 
+	 */
+	protected function useAjax() {
+		if(!is_bool($this->useAjax)) {
+			// integer value for useAjax indicates it has gone through a save or been set and is trustworthy
+			return (bool) $this->useAjax;
+		}
+		$hasTagsList = count($this->tagsList); 
+		$hasTagsUrl = strlen($this->tagsUrl);
+		if($hasTagsList && !$hasTagsUrl) return false;
+		if($hasTagsUrl && !$hasTagsList) return true;
+		return (bool) $this->useAjax; 
+	}
+
+	/**
+	 * Config
+	 * 
+	 * #pw-internal
+	 * 
+	 * @return InputfieldWrapper
+	 * 
+	 */
+	public function ___getConfigInputfields() {
+
+		$moduleInfo = self::getModuleInfo();
+		$modules = $this->wire()->modules;
+		$inputfields = parent::___getConfigInputfields();
+		$languages = $this->wire()->languages;
+		$isTextField = $this->isTextField();
+		$isPageField = $this->isPageField();
+
+		/** @var InputfieldFieldset $fieldset */
+		$fieldset = $modules->get('InputfieldFieldset');
+		$fieldset->attr('name', '_tags_settings');
+		$fieldset->label = $moduleInfo['title'];
+		$fieldset->icon = 'tags';
+		$inputfields->prepend($fieldset);
+
+		if($isTextField) {
+			/** @var InputfieldRadios $f */
+			$f = $modules->get('InputfieldRadios');
+			$f->attr('name', 'useAjax');
+			$f->label = $this->_('Selectable options/tags source');
+			$f->addOption(0, $this->_('Specify them here'));
+			$f->addOption(1, $this->_('Load from URL you specify (ajax)'));
+			$f->val((int) $this->useAjax());
+			$fieldset->add($f);
+		} else if($isPageField) {
+			/** @var InputfieldToggle $f */
+			$f = $modules->get('InputfieldToggle');
+			$f->attr('name', 'useAjax');
+			$f->label = $this->_('Use ajax options/pages?');
+			$f->description = 
+				$this->_('When enabled, it will behave like an auto-complete where the user starts typing and it queries a URL for matching pages.') . ' ' . 
+				$this->_('You will also have to provide a “Ajax URL” (shown below when “Yes” selected) to perform the query. Working example code is included.') . ' ' . 
+				$this->_('When not enabled, all selectable options will be populated at runtime.');
+			$f->notes = $this->_('Using ajax options/pages is useful when potential quantity of selectable pages is large.') . ' ' . 
+				$this->_('Consider it when there are several hundred or thousands (or more) of pages that can be selected.');
+			$f->val((int) $this->useAjax());
+			$fieldset->add($f);
+		} else {
+			/** @var InputfieldHidden $f */
+			$f = $modules->get('InputfieldHidden');
+			$f->attr('name', 'useAjax');
+			$f->val(0);
+			$fieldset->add($f);
+		}
+		
+		if($isTextField) {
+			/** @var InputfieldTextarea $f */
+			$f = $modules->get('InputfieldTextarea');
+			$f->attr('name', 'tagsList');
+			$f->label = $this->label = $this->_('Predefined options/tags list');
+			$f->description = $this->_('Enter predefined tags, 1 per line. To define separate value and label for the tag, specify `value=label` on the line.');
+			$f->notes = $this->_('Tags may not contain the delimiter selected below but labels can.');
+			$f->val($this->tagsListArrayToString($this->tagsList));
+			$f->showIf = 'useAjax=0';
+			if($languages) {
+				$f->description .= ' ' . $this->_('To define separate labels per-language, re-enter each tag `value=label` for each language, where the `value` is the same for each while the `label` differs.');
+				$f->useLanguages = true;
+				foreach($languages as $language) {
+					if($language->isDefault()) continue;
+					$f->set("value$language", $this->tagsListArrayToString($this->get("tagsList$language")));
+				}
+			}
+			$fieldset->add($f);
+		} else {
+			/** @var InputfieldHidden $f */
+			$f = $modules->get('InputfieldHidden');
+			$f->attr('name', 'tagsList');
+			$f->val('');
+			$fieldset->add($f);
+		}
+		
+		if($isTextField || $isPageField) {
+			/** @var InputfieldText $f */
+			$examplePath = "find-$this->name";
+			$exampleUrl = "/$examplePath/?q={q}";
+			$exampleDescription = 
+				sprintf($this->_('URL handler example in file %s for URL %s'), '<code>/site/init.php</code>', "<code>$exampleUrl</code>") . ' — ' . 
+				$this->_('Copy and paste this URL into the field above if you want to use the example below.');
+			
+			$exampleNotes = '';
+			$f = $modules->get('InputfieldText');
+			$f->attr('name', 'tagsUrl');
+			$f->label = $this->_('Ajax URL');
+			$f->description =
+				$this->_('When you enter a URL, it will be queried for items matching user input in auto-complete fashion.') . ' ' .
+				$this->_('The given URL must contain the placeholder `{q}` in it somewhere, which will be replaced with the text the user types.') . ' ' .
+				$this->_('You may specify a full http/https URL, or a relative URL.') . ' ' . 
+				$this->_('If you specify a relative URL (without scheme/host), the current scheme, host and root URL will be prepended to it at runtime.') . ' ' .  
+				$this->_('You will also have to define a URL handler like in the example shown below.') . ' ' . 
+				sprintf($this->_('The URL path `%s` is just an example, feel free to replace it with whatever you want.'), "/$examplePath/");
+			if($isTextField) {
+				$exampleCode = 
+					'$wire->addHook("/' . $examplePath . '/", function($e) { ' .
+					"\n  " . '$q = $e->input->get("q", "text,selectorValue");' .
+					"\n  " . 'if(strlen($q) < 3) return []; ' .
+					"\n  " . 'return array_values($e->pages->findRaw("parent=/tags/, title%=$q, field=title"));' . 
+					"\n});";
+				$exampleNotes = $this->_('This example finds titles from pages to use as tags, but you may use whatever data source you want.');
+			} else {
+				$selector = '';
+				$hasInputfield = $this->hasInputfield;
+				if($hasInputfield && $hasInputfield instanceof InputfieldPage) $selector = $hasInputfield->createFindPagesSelector();
+				if(!strlen($selector)) $selector = $this->_('your page finding selector here');
+				$exampleCode =
+					'$wire->addHook("/' . $examplePath . '/", function($e) { ' .
+					"\n  " . '$q = $e->input->get("q", "text,selectorValue");' .
+					"\n  " . 'if(strlen($q) < 3) return [];' .
+					"\n  " . '$selector = "' . $selector . ', title%=$q";' .         
+					"\n  " . '$fields = [ "id" => "value", "title" => "label" ]; ' . 
+					"\n  " . 'return array_values($e->pages->findRaw($selector, $fields));' .
+					"\n});";
+			}
+			$f->appendMarkup .=
+				"<p class='description'>$exampleDescription</p>" .
+				"<pre style='margin:0'><code>$exampleCode</code></pre>" . 
+				($exampleNotes ? "<p class='description'>$exampleNotes</p>" : "");
+			
+			if($isPageField) $f->appendMarkup .= 
+				"<p class='description'>" . 
+				$this->_('Please note that if you change your “Selectable pages” or “Label field” settings, you will also have to update your URL handler code for it.') . 
+				"</p>"; 
+				
+			$f->val($this->tagsUrl);
+			if($this->tagsUrl && $this->useAjax() && strpos($this->tagsUrl, '{q}') === false) {
+				$f->error($this->_('The placeholder “{q}” is required somewhere in your Ajax URL.')); 
+			}
+			$f->showIf = 'useAjax=1';
+			$fieldset->add($f);
+		} else {
+			/** @var InputfieldHidden $f */
+			$f = $modules->get('InputfieldHidden');
+			$f->attr('name', 'tagsUrl');
+			$f->val('');
+			$fieldset->add($f);
+		}
+	
+		if($isTextField) {
+			/** @var InputfieldToggle $f */
+			$f = $modules->get('InputfieldToggle');
+			$f->attr('name', 'allowUserTags');
+			$f->label = $this->_('Allow user to enter their own tags?');
+			$f->val($this->allowUserTags);
+			$fieldset->add($f);
+		} else {
+			/** @var InputfieldHidden $f */
+			$f = $modules->get('InputfieldHidden');
+			$f->attr('name', 'allowUserTags');
+			$f->val('0');
+			$fieldset->add($f);
+		}
+	
+		/** @var InputfieldToggle $f */
+		$f = $modules->get('InputfieldToggle');
+		$f->attr('name', 'closeAfterSelect');
+		$f->label = $this->_('Close dropdown after each selection is made?');
+		$f->val($this->closeAfterSelect);
+		$fieldset->add($f);
+
+		if($isTextField) {
+			/** @var InputfieldRadios $f */
+			$singleWordLabel = $this->_('(for single-word tags)'); 
+			$multiWordLabel = $this->_('(for multi-word tags)');
+			$f = $modules->get('InputfieldRadios');
+			$f->attr('name', 'delimiter');
+			$f->label = $this->_('Tag delimiter');
+			$f->addOption('s', $this->_('Space') . " [span.detail] $singleWordLabel [/span]");
+			$f->addOption('c', $this->_('Comma') . " [span.detail] $multiWordLabel [/span]");
+			$f->addOption('p', $this->_('Pipe') . " [span.detail] $multiWordLabel [/span]");
+			$f->optionColumns = 1;
+			$f->val($this->delimiter(true));
+			$fieldset->add($f);
+		}
+		
+		/** @var InputfieldInteger $f */
+		$f = $modules->get('InputfieldInteger');
+		$f->attr('name', 'maxItems');
+		$f->label = $this->_('Max tags/options');
+		$f->description =
+			$this->_('Use 0 for no limit or enter the max number of options/tags the user may select or input.') . ' ' .
+			$this->_('Note that entering 1 makes the input appear more like a select than a text input.');
+		$f->val($this->maxItems);
+		$fieldset->add($f);
+	
+		/** @var InputfieldText $f */
+		$f = $modules->get('InputfieldText');
+		$f->attr('name', 'placeholder');
+		$f->label = $this->_('Placeholder text');
+		$f->val($this->attr('placeholder'));
+		$f->description = $this->_('Optional placeholder text that appears in the field when blank.');
+		$f->collapsed = Inputfield::collapsedBlank;
+		if($languages) {
+			$f->useLanguages = true;
+			foreach($languages as $language) {
+				if($language->isDefault()) continue;
+				$value = $this->getSetting("placeholder$language");
+				if($value !== null) $f->set("value$language", $value);
+			}
+		}
+		$fieldset->add($f);
+
+		return $inputfields;
+	}
+	
+}

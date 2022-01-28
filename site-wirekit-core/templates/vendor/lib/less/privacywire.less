@@ -1,0 +1,122 @@
+@privacy-wire-width: 400px;
+@privacy-wire-space: 20px;
+@privacy-wire-padding: 20px;
+@privacy-wire-border-radius: 5px;
+
+@privacy-wire-bg: white;
+@privacy-wire-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+@privacy-wire-animation: "";
+
+@privacy-wire-header-color: #333;
+@privacy-wire-heading-text-size: 0.95rem;
+@privacy-wire-heading-margin: 5px;
+
+@privacy-wire-color: #666;
+@privacy-wire-text-size: 0.8rem;
+
+/* =========================================================== 
+  Privacy Wire
+=========================================================== */
+.privacywire-message,
+.privacywire-banner,
+.privacywire-options {
+  display:none;
+}
+
+.privacywire-wrapper {
+
+  &.show-banner .privacywire-banner {
+    display:block;
+    bottom:@privacy-wire-space;
+    left:@privacy-wire-space;
+    @media(max-width: 960px) {
+      bottom:0px !important;
+      left:0px !important;
+      right:0px !important;
+    }
+  }
+
+  &.show-options .privacywire-options {
+  display:block;
+  }
+
+  &.show-message .privacywire-message {
+    display:block;
+    font-size: @privacy-wire-heading-text-size;
+    @media(min-width: 960px) {
+      bottom:@privacy-wire-space;
+      left:@privacy-wire-space;
+    }
+  }
+
+  .privacywire {
+    box-sizing: border-box;
+    padding: @privacy-wire-padding;
+    border-radius: @privacy-wire-border-radius;
+    background: @privacy-wire-bg;
+    box-shadow: @privacy-wire-box-shadow;
+    animation-duration: 0.3s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: none;
+    animation-name: @privacy-wire-animation;
+    @media(min-width: 960px) {
+      max-width: @privacy-wire-width;
+    }
+    @media(max-width: 960px) {
+      width:100%;
+      max-width: 100%;
+      box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 0px;
+    }
+  }
+
+  .privacywire-header {
+    color:@privacy-wire-header-color;
+    font-size: @privacy-wire-heading-text-size;
+    font-weight: bold;
+    line-height:1.5;
+    margin-bottom: @privacy-wire-heading-margin;
+  }
+
+  .privacywire-buttons {
+    margin-top:10px;
+    button {
+      line-height: 30px;
+      border:none;
+      padding:0 15px;
+      cursor: pointer;
+    }
+    button + button {
+      margin-left:5px;
+    }
+  }
+
+  .privacywire-page-links {
+    font-size: @privacy-wire-text-size;
+    margin-top: 10px;
+    a {
+      margin-right:10px;
+    }
+  }
+
+  p {
+    font-size: @privacy-wire-text-size;
+    line-height: 1.5;
+    margin: 5px 0;
+    color: @privacy-wire-color;
+  }
+
+  ul {
+    list-style: none;
+    padding:0;
+  }
+
+  .privacywire-buttons {
+    font-size: 0.8rem;
+  }
+
+  .privacywire-text {
+    font-size: @privacy-wire-text-size;
+  }
+
+}

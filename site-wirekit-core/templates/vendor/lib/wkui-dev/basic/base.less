@@ -1,0 +1,155 @@
+@wk-h1-mobile: 2rem;
+@wk-h2-mobile: 1.7rem;
+@wk-h3-mobile: 1.3rem;
+@wk-h4-mobile: 1.1rem;
+@wk-h5-mobile: 1rem;
+
+/* =========================================================== 
+  Base
+=========================================================== */
+html {
+
+  font-family: @wk-font-base;
+  font-size: @wk-font-size;
+  line-height: @wk-line-height;
+  -webkit-text-size-adjust: 100%;
+  color: @wk-color-global;
+
+  .wk-hook-base-html();
+}
+
+body {
+
+  &.noscroll{
+    overflow: hidden !important;
+  }
+
+  .wk-hook-base-body();
+
+}
+
+#main {
+  // overflow-x: hidden; // sticky not working
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+
+  .wk-hook-base-wrapper();
+
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: @wk-heading-font;
+  font-weight: @wk-heading-font-weight;
+  color: @wk-heading-color;
+  margin-top:0;
+  margin-bottom: @wk-margin;
+  line-height: @wk-heading-line-height;
+  .wk-hook-base-headings();
+}
+
+h1,h2 {
+  line-height: 1.1;
+}
+
+* + h3,
+* + h2,
+* + h1 {
+  margin-top: @wk-margin-m;
+}
+
+h1 {font-size: @wk-h1;}
+h2 {font-size: @wk-h2;}
+h3 {font-size: @wk-h3;}
+h4 {font-size: @wk-h4;}
+h5 {font-size: @wk-h5;}
+
+@media(max-width: @wk-breakpoint-small) {
+  h1 {font-size: @wk-h1-mobile;}
+  h2 {font-size: @wk-h2-mobile;}
+  h3 {font-size: @wk-h3-mobile;}
+  h4 {font-size: @wk-h4-mobile;}
+  h5 {font-size: @wk-h5-mobile;}
+}
+
+p:first-child {
+  margin-top: 0;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+a {
+  color: @wk-link-color;
+  outline: none;
+  &:hover {
+    color: @wk-link-hover-color;
+  }
+  &:active {
+    outline: none;
+  }
+}
+
+blockquote {
+  border-left:5px solid @wk-border-color;
+  margin-left:0;
+  padding-left: @wk-padding-s;
+}
+
+pre {
+  // white-space: normal;
+  background: @wk-bg-muted;
+  color: @wk-color-emphasis;
+  overflow-x: auto;
+}
+
+/*
+ * 1. Show the overflow in Chrome, Edge and IE.
+ * 2. Add the correct text-align in Edge and IE.
+ * 3. Style
+ */
+hr {
+  /* 1 */
+  overflow: visible;
+  /* 2 */
+  text-align: inherit;
+  /* 3 */
+  margin: 0 0 @wk-margin 0;
+  border: 0;
+  border-top: 1px solid @wk-border-color;
+}
+
+/*
+ * code
+ */
+code {
+  color: @wk-color-code;
+}
+
+
+/**
+ * Processwire CKE Image
+ */
+img.align_left {
+  float: left;
+  margin-right:15px;
+  margin-bottom:5px;
+}
+
+img.align_right {
+  float: right;
+  margin-left:15px;
+  margin-bottom:5px;
+}
+
+
+// Hooks
+// ========================================================================
+.wk-hook-base-root();
+.wk-hook-base-root() {}
+
+.wk-hook-base-html() {}
+.wk-hook-base-body() {}
+.wk-hook-base-wrapper() {}
+.wk-hook-base-headings() {}

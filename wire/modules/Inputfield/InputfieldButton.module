@@ -1,0 +1,63 @@
+<?php namespace ProcessWire;
+
+/**
+ * An Inputfield for handling "button" buttons
+ * 
+ * ProcessWire 3.x, Copyright 2022 by Ryan Cramer
+ * https://processwire.com
+ * 
+ * @property string $href URL to link to
+ * @property string $aclass Optional class name(s) for <a> element (if href is used). 
+ * @property string $target Link target
+ * @property bool $linkInner Place <a> link inside <button> rather than outside? Not admin compatible. (default=false) 3.0.184+
+ *
+ */
+class InputfieldButton extends InputfieldSubmit {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('Button', __FILE__), // Module Title
+			'summary' => __('Form button element that you can optionally pass an href attribute to.', __FILE__), // Module Summary
+			'version' => 100,
+			'permanent' => true, 
+		);
+	}
+
+	public function init() {
+		parent::init();
+		$this->attr('id', '');
+		$this->attr('type', 'button'); 
+		$this->attr('name', 'button'); 
+		$this->attr('value', 'Button'); 
+		$this->attr('href', ''); 
+		$this->set('aclass', ''); 
+		$this->set('linkInner', false);
+		$this->set('target', '');
+		$this->skipLabel = Inputfield::skipLabelBlank; 
+	}
+
+	public function ___render() {
+		$href = $this->attr('href');
+		if($href) $this->attr('href', '');
+		$out = parent::___render();
+		if(!$href) return $out;
+		$out = trim($out); 
+		$attrs = array(
+			'class' => trim("InputfieldButtonLink $this->aclass"), 
+			'href' => $href,
+		);
+		if($this->target) $attrs['target'] = $this->target;
+		$attrs = $this->getAttributesString($attrs);
+		if($this->linkInner) {
+			list($button, $text) = explode('>', $out, 2);
+			list($text,) = explode('</button>', $text, 2);
+			$out = "$button><a $attrs>$text</a></button>";
+		} else {
+			$out = "<a $attrs tabindex='-1'>$out</a>";
+		}
+		$this->attr('href', $href);  // restore
+		return $out; 
+	}
+
+	
+}

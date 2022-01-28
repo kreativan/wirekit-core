@@ -1,0 +1,213 @@
+@wk-form-padding: 10px;
+@wk-form-color: @wk-color-emphasis;
+@wk-form-height: @wk-control-height;
+@wk-form-border-radius: 0;
+
+@wk-form-bg: @wk-bg-muted;
+@wk-form-color: @wk-color-global;
+@wk-form-border-color: @wk-border-color;
+
+@wk-form-focus-bg: white;
+@wk-form-focus-color: @wk-color-emphasis;
+
+@wk-form-disabled-bg:  @wk-bg-muted;
+@wk-form-disabled-color: @wk-color-muted;
+
+@wk-form-placeholder-color: @wk-color-muted;
+
+@wk-form-danger-color: @wk-bg-danger;
+
+/* =========================================================== 
+  Form
+=========================================================== */
+
+/*
+ * 1. Define consistent box sizing.
+ *    Default is `content-box` with following exceptions set to `border-box`
+ *    `select`, `input[type="checkbox"]` and `input[type="radio"]`
+ *    `input[type="search"]` in Chrome, Safari and Opera
+ *    `input[type="color"]` in Firefox
+ * 2. Address margins set differently in Firefox/IE and Chrome/Safari/Opera.
+ * 3. Remove `border-radius` in iOS.
+ * 4. Change font properties to `inherit` in all browsers.
+ */
+
+.wk-input,
+.wk-select,
+.wk-textarea,
+.wk-radio,
+.wk-checkbox {
+  /* 1 */
+  box-sizing: border-box;
+  /* 2 */
+  margin: 0;
+  /* 3 */
+  border-radius: 0;
+  /* 4 */
+  font: inherit;
+}
+
+// Show overflow in edge
+.wk-input { overflow: visible; }
+
+// Remove the inheritance of text transform in Firefox.
+.wk-select { text-transform: none; }
+
+/*
+ * Remove the inner padding and cancel buttons in Chrome on OS X and Safari on OS X.
+ */
+
+.wk-input[type="search"]::-webkit-search-cancel-button,
+.wk-input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
+
+/*
+ * Correct the cursor style of increment and decrement buttons in Chrome.
+ */
+
+.wk-input[type="number"]::-webkit-inner-spin-button,
+.wk-input[type="number"]::-webkit-outer-spin-button { height: auto; }
+
+/*
+ * Removes placeholder transparency in Firefox.
+ */
+
+.wk-input::-mowk-placeholder,
+.wk-textarea::-mowk-placeholder { opacity: 1; }
+
+/*
+ * Improves consistency of cursor style for clickable elements
+ */
+
+.wk-radio:not(:disabled),
+.wk-checkbox:not(:disabled) { cursor: pointer; }
+
+/*
+ * Define consistent border, margin, and padding.
+ */
+
+.wk-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+
+//  Input, select and textarea
+// ===========================================================
+
+/*
+ * Remove default style in iOS.
+ */
+
+.wk-input,
+.wk-textarea { -webkit-appearance: none; }
+
+/*
+ * 1. Prevent content overflow if a fixed width is used
+ * 2. Take the full width
+ * 3. Reset default
+ * 4. Style
+ */
+
+.wk-input:not([class*="wk-width-"]),
+.wk-select:not([class*="wk-width-"]),
+.wk-textarea:not([class*="wk-width-"]) {
+  width: 100%;
+}
+
+.wk-input,
+.wk-select,
+.wk-textarea {
+  /* 1 */
+  max-width: 100%;
+  /* 2 */
+  //width: 100%;
+  /* 3 */
+  border: 0 none;
+  /* 4 */
+  padding: 0 @wk-form-padding;
+  background: @wk-form-bg;
+  color: @wk-form-color;
+  border: 1px solid @wk-form-border-color;
+  border-radius: @wk-form-border-radius;
+}
+
+
+/*
+ *  Single Line
+ */
+.wk-input,
+.wk-select {
+  height: @wk-form-height;
+  vertical-align: middle;
+  display: inline-block;
+  .wk-hook-form-single();
+}
+
+/*
+ * Multi-line
+ */
+
+.wk-select[multiple],
+.wk-select[size],
+.wk-textarea {
+  padding-top: @wk-form-padding;
+  padding-bottom: @wk-form-padding;
+  vertical-align: top;
+  .wk-hook-form-multi();
+}
+
+.wk-select[multiple],
+.wk-select[size] { resize: vertical; }
+
+/* Focus */
+.wk-input:focus,
+.wk-select:focus,
+.wk-textarea:focus {
+  outline: none;
+  background-color: @wk-form-focus-bg;
+  color: @wk-form-focus-color;
+}
+
+/* Disabled */
+.wk-input:disabled,
+.wk-select:disabled,
+.wk-textarea:disabled {
+  background-color: @wk-form-disabled-bg;
+  color: @wk-form-disabled-color;
+}
+
+/*
+ * Placeholder
+ */
+
+.wk-input::-ms-input-placeholder { color: @wk-form-placeholder-color !important; }
+.wk-input::placeholder { color: @wk-form-placeholder-color; }
+
+.wk-textarea::-ms-input-placeholder { color: @wk-form-placeholder-color !important; }
+.wk-textarea::placeholder { color: @wk-form-placeholder-color; }
+
+
+/* Style modifier
+ ========================================================================== */
+
+/*
+ * Error
+ */
+
+.wk-form-danger,
+.wk-form-danger:focus {
+  color: @wk-form-danger-color;
+  border-color: @wk-form-danger-color;
+  .wk-hook-form-danger();
+}
+
+// Hooks
+// ========================================================================
+
+.wk-hook-form-root();
+.wk-hook-form-root() {}
+
+.wk-hook-form-single() {}
+.wk-hook-form-multi() {}
+.wk-hook-form-danger() {}

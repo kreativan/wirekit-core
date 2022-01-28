@@ -1,0 +1,29 @@
+@htmx-page-indicator-color: #191919;
+@htmx-page-indicator-height: 2px;
+
+/* =========================================================== 
+  HTMX
+=========================================================== */
+
+#htmx-page-indicator {
+  display: block;
+  position: fixed;
+  top:0;
+  left:0;
+  width:0%;
+  height: @htmx-page-indicator-height;
+  background: @htmx-page-indicator-color;
+  z-index: 1002;
+}
+
+.htmx-request #htmx-page-indicator {
+  display: block;
+  width:100%;
+  transition: width .4s;
+}
+
+.htmx-request#htmx-page-indicator {
+  display: block;
+  width:100%;
+  transition: width .4s;
+}

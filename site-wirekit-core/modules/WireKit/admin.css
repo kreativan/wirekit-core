@@ -1,0 +1,232 @@
+/* ===========================================================
+  Hide
+=========================================================== */
+.ProcessPageEdit-template-system #_ProcessPageEditChildren,
+.ProcessPageEdit-template-system #_ProcessPageEditView,
+.ProcessPageEdit-template-system #_ProcessPageEditDelete {
+  display: none;
+}
+
+.InputfieldHeader {
+  font-weight: 600;
+  color:#222;
+}
+
+.InputfieldIsPrimary:not(.InputfieldNoBorder)>.InputfieldContent, .InputfieldIsPrimary:not(.InputfieldNoBorder)>.InputfieldHeader {
+  background: #f0f3f7;
+}
+
+.InputfieldFieldset>.InputfieldContent, .InputfieldFieldset>.InputfieldHeader {
+  background: #f5f5f57a;
+}
+
+.langTabsContainer > .description {
+  margin-bottom: 10px !important;
+}
+
+.InputfieldContent > .description {
+  font-size:15px;
+}
+
+.WireTabs {
+  position:relative;
+  z-index:2;
+}
+
+/* ----------------------------------------------------------------
+  Buttons
+------------------------------------------------------------------- */
+.uk-button-default {
+  background: #fff;
+}
+
+.uk-button {
+  transition: .1s ease-in-out;
+  text-transform: capitalize;
+  border-radius: 4px;
+}
+
+.uk-button-danger {
+  background: #e83561 !important;
+}
+
+.uk-button-secondary {
+  background: #6c8dae;
+  color: white;
+}
+
+.uk-button-secondary:focus,
+.uk-button-secondary:active,
+.uk-button-secondary:hover {
+  background: #607e9c;
+}
+
+.btn {
+  background: none;
+  border:none;
+  color: #354b60;
+}
+.btn:hover {
+  cursor: pointer;
+}
+
+/* ----------------------------------------------------------------
+  Text
+------------------------------------------------------------------- */
+
+.uk-text-success {
+  color: #3eb998!important;
+}
+
+.uk-text-danger {
+  color: #e83561 !important;
+}
+
+.uk-text-warning {
+  color: #e0b54a !important;
+}
+
+.uk-text-primary {
+  color: #6c8dae !important;
+}
+
+/* ----------------------------------------------------------------
+  Custom Table
+------------------------------------------------------------------- */
+
+tr.is-hidden td:not(.ivm-actions),
+tr.is-hidden td:not(.ivm-actions) * {
+  color: #777 !important;
+}
+
+tr.is-hidden .fa-toggle-on:not(.cog-spin):before {
+  content: "\f204" !important;
+}
+
+.fa.cog-spin {
+  -webkit-animation: fa-spin 2s infinite linear;
+  animation: fa-spin 2s infinite linear;
+}
+
+.fa.cog-spin:before {
+  content: "\f013" !important;
+}
+
+.ivm-actions a {
+  font-size: 18px;
+  margin-left:10px;
+}
+
+.ivm-actions a:hover {
+  text-decoration: none;
+}
+
+.uk-table a:hover {
+  text-decoration: none;
+}
+
+.uk-icon-button.button-action {
+  position:relative;
+  width: 28px;
+  height: 28px;
+}
+.uk-icon-button.button-action + .uk-icon-button.button-action {
+  margin-left: 5px;
+}
+
+.is-hidden .uk-icon-button.button-success {
+  background: #f0f3f7 !important;
+  color: #354b60 !important;
+}
+
+.uk-icon-button.button-success {
+  background-color: #3eb998;
+  color: #fff !important;
+}
+
+.is-hidden .uk-icon-button.button-danger,
+.uk-icon-button.button-danger {
+  background-color: #e83561;
+  color: #fff !important;
+}
+
+/* Sortable Table
+======================================================================== */
+
+.handle {
+  cursor: grab;
+  cursor: -webkit-grab;
+}
+
+table .ui-sortable-helper .handle {
+  cursor: move;
+}
+
+table .ui-sortable-helper {
+  background: #fff;
+  border:1px solid #ddd;
+  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.1);
+  width:100%;
+}
+
+#sortable a > .fa {
+  font-size:20px;
+}
+
+#sortable a:hover {
+  text-decoration: none;
+}
+
+.ui-sortable-helper > td:not(:first-child):not(:nth-child(2)) {
+  display:none;
+}
+
+.sorter-false .tablesorter-header-inner:after {
+  display:none !important;
+}
+
+.sorter-false input[type="checkbox" i],
+.sorter-false input.ivm-checkbox-all *,
+.sorter-false input.ivm-checkbox-all {
+  margin:0 !important;
+}
+
+/*  Tabs
+=========================================================== */
+.uk-tab .uk-icon-button {
+  position: relative;
+  width: auto;
+  height: auto;
+  top: 10px;
+  margin-left: 15px;
+  background: none;
+}
+
+.uk-tab .uk-icon-button svg {
+  height: 18px;
+}
+
+/*  Drop
+================================================================== */
+.uk-drop > div {
+  width:140px;
+  background: white;
+  padding: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+}
+.uk-drop > div i {
+  margin-right:5px;
+}
+
+/* =================================================================
+  SEO MAESTRO
+==================================================================== */
+
+#wrap_Inputfield_seo > .InputfieldHeader {
+  display:none;
+}
+
+#wrap_Inputfield_seo > .InputfieldContent {
+  padding:0;
+}

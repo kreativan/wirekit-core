@@ -1,0 +1,98 @@
+<?php namespace ProcessWire;
+
+/**
+ * An Inputfield for handling HTML “hidden” form inputs
+ * 
+ * ProcessWire 3.x, Copyright 2021 by Ryan Cramer
+ * https://processwire.com
+ * 
+ * @property bool $renderValueAsInput Render the hidden input, even when in renderValue mode (default=false)
+ * @property string $initValue Initial populated value if value attribute not separately populated (default='')
+ *
+ */
+class InputfieldHidden extends Inputfield {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('Hidden', __FILE__), // Module Title
+			'version' => 101,
+			'summary' => __('Hidden value in a form', __FILE__), // Module Summary
+			'permanent' => true, 
+		);
+	}
+
+	/**
+	 * Construct
+	 * 
+	 */
+	public function __construct() {
+		parent::__construct();
+		$this->setAttribute('type', 'hidden'); 
+		$this->set('renderValueAsInput', false);
+		$this->initValue = '';
+	}
+
+	/**
+	 * Render
+	 * 
+	 * @return string
+	 * 
+	 */
+	public function ___render() {
+		return "<input " . $this->getAttributesString() . " />"; 
+	}
+
+	/**
+	 * Render value
+	 * 
+	 * @return string
+	 * 
+	 */
+	public function ___renderValue() {
+		if($this->renderValueAsInput) {
+			return $this->render();
+		} else {
+			return parent::___renderValue();
+		}
+	}
+
+	/**
+	 * Get attributes
+	 * 
+	 * @return array
+	 * 
+	 */
+	public function getAttributes() {
+		$attrs = parent::getAttributes();
+		if(!strlen("$attrs[value]") && $this->initValue) $attrs['value'] = (string) $this->initValue; 
+		return $attrs; 
+	}
+
+	/**
+	 * Configure Inputfield
+	 * 
+	 * @return InputfieldWrapper
+	 * 
+	 */
+	public function ___getConfigInputfields() {
+
+		$inputfields = parent::___getConfigInputfields();
+
+		// remove config fields that don't need to be here
+		$f = $inputfields->getChildByName('collapsed');
+		$inputfields->remove($f); 
+		$f = $inputfields->getChildByName('columnWidth');
+		$inputfields->remove($f); 
+
+		/** @var InputfieldText $field */
+		$field = $this->wire()->modules->get('InputfieldText');
+		$field->setAttribute('name', 'initValue'); 
+		$field->label = $this->_('Value');
+		$field->description = $this->_('Value to be populated in this hidden field.'); 
+		$field->setAttribute('value', $this->initValue); 
+		$inputfields->append($field);
+		
+		return $inputfields; 
+	}
+	
+}

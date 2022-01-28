@@ -1,0 +1,139 @@
+<?php namespace ProcessWire;
+
+class MinimalFieldset extends WireData implements Module {
+
+	/**
+	 * Module information
+	 */
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'Minimal Fieldset',
+			'summary' => 'Adds a config option to fieldsets to render them without label or padding in Page Edit. Requires AdminThemeUikit.',
+			'version' => '0.1.7',
+			'author' => 'Robin Sallis',
+			'href' => 'https://github.com/Toutouwai/MinimalFieldset',
+			'icon' => 'square-o',
+			'autoload' => 'template=admin',
+			'requires' => 'ProcessWire>=3.0.0, AdminThemeUikit'
+		);
+	}
+
+	/**
+	 * Init
+	 */
+	public function init() {
+		$this->addHookAfter('FieldtypeFieldsetOpen::getConfigInputfields', $this, 'addConfigInputfields');
+		$this->addHookAfter('FieldtypeFieldsetPage::getConfigInputfields', $this, 'addConfigInputfields');
+		$this->addHookAfter('FieldtypeFieldsetOpen::getConfigAllowContext', $this, 'allowContext');
+		$this->addHookAfter('FieldtypeFieldsetPage::getConfigAllowContext', $this, 'allowContext');
+		$this->addHookAfter('Field(type=FieldtypeFieldsetOpen|FieldtypeFieldsetGroup|FieldtypeFieldsetPage)::getInputfield', $this, 'modifyInputfield');
+
+		// Load stylesheet
+		$config = $this->wire()->config;
+		$info = $this->getModuleInfo();
+		$version = $info['version'];
+		$config->styles->add($config->urls->$this . "{$this}.css?v=$version");
+	}
+
+	/**
+	 * Add config inputfields
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function addConfigInputfields(HookEvent $event) {
+		$field = $event->arguments(0);
+		$wrapper = $event->return;
+		$modules = $this->wire()->modules;
+
+		// Not for FieldsetClose
+		if($field->type == 'FieldtypeFieldsetClose') return;
+		// Not for FieldsetTab
+		if($field->type == 'FieldtypeFieldsetTabOpen') return;
+
+		// Show warning if AdminThemeUikit not in use
+		$admin_theme = $this->wire()->user->admin_theme ?: $this->wire()->config->defaultAdminTheme;
+		if($admin_theme !== 'AdminThemeUikit') {
+			$this->warning($this->_('Minimal Fieldset cannot be used because it requires AdminThemeUikit.'));
+			return;
+		}
+
+		$template_context = $this->wire()->input->get('process_template');
+		if($template_context) {
+			// Return early in template context if FieldsetGroup not using "Fieldset" type
+			if($field->useTabs === 1 || $field->useTabs === -1) return;
+		}
+
+		// Add activation checkbox
+		/* @var InputfieldCheckbox $f */
+		$f = $modules->get('InputfieldCheckbox');
+		$f_name = 'minimal';
+		$f->name = $f_name;
+		$f->label = $this->_('Remove label and padding for this fieldset');
+		$f->attr('checked', $field->$f_name === 1 ? 'checked' : '');
+		if(!$template_context && $field->useTabs !== null) {
+			// FieldsetGroup (not in template context): only for type "Fieldset"
+			$f->showIf = 'useTabs=0';
+		}
+		$f->columnWidth = 50;
+		$wrapper->add($f);
+
+		// Add no spacing checkbox
+		$f = $modules->get('InputfieldCheckbox');
+		$f_name = 'no_spacing';
+		$f->name = $f_name;
+		$f->label = $this->_('Do not distribute vertical space within fieldset');
+		$f->attr('checked', $field->$f_name === 1 ? 'checked' : '');
+		$f->showIf = 'minimal=1';
+		if(!$template_context && $field->useTabs !== null) {
+			// FieldsetGroup (not in template context): only for type "Fieldset"
+			$f->showIf .= ', useTabs=0';
+		}
+		$f->columnWidth = 50;
+		$wrapper->add($f);
+	}
+
+	/**
+	 * Allow settings to be set in template context
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function allowContext(HookEvent $event) {
+		$allowed = ['minimal', 'no_spacing'];
+		$event->return = array_merge($event->return, $allowed);
+	}
+
+	/**
+	 * Add class to fieldset inputfield and add CSS
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function modifyInputfield(HookEvent $event) {
+		$field = $event->object;
+		$inputfield = $event->return;
+
+		// Only for AdminThemeUikit
+		$admin_theme = $this->wire()->user->admin_theme ?: $this->wire()->config->defaultAdminTheme;
+		if($admin_theme !== 'AdminThemeUikit') return;
+
+		// In the case of FieldsetGroup, only for the normal fieldset type
+		if($field->useTabs && $field->useTabs !== 0) return;
+		// Only if minimal option is selected
+		if(!$field->minimal) return;
+
+		// Add classes to inputfield
+		$inputfield->wrapClass .= ' MinimalFieldset';
+		if(!$field->no_spacing) $inputfield->wrapClass .= ' MinimalFieldsetSpaced';
+	}
+
+	/**
+	 * Install
+	 */
+	public function ___install() {
+		// Show warning if AdminThemeUikit not in use
+		$admin_theme = $this->wire()->user->admin_theme ?: $this->wire()->config->defaultAdminTheme;
+		if($admin_theme !== 'AdminThemeUikit') {
+			$this->warning($this->_('Minimal Fieldset cannot be used because it requires AdminThemeUikit.'));
+		}
+	}
+
+}

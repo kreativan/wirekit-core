@@ -1,0 +1,31 @@
+/* =========================================================== 
+  Link
+=========================================================== */
+
+.wk-link > a,
+.wk-link {
+
+  text-decoration: none !important;
+  color: @wk-color-emphasis;
+  cursor: pointer;
+
+  &:focus,
+  &:active,
+  &:hover {
+    color: @wk-link-hover-color;
+    .wk-hook-link-state();
+  }
+
+  // Hook
+  .wk-hook-link();
+
+}
+
+
+// Hooks
+// ========================================================================
+.wk-hook-link-root();
+.wk-hook-link-root() {}
+
+.wk-hook-link() {}
+.wk-hook-link-state() {}

@@ -1,0 +1,59 @@
+/* =========================================================== 
+  Container
+=========================================================== */
+
+.wk-container {
+
+  display: flow-root;
+  box-sizing: content-box;
+  max-width: @wk-container;
+  padding: 0 @wk-container-gutter;
+  
+  margin-left: auto;
+  margin-right: auto;
+
+  & > :last-child { margin-bottom: 0; }
+
+  &.wk-container-s {
+    max-width: @wk-container-s;
+  }
+
+  @media (max-width: @wk-breakpoint-small) {
+    padding: 0 @wk-container-gutter-mobile;
+  }
+
+  // Hook
+  .wk-hook-container();
+
+}
+
+.wk-container-fluid {
+  
+  display: flow-root;
+  box-sizing: content-box;
+  max-width: 100%;
+  padding: 0 @wk-container-gutter;
+
+  & > :last-child { margin-bottom: 0; }
+
+  @media (min-width: @wk-breakpoint-desktop) {
+    padding: 0 (@wk-container-gutter * 2);
+  }
+
+  @media (max-width: @wk-breakpoint-small) {
+    padding: 0 @wk-container-gutter-mobile;
+  }
+
+  // Hook
+  .wk-hook-container-fluid();
+
+}
+
+
+// Hooks
+// ========================================================================
+.wk-hook-container-root();
+.wk-hook-container-root() {}
+
+.wk-hook-container() {}
+.wk-hook-container-fluid() {}

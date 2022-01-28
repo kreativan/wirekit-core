@@ -1,0 +1,2026 @@
+#tracy-show-button {
+    position: fixed !important;
+    bottom: 0 !important;
+    z-index: 99999 !important;
+    width: 16px !important;
+    margin: 0 !important;
+    padding: 4px 15px 2px 6px !important;
+    background: white !important;
+    font-size: 13px !important;
+    cursor: pointer;
+    box-sizing: border-box !important;
+    line-height: normal !important;
+    height: 22px !important;
+    display: none;
+}
+
+/* for hiding the server type indicator bar */
+
+body.tracyHidden:before {
+    display: none;
+}
+
+#tracy-debug * {
+    font: inherit;
+}
+
+.tracy-inner {
+    height: 100% !important;
+}
+
+.tracy-inner:not(.tracy-icons):not(.tracy-label):not(.ace_editor) {
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+}
+
+#tracy-debug-bar {
+    position:fixed !important;
+    top:auto !important;
+    bottom:0 !important;
+    font: normal normal 13px/1.55 Arial, sans-serif !important;
+    background: #F0F3F7 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    padding: 1px 0 1px 0 !important;
+}
+
+#tracy-debug-bar li:first-child {
+    cursor: default !important;
+}
+
+#tracy-debug-bar .tracy-row:not(:first-child) {
+    background: #F0F3F7 !important;
+}
+
+#tracy-debug-bar li>a:hover {
+    color: black !important;
+    background: #F0F3F7 !important;
+}
+
+#tracy-debug-bar li>a {
+    transition: transform 0.12s;
+}
+
+#tracy-debug-bar li>a:hover svg {
+    transform: scale(1.2);
+}
+
+#tracy-debug-bar li>a[rel*="tracy-debug-panel-Tracy-info"] svg path {
+    fill: #354B60;
+}
+
+#tracy-debug .tracy-mode-peek,
+#tracy-debug .tracy-mode-float:not(.tracy-panel-resized) {
+    max-width: calc(100vw - 15px) !important;
+    max-height: calc(100vh - 44px) !important;
+}
+
+.tracy-panel {
+    box-sizing: border-box !important;
+    opacity: 1 !important;
+}
+
+.tracy-panel a:link {
+    color: #125EAE !important;
+    background-color: transparent !important;
+}
+
+.tracy-panel a:focus {
+    color: #125EAE !important;
+}
+
+.tracy-panel * a:hover {
+    background-color: transparent !important;
+    color: #D82C82 !important;
+    text-decoration: underline !important;
+}
+
+.tracy-panel fieldset {
+    border: 0 !important;
+}
+
+.tracy-panel h3 {
+    display: block !important;
+    font-size: 1.17em !important;
+    font-weight: bold !important;
+    border: none !important;
+    padding-top: 1em !important;
+    color: #444444 !important;
+    text-transform: none !important;
+}
+
+.tracy-inner input:not(#backupFilename) {
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+    font-size: 13px !important;
+    text-transform: none !important;
+    display: inline-block !important;
+}
+
+.tracy-inner ::-webkit-input-placeholder {
+    /* Chrome/Opera/Safari */
+    color: #9aa3a6 !important;
+    text-transform: none !important;
+}
+
+.tracy-inner ::-moz-placeholder {
+    /* Firefox 19+ */
+    color: #9aa3a6 !important;
+    text-transform: none !important;
+}
+
+.tracy-inner :-ms-input-placeholder {
+    /* IE 10+ */
+    color: #9aa3a6 !important;
+    text-transform: none !important;
+}
+
+.tracy-inner :-moz-placeholder {
+    /* Firefox 18- */
+    color: #9aa3a6 !important;
+    text-transform: none !important;
+}
+
+#tracy-debug h1 {
+    max-width: 100% !important;
+    padding-right: 35px !important;
+    color: #444444 !important;
+    text-transform: none !important;
+    user-select: none;
+}
+
+.tracy-inner input[type="checkbox"],
+.tracy-inner input[type="radio"] {
+    width: 12px !important;
+    height: 12px !important;
+    position: static !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.tracy-inner input[type="text"]:not(#backupFilename),
+.tracy-inner input[type="number"] {
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+    height: 30px !important;
+    width: initial !important;
+    display: inline-block !important;
+    padding: 0 0 0 5px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.tracy-inner legend {
+    margin: 0 !important;
+    border: 0 !important;
+}
+
+.tracy-inner,
+.tracy-inner h2,
+.tracy-inner legend {
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+    font-weight: normal !important;
+    color: #333333 !important;
+    text-transform: none !important;
+}
+
+.tracy-inner,
+.tracy-inner legend,
+.tracy-inner p,
+.tracy-inner legend li,
+.tracy-inner select,
+.tracy-inner label {
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+    font-weight: normal !important;
+    color: #333333 !important;
+}
+
+#tracy-debug textarea:focus,
+#tracy-debug input:focus,
+#tracy-debug select:focus {
+    border-color: #EEEEEE !important;
+}
+
+#tracy-debug select:not(#tfe_recently_opened) {
+    height: 30px !important;
+    width: initial !important;
+    border-radius: 5px !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    padding: 3px 3px 3px 10px !important;
+}
+
+#tracy-debug select:not([multiple]):not([size]):not(#tfe_recently_opened) {
+    -webkit-appearance: menulist !important;
+    -moz-appearance: menulist !important;
+    appearance: menulist !important;
+    background: none !important;
+}
+
+#tracy-debug textarea,
+#tracy-debug select {
+    background-color: white !important;
+    border: 1px solid #D2D2D2 !important;
+    padding-left: initial !important;
+    width: initial !important;
+    opacity: initial !important;
+}
+
+#tracy-debug input:not(.ace_search_field) {
+    height: 30px !important;
+    color: #333333;
+    background-color: white !important;
+    border: 1px solid #D2D2D2 !important;
+    padding-left: 5px !important;
+    width: initial !important;
+}
+#tracy-debug input:not(.ace_search_field):not(.disabledButton) {
+    opacity: initial !important;
+}
+
+#tracy-debug input,
+#tracy-debug select,
+#tracy-debug textarea {
+    -moz-appearance: auto !important;
+    -webkit-appearance: auto !important;
+    -ms-appearance: auto !important;
+    appearance: auto !important;
+}
+
+#tracy-debug input[type="checkbox"],
+#tracy-debug input[type="radio"] {
+    vertical-align: middle !important;
+    height: 12px !important;
+    width: initial !important;
+    opacity: initial !important;
+    appearance: auto !important;
+    float: none !important;
+}
+
+#tracy-debug label {
+    display: inline-block !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    color: #444444 !important;
+    font-weight: normal !important;
+    user-select: none !important;
+}
+
+#tracy-debug small {
+    font-size: 80% !important;
+}
+
+#tfe_recently_opened {
+    height: 30px !important;
+    position: absolute !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 285px !important;
+    cursor: pointer;
+    z-index: 2 !important;
+}
+
+/*#tracy-debug:not(ul.tracyDumpTabs) a {
+    border: none !important;
+}*/
+
+#tracy-debug table {
+    width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    background: white !important;
+}
+
+#tracy-debug table tbody tr {
+    height: 25px !important;
+}
+
+#tracy-debug .tracy-panel tr:hover td {
+    background: #E2E9EF !important;
+}
+
+.tracy-panel th {
+    position: sticky;
+    top: -13px;
+}
+
+#tracy-debug .tracy-panel td,
+#tracy-debug .tracy-panel th {
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+    font-weight: normal !important;
+    padding: 2px 4px !important;
+    border: 1px solid #C9D4E1 !important;
+    line-height: 1.8 !important;
+}
+
+#tracy-debug tr:nth-child(2n) td {
+    background: #F0F3F7 !important;
+}
+
+#tracy-debug td {
+    color: #444444 !important;
+}
+
+#tracy-debug th, .tracy-section-heading {
+    background: #2C3E50;
+    color: white !important;
+    font-size: 90%;
+    font-weight: bold;
+}
+
+.tracy-section-heading {
+    padding: 2px 0 2px 2px;
+}
+
+.keyboardShortcuts {
+    position: absolute;
+    background: #DEE6ED;
+    padding: 10px;
+    border-radius: 0;
+    box-shadow: none;
+    background-clip: padding-box;
+    z-index: 99999999999999 !important;
+}
+
+.keyboardShortcuts table td:nth-child(1) {
+    width: 250px;
+}
+
+
+table.captainHookTable td:first-child,
+table.captainHookTable th:first-child {
+    width: 40% !important;
+}
+
+table.captainHookTable td:nth-child(2),
+table.captainHookTable th:nth-child(2) {
+    width: 5% !important;
+}
+
+table.captainHookTable td:nth-child(3),
+table.captainHookTable th:nth-child(3) {
+    width: 65% !important;
+}
+
+table.apiExplorerTable td:first-child,
+table.apiExplorerTable th:first-child {
+    width: 15% !important;
+}
+
+table.apiExplorerTable td:nth-child(2),
+table.apiExplorerTable th:nth-child(2) {
+    width: 5% !important;
+}
+
+table.apiExplorerTable td:nth-child(3),
+table.apiExplorerTable th:nth-child(3) {
+    width: 35% !important;
+}
+table.apiExplorerTable td:nth-child(4),
+table.apiExplorerTable th:nth-child(4) {
+    width: 55% !important;
+}
+
+#tracy-debug input[type="submit"],
+.tracyCopyBtn {
+    width: initial !important;
+    height: initial !important;
+    display: inline-block !important;
+    background: white !important;
+    margin: 0 !important;
+    padding: 3px !important;
+    border: 1px solid #D2D2D2 !important;
+    -webkit-border-radius: 5px !important;
+    -moz-border-radius: 5px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    text-transform: none !important;
+    font: normal normal 13px/1.3 Arial, sans-serif;
+    color: #444444;
+}
+
+button.tracyCopyBtn:focus {
+    outline:none;
+}
+
+#tracy-debug .tracyLinkBtn {
+    background: #F0F3F7 !important;
+    border: 1px solid #D2D2D2 !important;
+    border-radius: 0 !important;
+    padding: 5px 8px !important;
+    color: #2C3E50 !important;
+    transition: all 0.12s;
+}
+
+#tracy-debug .tracyLinkBtn:hover {
+    background: white !important;
+    border-color: #b8c7d8 !important;
+    color: #2C3E50 !important;
+    text-decoration: none !important;
+}
+
+#tracy-debug fieldset {
+    all: initial !important;
+    font: inherit !important;
+    color: inherit !important;
+    border: 0 !important;
+}
+
+.tracy-panel h2 {
+    font-size: 20px !important;
+}
+
+.tracy-inner fieldset label {
+    display: block !important;
+}
+
+.tracy-inner p {
+    font-size: 13px !important;
+    margin: 1em 0 !important;
+}
+
+.tracy-inner td pre {
+    background: transparent !important;
+    color: #444444 !important;
+    padding: .4em 2em .4em .7em !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+#tracy-debug code {
+    font: 11pt/1.5 monospace !important;
+}
+
+.tracy-inner pre * {
+    font-family: monospace !important;
+}
+
+pre.tracy-dump, .tracy-echo {
+    background: transparent !important;
+    color: #444444 !important;
+    margin: 0 0 10px 0 !important;
+    border: 1px solid #D2D2D2 !important;
+    border-radius: 0 !important;
+}
+
+pre.tracy-dump {
+    padding: .4em 2em 3em .7em !important;
+    color: #444444 !important;
+}
+
+.tracy-echo {
+    padding: .7em !important;
+    color: #444444 !important;
+}
+
+td pre.tracy-dump {
+    margin: 0 !important;
+    color: #444444 !important;
+}
+
+.tracy-dump-location {
+    float: none !important;
+    position: absolute !important;
+    bottom: 0px !important;
+    display: block !important;
+    margin: 10px 0 15px 0 !important;
+}
+
+.tracy-inner td {
+    word-wrap: break-word !important;
+}
+
+.tracy-inner td.tracy-force-no-wrap {
+    white-space: nowrap !important;
+}
+
+.tracy-inner td.tracy-force-break {
+    /*overflow-wrap: break-word;*/
+    /*-ms-word-break: break-all;*/
+    /* This is the dangerous one in WebKit, as it breaks things wherever */
+    /*word-break: break-all;*/
+    /* Instead use this non-standard one: */
+    /*word-break: break-word;*/
+    white-space: pre;
+    /* CSS 2.0 */
+    white-space: pre-wrap;
+    /* CSS 2.1 */
+    white-space: pre-line;
+    /* CSS 3.0 */
+    white-space: -pre-wrap;
+    /* Opera 4-6 */
+    white-space: -o-pre-wrap;
+    /* Opera 7 */
+    white-space: -moz-pre-wrap;
+    /* Mozilla */
+    white-space: -hp-pre-wrap;
+    /* HP Printers */
+    word-wrap: break-word;
+    /* IE 5+ */
+}
+
+.tracy-inner pre {
+    white-space: pre-wrap !important;
+    /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap !important;
+    /* Mozilla, since 1999 */
+    white-space: -pre-wrap !important;
+    /* Opera 4-6 */
+    white-space: -o-pre-wrap !important;
+    /* Opera 7 */
+    word-wrap: break-word !important;
+    /* Internet Explorer 5.5+ */
+}
+
+.tracy-inner a {
+    display: inline-block;
+    border: none !important;
+}
+
+/* ensure click on linked SVG icon is on the parent a */
+
+.tracy-inner a>svg {
+    pointer-events: none;
+}
+
+#tracy-debug-panel-PanelSelectorPanel label {
+    line-height: 1.75 !important;
+}
+
+#tracy-debug-panel-PanelSelectorPanel fieldset div label {
+    display: block !important;
+    width: 300px !important;
+    border-bottom: 1px solid #e4e4e4;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid-column;
+}
+
+#tracy-debug-panel-PanelSelectorPanel fieldset div label>span:last-child {
+    position: relative;
+    top: 5px;
+}
+
+#tracy-debug-panel-PanelSelectorPanel fieldset div label:hover {
+    background: #E2E9EF !important;
+}
+
+#tracy-debug #tracy-debug-panel-Tracy-errors pre {
+    white-space: inherit;
+    margin: 0 !important;
+}
+
+.tracy-section {
+    padding: 10px 0;
+    border-top: 1px dotted #D2D2D2;
+}
+
+.tracy-toggle {
+    font-size: 13px !important;
+    padding-bottom: 2px !important;
+}
+
+ul.pw-info-links {
+    border-top: 1px solid #CCCCCC !important;
+    margin: 10px 0 0 0 !important;
+    padding: 10px 0 0 0 !important;
+}
+
+.pw-info-links li {
+    display: inline-block !important;
+}
+
+.pw-info-links li.with-labels {
+    display: block !important;
+    padding: 2px 0 !important;
+    line-height: 0.7 !important;
+}
+
+.pw-info-links a {
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+    transition: transform 0.12s;
+}
+
+.pw-info-links a svg {
+    margin-right: 5px !important;
+}
+
+.pw-info-links a:hover svg,
+.pw-info-links a:hover .fa {
+    transform: scale(1.2);
+}
+
+#tracy-debug input[type="text"]#tracySnippetName {
+    padding: 4px 35px 4px 4px !important;
+    margin: 0 !important;
+    height: 29px !important;
+    width: 100% !important;
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
+}
+
+#snippetTrash {
+    visibility: hidden;
+}
+
+#tracySnippets {
+    padding: 0 !important;
+    border: none !important;
+}
+
+#tracySnippets {
+    margin: 5px 0 0 0 !important;
+    padding: 0 !important;
+    height: 100% !important;
+    overflow: auto !important;
+}
+
+#tracySnippets ul {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#tracySnippets li {
+    display: block;
+    padding: 0 !important;
+    border-top: 1px solid #ddd;
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+    line-height: 18px !important;
+    position: relative !important;
+}
+
+#tracySnippets li:first-child {
+    border-top: none;
+}
+
+#tracySnippets li svg {
+    width: 100% !important;
+}
+
+#tracySnippets li>span {
+    display: block;
+    padding: 3px !important;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#tracySnippets li>span:not(.consoleSnippetIcon):active,
+.activeSnippet {
+    background: #ebeef0 !important;
+}
+
+#tracySnippets li:hover span:not(.activeSnippet) {
+    background: #F5F8F9;
+}
+
+#tracySnippets li .consoleSnippetIcon:active+span {
+    color: white !important;
+    background: #EA2262 !important;
+}
+
+#tracySnippets .consoleSnippetIcon {
+    visibility: hidden;
+    background: transparent !important;
+    position: absolute !important;
+    padding: 5px 0 5px 5px !important;
+    top: 1px !important;
+    right: 5px;
+    cursor: pointer !important;
+    font-size: 17px;
+}
+
+#tracySnippets .consoleSnippetIcon:active {
+    color: white !important;
+}
+
+#tracySnippets .consoleSnippetIcon:hover {
+    color: #EA2262 !important;
+}
+
+#tracySnippets .consoleSnippetIcon:not(:hover) {
+    color: #a8bdc8 !important;
+}
+
+#tracySnippets li:hover .consoleSnippetIcon {
+    visibility: visible !important;
+}
+
+.consoleEditIcon {
+    right: 25px !important;
+}
+
+#tracy-debug #saveSnippet {
+    padding: 2px !important;
+    margin: 0 !important;
+    position: absolute !important;
+    font-size: 15px !important;
+    right: 3px !important;
+    top: 2px !important;
+    border-color: transparent !important;
+    background: transparent !important;
+}
+
+#tracy-debug #runInjectButton,
+#tracy-debug #historyBack,
+#tracy-debug #historyForward {
+    padding: 3px 10px !important;
+    margin-right: 5px !important;
+}
+
+#tracy-debug #runInjectButton:hover,
+#tracy-debug #historyBack:hover,
+#tracy-debug #historyForward:hover {
+    background: #F5F8F9 !important;
+}
+
+#tracy-debug #historyForward {
+    margin-left: -11px !important;
+    border-right-color: transparent !important;
+}
+
+#tracy-debug #historyBack,
+#tracy-debug #historyForward {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.iconFlip {
+    transform: scaleX(-1);
+    filter: flipH;
+    -ms-filter: flipH;
+    display: inline-block;
+}
+
+#tracyConsoleStatus {
+    font-style: normal;
+    font-size: 14px;
+}
+
+.disabledButton {
+    opacity: 0.5 !important;
+    cursor: default !important;
+}
+
+#tracy-debug .resizeIcons {
+    display: block;
+    margin-right: 35px;
+    font-size: 18px !important;
+    cursor: pointer;
+}
+
+#tracy-debug #hide-button {
+    cursor: pointer !important;
+    padding: 0 5px 0 3px !important;
+}
+
+#tracy-debug input[type="submit"][disabled] {
+    cursor: default !important;
+}
+
+#tracy-debug-panel-AdminerPanel {
+    height: 75%;
+    min-height: 300px !important;
+    width: 1400px;
+}
+
+#tracy-debug-panel-FileEditorPanel {
+    height: 75%;
+    min-height: 300px !important;
+    width: 1400px;
+}
+
+#tracy-debug-panel-ConsolePanel,
+#tracy-debug-panel-ValidatorPanel,
+#tracy-debug-panel-TerminalPanel {
+    height: 75%;
+    min-height: 300px !important;
+    width: 1400px;
+    min-width: 825px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+#tracy-debug-panel-ModuleDisablerPanel {
+    width: 900px;
+    min-width: 700px !important;
+}
+
+#tracy-debug-panel-TemplateResourcesPanel,
+#tracy-debug-panel-ToDoPanel {
+    width: 1400px;
+    height: 75%;
+}
+
+#tracy-debug-panel-ConsolePanel fieldset {
+    width: 100% !important;
+}
+
+#tracy-debug-panel-ConsolePanel.tracy-mode-window {
+    width: 100% !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] #tracyConsoleMainContainer {
+    float: left;
+    display: block;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-window"] #tracyConsoleMainContainer {
+    float: left;
+    width: calc(100% - 240px) !important;
+    display: block;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] {
+    min-width: 400px;
+    max-width: 100% !important;
+    padding: 0 !important;
+    border: 12px solid transparent;
+    outline: 1px solid #b5c3d4;
+    outline-offset: -12px;
+    border-radius: 0;
+    box-shadow: none;
+    background-clip: content-box;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-window"] {
+    border: none !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>* {
+    padding: 10px 12px 11px 10px;
+    margin: 0;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>.tracy-inner {
+    padding: 12px 12px 0 12px !important;
+    margin: 0 0 20px 0 !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-window"]>.tracy-inner {
+    min-width: 0 !important;
+}
+
+.tracy-icons a:hover {
+    text-decoration: none !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>.tracy-icons {
+    padding: 0;
+    margin-right: -5px;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>.tracy-icons a {
+    color: #2C3E50 !important;
+    padding: 3px 11px 1px;
+    display: inline-block;
+    transition: all 0.1s;
+}
+
+/*
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] > .tracy-icons a:first-child {
+    display:none !important;
+}
+*/
+
+/* Remove the open in popup window button from all panels */
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>.tracy-icons a[rel="window"],
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>.tracy-icons a[data-tracy-action="window"] {
+    display: none !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>.tracy-icons a[rel="close"],
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>.tracy-icons a[data-tracy-action="close"] {
+    float: right;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>.tracy-icons a:hover {
+    background: #e6e8eb !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>h1 {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    font-size: 15px !important;
+    color: #2C3E50 !important;
+    background: #F0F3F7 !important;
+    opacity: 0.6 !important;
+    border-bottom: 1px solid #c9d4e1 !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-focused"]>h1 {
+    opacity: 1 !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>h1>svg,
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"]>h1>a>svg {
+    display: inline-block;
+    vertical-align: text-bottom;
+    margin-right: 2px;
+    position: relative;
+    top: -1px;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] input[type="submit"],
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] .tracyCopyBtn {
+    border-radius: 0 !important;
+    padding: 5px 8px !important;
+    border-color: rgba(44, 62, 80, 0.2) !important;
+    color: #2C3E50;
+    transition: all 0.12s;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] input[type="submit"]:not([disabled="true"]),
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] .tracyCopyBtn:not([disabled="true"]) {
+    background: #F0F3F7 !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] input[type="submit"]:hover,
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] .tracyCopyBtn:hover {
+    background: white !important;
+    border-color: #b8c7d8 !important;
+}
+
+#tracy-debug [id^="tracy-debug-panel-"][class*="tracy-mode-"] label:hover {
+    cursor: pointer;
+}
+
+.tracy-panel svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+#tracy-debug-panel-CaptainHookPanel .tracy-inner .tracy-toggle:not(.tracy-collapsed),
+#tracy-debug-panel-ApiExplorerPanel .tracy-inner .tracy-toggle:not(.tracy-collapsed) {
+    color: #e83561 !important;
+}
+
+#tracy-debug-panel-CaptainHookPanel .tracy-inner .tracy-toggle,
+#tracy-debug-panel-ApiExplorerPanel .tracy-inner .tracy-toggle {
+    display: block;
+}
+
+#tracy-debug-panel-CaptainHookPanel .tracy-inner .tracy-toggle + div > p:first-child {
+    margin: 0 0 5px !important;
+}
+
+#tracy-debug-panel-CaptainHookPanel .tracy-inner .tracy-toggle + div,
+#tracy-debug-panel-ApiExplorerPanel .tracy-inner .tracy-toggle + div {
+    margin-bottom: 12px;
+    padding-left: 12px;
+}
+
+#tracyConsoleResult {
+    background: #FFFFFF !important;
+    scroll-behavior:smooth;
+}
+
+.tracy-DumpPanel {
+    font: normal normal 13px/1.3 Arial, sans-serif !important;
+    font-weight: normal !important;
+    color: #333333 !important;
+    text-transform: none !important;
+}
+
+.tracy-DumpPanel a:link {
+    color: #125EAE !important;
+    background-color: transparent !important;
+}
+
+.tracy-DumpPanel h2,
+#tracyConsoleResult h2,
+#tracyPageFilesList h2 {
+    font: normal normal Arial, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: normal !important;
+    padding: 3px 8px 5px 8px;
+    margin: 0 !important;
+    background: #EAF0F2 !important;
+    border: 1px solid #D2D2D2 !important;
+    border-bottom: 0 !important;
+}
+
+.tracyPageFilesPage {
+    background: transparent !important;
+    padding: 10px !important;
+    margin: 0 0 10px 0 !important;
+    border: 1px solid #D2D2D2 !important;
+    border-radius: 0 !important;
+}
+
+#tracy-debug-panel-FileEditorPanel.tracy-mode-window {
+    width: 100% !important;
+}
+
+#tracy-debug [data-filterbox-active="1"] tr td {
+    background: #F0F3F7 !important;
+}
+
+[data-filterbox-active="1"] [data-filterbox-display="true"] {
+    display: block !important;
+}
+[data-filterbox-active="1"] [data-filterbox-display="inline-block"] {
+    display: inline-block !important;
+}
+[data-filterbox-active="1"] table[data-filterbox-display="true"] {
+    display: table !important;
+}
+[data-filterbox-active="1"] tr[data-filterbox-display="true"] {
+    display: table-row !important;
+}
+[data-filterbox-active="1"] th[data-filterbox-display="true"],
+[data-filterbox-active="1"] td[data-filterbox-display="true"] {
+    display: table-cell !important;
+}
+[data-filterbox-active="1"] [data-filterbox-display="none"] {
+    display: none !important;
+}
+
+#tracy-debug .fbx-keynav-active-fileeditor-panel::before {
+    content: "";
+    position: absolute;
+    background: #B8C7D8;
+    left: -200px;
+    right: 0px;
+    top: -1px;
+    bottom: 0;
+    display: block;
+    z-index: -1;
+    pointer-events: none;
+    outline-offset: -1px;
+}
+
+.tracy-filterbox-wrap {
+    position: absolute;
+    right: 70px;
+    padding: 0 !important;
+    top: 0;
+    width: 170px !important;
+    height: 31px;
+}
+
+#tracy-debug .tracy-filterbox-wrap input:not(.ace_search_field) {
+    width: 100% !important;
+    height: 31px !important;
+    line-height: 31px !important;
+    padding: 0 27px 0 8px !important;
+    border-color: white !important;
+    outline: none !important;
+    border: none !important;
+}
+
+#tracy-debug .tracy-filterbox-wrap[data-no-match="1"] input:not(.ace_search_field) {
+    outline: 1px solid rgba(244, 67, 54, 0.5) !important;
+    outline-offset: -1px !important;
+    color: rgba(244, 67, 54, 1) !important;
+}
+
+.tracy-filterbox-clear {
+    user-select: none;
+    display: block;
+    position: absolute;
+    right: 1px;
+    top: 0;
+    cursor: pointer;
+    font-size: 19px !important;
+    padding: 6px 9px !important;
+    line-height: 1 !important;
+    opacity: 0.5;
+}
+
+.tracy-filterbox-clear:hover {
+    opacity: 0.99;
+}
+
+.tracy-filterbox-counter {
+    color: #aaa;
+    font-style: italic !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    position: absolute !important;
+    right: 30px !important;
+    white-space: nowrap;
+    top: 7px !important;
+    user-select: none;
+}
+
+.tracy-filterbox-counter span {
+    color: #333;
+    margin-right: 2px;
+}
+
+/*FileEditorPanel overrides*/
+#tracyFileEditorFilterBoxWrap {
+    width: 265px !important;
+    right: auto !important;
+    left: 11px !important;
+    top: 45px !important;
+    bottom: auto !important;
+    border-bottom: 1px solid #B5C3D4 !important;
+}
+@-moz-document url-prefix() {
+    #tracyFileEditorFilterBoxWrap {
+        bottom: 20px !important;
+    }
+}
+#tracy-debug #tracyFileEditorFilterBoxWrap.tracy-filterbox-wrap input:not(.ace_search_field) {
+    height: 27px !important;
+    line-height: 27px !important;
+    padding-left: 7px !important;
+    background: #f0f3f7 !important;
+}
+#tracyFileEditorFilterBoxWrap .tracy-filterbox-counter {
+    font-size: 11px !important;
+    top: 6px !important;
+    right: 27px !important;
+    margin: 0 !important;
+    opacity: 0.6 !important;
+}
+#tracyFileEditorFilterBoxWrap .tracy-filterbox-clear {
+    right: 0 !important;
+    top: -2px !important;
+}
+/**/
+
+#tracyFileEditorContainer {
+    margin-left: -12px;
+}
+#tracyFoldersFiles {
+    padding: 0 0 0 8px !important;
+    border-bottom: 1px solid #C9D4E1;
+}
+#fileEditorButtons {
+    position: relative;
+    right: -4px;
+    top: -1px;
+}
+
+#phpinfoBody table:first-child td {
+    border: none !important;
+    font-weight: bold;
+    line-height: 1 !important;
+}
+#phpinfoBody hr {
+    background-color: #FFFFFF;
+    border: 0;
+    height: 1px;
+}
+#phpinfoBody td {
+    border: none !important;
+}
+#phpinfoBody .p {
+    text-align: left;
+}
+#phpinfoBody .e {
+    width: 300px;
+    font-weight: bold;
+}
+#phpinfoBody .h th {
+    font-weight: bold;
+}
+#phpinfoBody .v {
+    max-width: 700px;
+}
+#phpinfoBody .v i {
+    color: #999 !important;
+}
+
+#phpinfoBody .phpinfo-section:first-child div.center table:first-child {
+    display: none !important;
+}
+
+#phpinfoBody hr {
+    display: none !important;
+}
+
+.phpinfo-section h1 {
+    margin: 12px 0 !important;
+    padding: 0 !important;
+}
+
+#phpinfoBody .phpinfo-section:first-child h1 {
+    margin-top: 0 !important;
+}
+
+.tracy-file-tree > ul {
+	margin-left: 0 !important;
+}
+
+.tracy-mode-rollup .tracy-filterbox-wrap {
+    display: none !important;
+}
+
+.tracy-file-tree a[href].active {
+    color: white !important;
+    background-color: #125EAE !important;
+}
+
+.tracy-file-tree a {
+    padding: 1px 4px 1px 22px !important;
+    word-break: break-word;
+}
+
+.tracy-file-tree a:before {
+	font-size: 13px !important;
+    position: absolute !important;
+    left: 0 !important;
+}
+
+.tracy-file-tree a.open:before {
+	content: "\f07c" !important;
+}
+
+.tft-d > ul {
+    padding-left: 3px !important;
+}
+
+.tracy-panel-footer {
+    position: absolute;
+    height: 15px;
+    bottom: 0 !important;
+    font-size: 9px !important;
+}
+
+.tracy-time-size {
+    position: relative;
+    display: inline-block;
+    vertical-align: top !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    top: 2px !important;
+}
+
+.tracy-panel-settings-link {
+    position: relative;
+    display: inline-block;
+    margin-right: 7px;
+}
+
+.tracy-panel .tracy-panel-settings-link svg {
+    width: 12px !important;
+    height: 12px !important;
+}
+
+.tracy-panel-settings-link a:hover {
+    text-decoration: none !important;
+}
+
+/* clipboardjs "Copied!" tooltip */
+
+.tooltipped {
+    position: relative !important;
+}
+
+.tooltipped:after {
+    position: absolute !important;
+    z-index: 1000000 !important;
+    display: none !important;
+    padding: 5px 8px !important;
+    font: normal normal 11px/1.5 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol" !important;
+    color: white !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    word-wrap: break-word !important;
+    white-space: pre !important;
+    pointer-events: none !important;
+    content: attr(aria-label) !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-radius: 3px !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
+}
+
+.tooltipped:before {
+    position: absolute !important;
+    z-index: 1000001 !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    color: rgba(0, 0, 0, 0.8) !important;
+    pointer-events: none !important;
+    content: "" !important;
+    border: 5px solid transparent !important;
+}
+
+.tooltipped:hover:before,
+.tooltipped:hover:after,
+.tooltipped:active:before,
+.tooltipped:active:after,
+.tooltipped:focus:before,
+.tooltipped:focus:after {
+    display: inline-block !important;
+    text-decoration: none !important;
+}
+
+.tooltipped-multiline:hover:after,
+.tooltipped-multiline:active:after,
+.tooltipped-multiline:focus:after {
+    display: table-cell !important;
+}
+
+.tooltipped-s:after,
+.tooltipped-se:after,
+.tooltipped-sw:after {
+    top: 100% !important;
+    right: 50% !important;
+    margin-top: 5px !important;
+}
+
+.tooltipped-s:before,
+.tooltipped-se:before,
+.tooltipped-sw:before {
+    top: auto !important;
+    right: 50% !important;
+    bottom: -5px !important;
+    margin-right: -5px !important;
+    border-bottom-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.tooltipped-se:after {
+    right: auto !important;
+    left: 50% !important;
+    margin-left: -15px !important;
+}
+
+.tooltipped-sw:after {
+    margin-right: -15px !important;
+}
+
+.tooltipped-n:after,
+.tooltipped-ne:after,
+.tooltipped-nw:after {
+    right: 50% !important;
+    bottom: 100% !important;
+    margin-bottom: 5px !important;
+}
+
+.tooltipped-n:before,
+.tooltipped-ne:before,
+.tooltipped-nw:before {
+    top: -5px !important;
+    right: 50% !important;
+    bottom: auto !important;
+    margin-right: -5px !important;
+    border-top-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.tooltipped-ne:after {
+    right: auto !important;
+    left: 50% !important;
+    margin-left: -15px !important;
+}
+
+.tooltipped-nw:after {
+    margin-right: -15px !important;
+}
+
+.tooltipped-s:after,
+.tooltipped-n:after {
+    -webkit-transform: translateX(50%) !important;
+    -ms-transform: translateX(50%) !important;
+    transform: translateX(50%) !important;
+}
+
+.tooltipped-w:after {
+    right: 100% !important;
+    bottom: 50% !important;
+    margin-right: 5px !important;
+    -webkit-transform: translateY(50%) !important;
+    -ms-transform: translateY(50%);
+    transform: translateY(50%) !important;
+}
+
+.tooltipped-w:before {
+    top: 50% !important;
+    bottom: 50% !important;
+    left: -5px !important;
+    margin-top: -5px !important;
+    border-left-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.tooltipped-e:after {
+    bottom: 50% !important;
+    left: 100% !important;
+    margin-left: 5px !important;
+    -webkit-transform: translateY(50%) !important;
+    -ms-transform: translateY(50%) !important;
+    transform: translateY(50%) !important;
+}
+
+.tooltipped-e:before {
+    top: 50% !important;
+    right: -5px !important;
+    bottom: 50% !important;
+    margin-top: -5px !important;
+    border-right-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.tooltipped-multiline:after {
+    width: -webkit-max-content !important;
+    width: -moz-max-content !important;
+    width: max-content !important;
+    max-width: 250px !important;
+    word-break: break-word !important;
+    word-wrap: normal !important;
+    white-space: pre-line !important;
+    border-collapse: separate !important;
+}
+
+.tooltipped-multiline.tooltipped-s:after,
+.tooltipped-multiline.tooltipped-n:after {
+    right: auto !important;
+    left: 50% !important;
+    -webkit-transform: translateX(-50%) !important;
+    -ms-transform: translateX(-50%) !important;
+    transform: translateX(-50%) !important;
+}
+
+.tooltipped-multiline.tooltipped-w:after,
+.tooltipped-multiline.tooltipped-e:after {
+    right: 100%
+}
+
+@media screen and (min-width: 0\0) {
+    .tooltipped-multiline:after {
+        width: 250px !important;
+    }
+}
+
+.tooltipped-sticky:before,
+.tooltipped-sticky:after {
+    display: inline-block !important;
+}
+
+.tooltipped-sticky.tooltipped-multiline:after {
+    display: table-cell !important;
+}
+
+.fullscreen-overlay-enabled.dark-theme .tooltipped:after {
+    color: #000 !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+}
+
+.fullscreen-overlay-enabled.dark-theme .tooltipped .tooltipped-s:before,
+.fullscreen-overlay-enabled.dark-theme .tooltipped .tooltipped-se:before,
+.fullscreen-overlay-enabled.dark-theme .tooltipped .tooltipped-sw:before {
+    border-bottom-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.fullscreen-overlay-enabled.dark-theme .tooltipped.tooltipped-n:before,
+.fullscreen-overlay-enabled.dark-theme .tooltipped.tooltipped-ne:before,
+.fullscreen-overlay-enabled.dark-theme .tooltipped.tooltipped-nw:before {
+    border-top-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.fullscreen-overlay-enabled.dark-theme .tooltipped.tooltipped-e:before {
+    border-right-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.fullscreen-overlay-enabled.dark-theme .tooltipped.tooltipped-w:before {
+    border-left-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Captain Hook / API Explorer comment display/hide */
+
+#ch-comment label {
+    display: block !important;
+    cursor: default !important;
+}
+
+#ch-comment label.comment {
+    padding-top: 4px !important;
+    color: #125EAE !important;
+    cursor: pointer !important;
+}
+
+#ch-comment label.comment:hover {
+    text-decoration: underline
+}
+
+#ch-comment input[type="checkbox"] {
+    position: absolute !important;
+    left: -999em !important;
+}
+
+#ch-comment .hide {
+    display: block !important;
+}
+
+#ch-comment .hide p {
+    padding: 10px !important;
+    margin: 0 !important;
+}
+
+#ch-comment input[type="checkbox"]:not(:checked)+div {
+    display: none !important;
+}
+
+
+/* Splitjs styles */
+
+#tracyConsoleContainer>.split {
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+}
+
+#tracyConsoleContainer .gutter {
+    all: unset;
+    min-height: 8px !important;
+    max-height: 8px !important;
+    display: block !important;
+    background-color: #AEAEAE !important;
+    opacity: 1 !important;
+    background-repeat: no-repeat !important;
+    background-position: 50% !important;
+}
+
+#tracyConsoleContainer .gutter.gutter-vertical {
+    cursor: row-resize !important;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=') !important;
+}
+
+
+#tracy-debug input.clearResults {
+    background: none !important;
+    padding: 3px 10px !important;
+    margin-right: 5px !important;
+    border: none !important;
+    cursor: pointer;
+}
+#tracy-debug input.clearResults:hover {
+    text-decoration: underline;
+}
+
+
+/* File Editor folders */
+
+/* Hide all subfolders at startup */
+
+.tracy-file-tree .tft-d:not(.tft-d-open)>ul {
+    display: none;
+}
+
+.tracy-file-tree>ul>li.tft-f a:before {
+    padding: 0 8px 0 6px;
+}
+
+.tracy-file-tree ul {
+    list-style: none;
+    margin: 0 0 0 5px;
+    padding: 0;
+    width: 290px;
+}
+
+.tracy-file-tree ul ul {
+    margin-left: 15px !important;
+    width: 275px !important;
+}
+
+.tracy-file-tree ul ul ul {
+    margin-left: 15px !important;
+    width: 260px !important;
+}
+
+.tracy-file-tree ul ul ul ul {
+    margin-left: 15px !important;
+    width: 245px !important;
+}
+
+.tracy-file-tree ul ul ul ul ul {
+    margin-left: 15px !important;
+    width: 230px !important;
+}
+
+.tracy-file-tree ul ul ul ul ul ul {
+    margin-left: 15px !important;
+    width: 215px !important;
+}
+
+.tracy-file-tree ul ul ul ul ul ul ul {
+    margin-left: 15px !important;
+    width: 200px !important;
+}
+
+.tracy-file-tree ul ul ul ul ul ul ul ul {
+    margin-left: 15px !important;
+    width: 185px !important;
+}
+
+.tracy-file-tree li {
+    margin: 0;
+    position: relative;
+    user-select: none;
+}
+
+.tracy-file-tree a {
+    color: #2f4248;
+    /* neutral grey */
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid #e4ecf0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.tracy-file-tree li,
+.tracy-file-tree li a {
+    transition: all .12s;
+    font-size: 13px !important;
+}
+
+.tracy-file-tree .tft-d-open>a.active {
+    opacity: 1;
+    color: #9e255d/*!important;*/
+}
+
+.tracy-file-tree .tft-d-no-editable-files {
+    opacity: 0.5;
+    color: #9e255d/*!important;*/
+}
+
+.tracy-file-tree .tft-d>a {
+    color: inherit;
+}
+
+.tracy-file-tree .tft-d a.active:after,
+.tracy-file-tree .tft-d a:hover:after {
+    content: attr(data-p);
+    font-size: 13px;
+    text-decoration: none;
+    position: absolute;
+    color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+    margin-left: 20px;
+    margin-top: 1px;
+    right: 6px;
+}
+
+.tracy-file-tree .tft-d a.active:after {
+    color: rgba(255, 255, 255, 1);
+}
+
+.tracy-file-tree a[href] {
+    padding-left: 1px;
+}
+
+.tracy-file-tree a[href]:hover {
+    text-decoration: underline;
+}
+
+.tracy-file-tree li a:hover {
+    color: #db1174;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.tracy-file-tree a:focus {
+    outline: 0;
+}
+
+.tracy-file-tree .tft-d a:before {
+    font-family: FontAwesome;
+    content: '\f07b';
+    padding-right: 5px;
+    padding-left: 5px;
+    font-size: 14px;
+    margin-right: 4px;
+    display: inline-block !important;
+}
+
+.tracy-file-tree .tft-d-open>a:before {
+    /*content: '\f115'; non filled */
+    content: '\f07c';
+}
+
+.tracy-file-tree .tft-f a:before {
+    font-family: FontAwesome;
+    content: '\f0f6';
+    padding-right: 6px;
+    font-size: 14px;
+}
+
+.tft-f>a {
+    padding-left: 6px;
+}
+
+/* more filetype icons */
+
+.tracy-file-tree .ext-txt a:before {
+    font-family: FontAwesome;
+    content: '\f0f6';
+    padding-right: 5px;
+    font-size: 14px;
+}
+
+.tracy-file-tree .ext-css a:before,
+.tracy-file-tree .ext-htm a:before,
+.tracy-file-tree .ext-html a:before {
+    font-family: FontAwesome;
+    content: '\f1c9';
+    padding-right: 5px;
+    font-size: 14px;
+}
+
+.tracy-file-tree .ext-jpg a:before,
+.tracy-file-tree .ext-gif a:before,
+.tracy-file-tree .ext-png a:before,
+.tracy-file-tree .ext-bmp a:before {
+    font-family: FontAwesome;
+    content: '\f1c5';
+    padding-right: 5px;
+    font-size: 14px;
+}
+
+.tracy-file-tree .tft-f span {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 7px 0;
+    cursor: pointer;
+    opacity: .6;
+}
+
+.tracy-file-tree .tft-f span:hover {
+    opacity: 1;
+    color: #db1174;
+    text-decoration: underline;
+}
+
+.tracy-file-tree .tft-f span:before {
+    content: "#";
+    /*font-family: FontAwesome;*/
+    /*content: '\f1b2';*/
+    /*padding-right: 5px;*/
+    /*font-size: 14px;*/
+}
+
+/* Ace search */
+
+.ace_search {
+    font-size: 12px;
+    line-height: normal;
+}
+
+.ace_search *,
+.ace_search *:after {
+    box-sizing: content-box;
+}
+
+#tracy-debug .ace_search_field {
+    padding-top: 0;
+    padding-bottom: 0;
+    background: white;
+    border-right: 0;
+    line-height: inherit;
+    border-color: #cbcbcb;
+}
+
+#tracy-debug .ace_search_field:focus {
+    border-color: #cbcbcb !important;
+}
+
+#tracy-debug .ace_search input,
+#tracy-debug .ace_search_counter {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', 'Courier New', monospace;
+}
+
+.ace_editor,
+.ace_editor * {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', 'Courier New', monospace !important;
+}
+
+/*panel rollup*/
+
+#tracy-debug .tracy-panel.tracy-mode-rollup {
+    min-height: 0 !important;
+    resize: none !important;
+    max-height: 55px !important;
+    width: auto !important;
+    min-width: unset !important;
+}
+
+#tracy-debug .tracy-panel.tracy-mode-rollup .tracy-inner,
+#tracy-debug .tracy-panel.tracy-mode-rollup .resizeIcons,
+#tracy-debug .tracy-panel.tracy-mode-rollup a[rel="window"],
+#tracy-debug .tracy-panel.tracy-mode-rollup a[data-tracy-action="window"] {
+    display: none;
+}
+
+#tracy-debug .tracy-panel.tracy-mode-rollup h1 {
+    border-bottom: none !important;
+    border-right: 1rem solid transparent;
+}
+
+#tracy-debug .tracy-panel.tracy-mode-rollup h1 a {
+    pointer-events: none;
+}
+
+#tracy-debug .tracy-mode-float h1:hover {
+    cursor: -webkit-grab !important;
+    cursor: -moz-grab !important;
+    cursor: grab !important;
+}
+
+#tracy-debug .tracy-mode-float h1:hover:active {
+    cursor: -webkit-grabbing !important;
+    cursor: -moz-grabbing !important;
+    cursor: grabbing !important;
+}
+
+div#tracyDumpEntries {
+    position: relative !important;
+}
+
+ul.tracyDumpTabs {
+    display: block !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #EAF0F2 !important;
+    border: 1px solid #D2D2D2 !important;
+    border-bottom: none !important;
+}
+
+h2+ul.tracyDumpTabs {
+    border-top: none !important;
+    user-select: none !important;
+}
+
+h2+ul.tracyDumpTabs li.active a {
+    border-top: 1px solid #D2D2D2 !important;
+}
+
+ul.tracyDumpTabs:after {
+    content: "" !important;
+    display: table !important;
+    clear: both !important;
+}
+
+/* edit link at the end of the dump tabs */
+
+ul.tracyDumpTabs+li {
+    user-select: none !important;
+}
+
+ul.tracyDumpTabs li {
+    float: left;
+    border-bottom: 0 !important;
+    color: #444 !important;
+}
+
+ul.tracyDumpTabs li:not(:first-child) {
+    margin-left: -1px !important;
+}
+
+ul.tracyDumpTabs li.tracyEditLinkCount {
+    float:right !important;
+    padding: 3px 7px !important;
+}
+
+ul.tracyDumpTabs li a {
+    padding: 4px 7px !important;
+    font-size: 12px !important;
+    border: 1px solid transparent !important;
+    border-bottom: none !important;
+    margin-bottom: -1px !important;
+    margin-top: -1px !important;
+}
+
+ul.tracyDumpTabs li a:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+ul.tracyDumpTabs li:not(.active) a:hover {
+    color: #125EAE !important;
+    border-right: 1px solid #D2D2D2 !important;
+    border-top: 1px solid #D2D2D2 !important;
+}
+
+ul.tracyDumpTabs li:not(.active):not(:first-child) a:hover {
+    border-left: 1px solid #D2D2D2 !important;
+}
+
+ul.tracyDumpTabs li.active a {
+    background: white !important;
+    color: #444 !important;
+    border-right-color: #D2D2D2 !important;
+    border-top: 1px solid #D2D2D2 !important;
+}
+
+ul.tracyDumpTabs li.active:not(:first-child) a {
+    border-left-color: #D2D2D2 !important;
+}
+
+ul.tracyDumpTabs li a:link {
+    text-decoration: none !important;
+}
+
+ul.tracyDumpTabs li a:hover {
+    text-decoration: none !important;
+}
+
+ul.tracyDumpTabs li:not(:last-child) {
+    border-right-width: 0;
+}
+
+ul.tracyDumpTabs li span.pageTitle {
+    padding: 4px 7px;
+}
+ul.tracyDumpTabs li a.pageUnpublished {
+    text-decoration:line-through !important;
+}
+ul.tracyDumpTabs li a.pageHidden {
+    opacity:0.6;
+}
+
+span.tracyDumpsExpander,
+span.tracyDumpsCollapser {
+    position: absolute;
+    display: inline-block;
+    font-size: 14px;
+    padding: 5px 10px 10px 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+span.tracyDumpsExpander:hover,
+span.tracyDumpsCollapser:hover {
+    color: #D82C82;
+}
+
+span.tracyDumpsExpander {
+    right: 25px;
+}
+
+span.tracyDumpsCollapser {
+    right: 5px;
+}
+
+.maximizedConsole {
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    z-index: 9999999999999;
+    opacity: 1;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: auto;
+}
+
+
+/* hide the fullscreen toggle until the js editor loads */
+
+#tracyConsoleContainer:not([style]) .fullscreenToggleButton {
+    display: none;
+}
+
+.fullscreenToggleButton {
+    display: block;
+    cursor: pointer !important;
+    padding: 6px 6px 6px 8px !important;
+    margin: 0 !important;
+    position: absolute !important;
+    z-index: 7 !important;
+    left: -3px !important;
+    top: 0 !important;
+    line-height: 0 !important;
+}
+
+.tracy-panel .fullscreenToggleButton svg {
+    width: 13px !important;
+    height: 13px !important;
+}
+
+.fullscreenToggleButton svg * {
+    fill: #999;
+}
+
+.fullscreenToggleButton:hover svg *,
+.maximizedConsole .fullscreenToggleButton svg * {
+    fill: white;
+}
+
+.noscroll {
+    overflow: hidden !important;
+}
+
+.tracyHidden {
+    display:none;
+}
+
+/* Safari hack to to make ace-editor scrollbar show
+https://github.com/ajaxorg/ace/issues/2872
+*/
+.ace_scrollbar-inner {
+    background-color: white;
+    opacity: 0.01;
+}
+
+.ace_editor.ace_autocomplete {
+    width: 400px;
+}

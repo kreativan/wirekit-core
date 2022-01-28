@@ -1,0 +1,41 @@
+@wk-media-transition: .5s;
+
+/* =========================================================== 
+  Media
+=========================================================== */
+.wk-image {
+  display: block;
+  position:relative;
+  width:100%;
+}
+
+/* image fit container-crop */
+.wk-image-fit {
+  display: block;
+  width:100%;
+  height:100%;
+  object-fit: cover;
+}
+
+/* hover twist */
+.wk-image-hover-twist {
+
+  overflow: hidden;
+
+  img {
+    transform: scale(1) rotate(0deg);
+    transition: transform @wk-media-transition;
+  }
+
+  &:hover img {
+    transform: scale(1.25) rotate(10deg);
+  }
+
+}
+
+
+// Hooks
+// ========================================================================
+
+.wk-hook-media-root();
+.wk-hook-media-root() {}

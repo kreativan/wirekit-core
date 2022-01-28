@@ -1,0 +1,496 @@
+<?php namespace ProcessWire;
+
+/**
+ * ProcessWire FileValidator module to validate JPG, PNG and GIF image files
+ * 
+ * This module implements ProcessWire’s FileValidator interface, which is used by
+ * $sanitizer->validateFile() as part of ProcessWire’s built-in file validations. 
+ * This is used by existing file uploads, for example. This module adds support
+ * for validation of common image bitmap formats: JPG, PNG, GIF. 
+ * 
+ * Copyright 2020 by Ryan Cramer for ProcessWire 3.x 
+ * 
+ * USAGE
+ * ~~~~~
+ * // You can use from $sanitizer
+ * $valid = $sanitizer->validateFile('/path/to/file.jpg');
+ * if($valid) {
+ *   // valid image file
+ * } else {
+ *   // not valid image file
+ *   $reason = $sanitizer->errors('last string clear');
+ *   echo "Image not valid because: $reason";
+ * }
+ * 
+ * // You can use the module directly if you prefer
+ * // This is also useful if you want to specify min/max dimensions 
+ * $validator = $modules->get('FileValidatorImage');
+ * $validator->minWidth = 400;
+ * $validator->minHeight = 250;
+ * $validator->maxWidth = 1920;
+ * $validator->maxHeight = 1080;
+ * if($validator->isValid('/path/to/file.jpg')) {
+ *   // image is valid
+ * } else {
+ *   $reason = $validator->getReason();
+ *   "Image not valid because: $reason";
+ * }
+ * ~~~~~
+ *
+ * @property int $minWidth
+ * @property int $minHeight
+ * @property int $maxWidth
+ * @property int $maxHeight
+ * 
+ * @method array|bool|null hasBadExif($filename, $verbose = false)
+ * @method bool isValidHook($filename)
+ * 
+ * 
+ */
+class FileValidatorImage extends FileValidatorModule {
+	
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'Image File Validator',
+			'summary' => 'Validate JPG, PNG, or GIF bitmap image files',
+			'version' => 3, 
+			'validates' => array('jpg', 'jpeg', 'png', 'gif'),
+		);
+	}
+
+	/**
+	 * Image extensions to PHP IMAGETYPE_* constants
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $imageTypes = array(
+		'gif' => IMAGETYPE_GIF,
+		'jpg' => IMAGETYPE_JPEG,
+		'jpeg' => IMAGETYPE_JPEG,
+		'png' => IMAGETYPE_PNG,
+	);
+
+	/**
+	 * Image extensions to MIME type strings
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $mimeTypes = array(
+		'gif' => 'image/gif',
+		'jpg' => 'image/jpeg',
+		'jpeg' => 'image/jpeg',
+		'png' => 'image/png',
+	);
+
+	/**
+	 * Alternate MIME types with the type they correspond to
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $mimeTypeAlternates = array(
+		'image/pjpeg' => 'image/jpeg',
+		'image/x-png' => 'image/png',
+	);
+	
+
+	/**
+	 * Cached getimagesize() return value
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $imageSize = array();
+
+	/**
+	 * Default settings that an be applied
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $defaultSettings = array(
+		'minWidth' => 2,
+		'minHeight' => 2,
+		'maxWidth' => 0,
+		'maxHeight' => 0
+	);
+
+	/**
+	 * Construct
+	 * 
+	 */
+	public function __construct() {
+		$this->setArray($this->defaultSettings);
+		parent::__construct();
+	}
+
+	/**
+	 * Is given $filename a valid image file? (for FileValidator interface)
+	 * 
+	 * @param string $filename
+	 * @return bool|int
+	 * 
+	 */
+	protected function isValidFile($filename) {
+	
+		$field = $this->getField();
+		$pathinfo = pathinfo($filename);
+		$ext = strtolower($pathinfo['extension']);
+	
+		if($field) {
+			// if field has min/max width/height settings, populate them here
+			foreach(array_keys($this->defaultSettings) as $key) {
+				$val = $field->get($key);
+				if($val !== null) $this->set($key, $val);
+			}
+		}
+
+		// if not an extension we use for images, exit now
+		if(!isset($this->imageTypes[$ext])) {
+			// invalid image file extension
+			$this->error($this->reason('bad-ext'));
+			return false;
+		}
+
+		// check PHP image type
+		$imageType = $this->getImageType($filename);
+		if($this->imageTypes[$ext] !== $imageType) {
+			// file extension does not match image type
+			$ext2 = array_search($imageType, $this->imageTypes); 
+			$this->error(sprintf($this->reason('bad-ext-type', 'exif'), strtoupper($ext), strtoupper($ext2)));
+			return false;
+		}
+		
+		$mimeType = $this->getMimeType($filename);
+		
+		if($mimeType === false) {
+			$this->error($this->reason('no-mime'));
+			return false;
+		}
+			
+		if(!$mimeType || !in_array($mimeType, $this->mimeTypes)) {
+			// unrecognized image mime type
+			$this->error($this->reason('bad-mime'));
+			return false;
+		}
+
+		if(!isset($this->mimeTypes[$ext]) || $this->mimeTypes[$ext] !== $mimeType) {
+			// image mime type does not match its file extension
+			$ext2 = array_search($mimeType, $this->mimeTypes); 
+			$this->error(sprintf($this->reason('bad-ext-type', 'mime'), strtoupper($ext), strtoupper($ext2)));
+			return false;
+		}
+	
+		if($this->minWidth || $this->minHeight || $this->maxWidth || $this->maxHeight) {
+			if(!$this->isValidSize($filename)) return false;
+		}
+	
+		if($imageType === IMAGETYPE_JPEG) {
+			if($this->hasBadExif($filename)) {
+				$this->error($this->reason('bad-exif'));
+				return false;
+			}
+		}
+
+		// attempt to load image in GD to make sure it is valid
+		$valid = $this->isValidGD($filename, $ext);
+		if($valid === false) {
+			$this->error($this->reason('bad-read', "icf$ext"));
+			return false;
+		} else if($valid === null) {
+			// we did not have a way to check, so valid is based on earlier checks
+		}
+	
+		// custom validations from hook(s)
+		if(!$this->isValidHook($filename)) {
+			$this->error($this->reason('bad-hook')); 
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get reason why last isValid() call returned false
+	 *
+	 * @param bool $clear Clear from error messages? (default=true)
+	 * @return string;
+	 *
+	 */
+	public function getReason($clear = true) {
+		$opt = array('last', 'string');
+		if($clear) $opt[] = 'clear';
+		return $this->errors($opt);
+	}
+	
+	/**
+	 * Is the image valid if attempted to open in GD’s function for image type?
+	 *
+	 * @param string $filename
+	 * @param string $ext
+	 * @return bool|null Returns true if valid, false if not, or null if we do not have a way to check
+	 *
+	 */
+	protected function isValidGD($filename, $ext) {
+		$valid = false;
+		if($ext === 'jpg' || $ext === 'jpeg' || $ext === 'jpe') {
+			if(@imagecreatefromjpeg($filename)) $valid = true;
+		} else if($ext === 'png') {
+			if(@imagecreatefrompng($filename)) $valid = true;
+		} else if($ext === 'gif') {
+			if(@imagecreatefromgif($filename)) $valid = true;
+		} else {
+			$valid = null; // not known
+		}
+		return $valid;
+	}
+
+	/**
+	 * Does the image have size dimensions that fit minWidth, minHeight, maxWidth, maxHeight?
+	 * 
+	 * @param string $filename
+	 * @return bool
+	 * 
+	 */
+	public function isValidSize($filename) {
+		
+		$info = $this->getImageSize($filename);
+
+		if($info === false) {
+			// unable to open with getimagesize()
+			$this->error($this->reason('bad-read', 'gis'));
+			return false;
+		}
+
+		$w = $info['width'];
+		$h = $info['height'];
+		$size = $info['size'];
+
+		// check image dimensions
+		if(($this->minWidth && $w < (int) $this->minWidth) || ($this->minHeight && $h < (int) $this->minHeight)) {
+			// minimum dimensions not met
+			$minSize = $this->minWidth . 'x' . $this->minHeight;
+			$this->error(sprintf($this->reason('too-small'), $size, $minSize));
+			return false;
+
+		} else if(($this->maxWidth && $w > (int) $this->maxWidth) || ($this->maxHeight && $h > (int) $this->maxHeight)) {
+			// maximum dimensions exceeded
+			$maxSize = $this->maxWidth . 'x' . $this->maxHeight;
+			$this->error(sprintf($this->reason('too-large'), $size, $maxSize));
+			return false;
+		}
+		
+		return true;
+	}
+
+	/**
+	 * Get array with image size info
+	 * 
+	 * @param string $filename
+	 * @return array|bool
+	 * 
+	 */
+	public function getImageSize($filename) {
+		
+		if(!empty($this->imageSize) && $this->imageSize['file'] === $filename) {
+			// use cached value
+			return $this->imageSize;
+		}
+		
+		$size = getimagesize($filename);
+		if($size === false) return false;
+		
+		$this->imageSize = array(
+			'file' => $filename,
+			'width' => $size[0],
+			'height' => $size[1],
+			'size' => $size[0] . 'x' . $size[1], 
+			'imageType' => $size[2],
+		);
+		
+		return $this->imageSize;
+	}
+
+	/**
+	 * Get image type that corresponds to PHP IMAGETYPE_* constant
+	 * 
+	 * @param string $filename
+	 * @return int|bool Returns image type or boolean false on fail
+	 * 
+	 */
+	public function getImageType($filename) {
+		
+		$imageType = false;
+		
+		if(function_exists("\\exif_imagetype")) {
+			$imageType = exif_imagetype($filename);
+		} 
+	
+		if(!$imageType) {
+			$info = $this->getImageSize($filename);
+			if($info) $imageType = $info['imageType'];
+		}
+		
+		return $imageType;
+	}
+	
+	/**
+	 * Return image MIME type, blank if unrecognized or false if unable to open file
+	 * 
+	 * @param $filename
+	 * @return bool|string
+	 * 
+	 */
+	public function getMimeType($filename) {
+		
+		$mimeType = '';
+		
+		// check mime type of file
+		if(function_exists("\\finfo_open")) {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			if($finfo !== false) {
+				$mimeType = strtolower(finfo_file($finfo, $filename));
+			}
+		}
+
+		if(empty($mimeType)) {
+			// if mimeType not determined by finfo then open to determine
+			$fp = fopen($filename, 'rb');
+			if($fp === false) return false;
+
+			$header = fread($fp, 6);
+			fclose($fp);
+
+			if($header === false) {
+				$mimeType = '';
+			} else if(substr($header, 0, 3) == "\xff\xd8\xff") {
+				$mimeType = 'image/jpeg';
+			} else if($header == "\x89PNG\x0d\x0a") {
+				$mimeType = 'image/png';
+			} else if($header == "GIF87a" || $header == "GIF89a") {
+				$mimeType = 'image/gif';
+			}
+		}
+		
+		if(isset($this->mimeTypeAlternates[$mimeType])) {
+			$mimeType = $this->mimeTypeAlternates[$mimeType];
+		}
+		
+		return $mimeType;
+	}
+
+	/**
+	 * Does given file have potential EXIF malware?
+	 * 
+	 * An image having malware in it doesn’t mean it’s necessarily unsafe, as something still has to 
+	 * execute the bad code. But I still think it’s a good idea to block images that might have it just 
+	 * to prevent them from spreading any further. This method just detects some common cases in the EXIF
+	 * data of JPEGs, but it’s still possible for images to contain bad data elsewhere. 
+	 * 
+	 * @param string $filename JPEG file
+	 * @param bool $verbose Return array of found malware types? (default=false)
+	 * @return array|bool|null Returns null if exif data not available, array if verbose requested or boolean otherwise
+	 * 
+	 */
+	protected function ___hasBadExif($filename, $verbose = false) {
+		
+		if(!function_exists("\\exif_read_data")) return null;
+		$exif = @exif_read_data($filename);
+		if(!is_array($exif)) return null;
+		
+		$exif = print_r($exif, true);
+		$found = array();
+
+		$findFuncs = array(
+			'eval', 'system', 'exec', 'shell_exec', 'passthru', 'base64_decode',
+		);
+
+		foreach($findFuncs as $name) {
+			if(stripos($exif, $name) === false) continue;
+			if(!preg_match('/\W' . $name . '\s*\(/i', $exif)) continue;
+			$found[] = $name;
+			if(!$verbose) break;
+		}
+		
+		if(!$verbose && count($found)) return true;
+		
+		$findStrings = array(
+			// stripos find => regex find or boolean true if only stripos find is needed
+			'script' => '/<' . 'scr' . 'ipt/i',
+			'/.*/e' => true,
+			'<' . '?' => true,
+		);
+		
+		foreach($findStrings as $find => $regex) {
+			if(stripos($exif, $find) === false) continue;
+			if($regex !== true && !preg_match($regex, $exif)) continue;
+			$found[] = $find;
+			if(!$verbose) break;
+		}
+
+		return $verbose ? $found : count($found) > 0;
+	}
+
+	/**
+	 * Is the image valid (hookable)
+	 * 
+	 * This is just here for hooks to optionally modify $event->return if they determine image not valid.
+	 * 
+	 * @param string $filename
+	 * @return bool
+	 * 
+	 */
+	protected function ___isValidHook($filename) {
+		return strlen($filename) ? true : false;
+	}
+
+	/**
+	 * Get named error/message string
+	 * 
+	 * @param string $name
+	 * @param string $extra 
+	 * @return string
+	 * 
+	 */
+	protected function reason($name, $extra = '') {
+		switch($name) {
+			case 'bad-ext':
+				$reason = $this->_('Invalid or unsupported image file extension');
+				break;
+			case 'bad-ext-type':
+				$reason = $this->_('Image file extension %1$s does not match actual image type of %2$s');
+				break;
+			case 'bad-exif': 	
+				$reason = $this->_('Image has potentially harmful EXIF metadata');
+				break;
+			case 'no-mime':	
+				$reason = $this->_('Unable to determine image MIME type');
+				break;
+			case 'bad-mime':
+				$reason = $this->_('Invalid or unsupported image MIME type');
+				break;
+			case 'bad-read':
+				$reason = $this->_('Unable to read image file');
+				break;
+			case 'bad-hook':	
+				$reason = $this->_('Image failed one or more custom validations');
+				break;
+			case 'warn-mime':
+				$reason = $this->_('Mime type mismatch');
+				break;
+			case 'too-small':
+				$reason = $this->_('Image dimensions %1$s too small, must be at least %2$s');
+				break;
+			case 'too-large':
+				$reason = $this->_('Image dimensions %1$s too large, must be less than %2$s');
+				break;
+			default:
+				$reason = $this->_('Unknown error');
+		}
+		if($extra) $reason .= " ($extra)";
+		return $reason;
+	}
+
+}

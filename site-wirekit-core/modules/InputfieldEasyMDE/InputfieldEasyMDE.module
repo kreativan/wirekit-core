@@ -1,0 +1,88 @@
+<?php namespace ProcessWire;
+
+class InputfieldEasyMDE extends InputfieldTextarea {
+
+	/**
+	 * Module information
+	 */
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'EasyMDE',
+			'summary' => 'EasyMDE (Easy Markdown Editor) as an inputfield for ProcessWire.',
+			'version' => '0.1.0',
+			'icon' => 'pencil',
+			'requires' => 'ProcessWire>=3.0.0, PHP>=5.4.0',
+		);
+	}
+
+	/**
+	 * Init
+	 */
+	public function init() {
+		parent::init();
+		$this->setAttribute('easymde_options', '');
+	}
+
+	/**
+	 * Method called right before Inputfield markup is rendered
+	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return bool
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		$config = $this->wire()->config;
+		$info = $this->getModuleInfo();
+		$version = $info['version'];
+		$config->styles->add($this->config->urls->$this . "easymde/easymde.min.css?v=$version");
+		$config->scripts->add($this->config->urls->$this . "easymde/easymde.min.js?v=$version");
+
+		$easymde_options = $this->easymde_options;
+		$easymde_options = trim($easymde_options, '{}');
+		$easymde_options = '{' . $easymde_options . '}';
+		$settings = [
+			'easymde_options' => $easymde_options,
+		];
+		$config->js($this->className, $settings);
+
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	/**
+	 * Get custom configuration fields for this Inputfield
+	 *
+	 * @return InputfieldWrapper
+	 */
+	public function ___getConfigInputfields() {
+		$inputfields = parent::___getConfigInputfields();
+		$modules = $this->wire()->modules;
+
+		/** @var InputfieldTextarea $f */
+		$f = $modules->get('InputfieldTextarea');
+		$f_name = 'easymde_options';
+		$f->name = $f_name;
+		$f->label = $this->_('EasyMDE options');
+		$f->description = sprintf($this->_('Refer to [EasyMDE documentation](%s). Enter options in JSON format. Keys must be surrounded with double quotes. Example:'), 'https://github.com/Ionaru/easy-markdown-editor#configuration');
+		$f->description .= <<<EOT
+```
+"toolbar": ["bold", "italic", "heading", "|", "side-by-side"],
+"sideBySideFullscreen": false
+```
+EOT;
+		$f->value = $this->$f_name;
+		$inputfields->add($f);
+
+		return $inputfields;
+	}
+
+	/**
+	 * Return a list of config property names allowed for fieldgroup/template context
+	 *
+	 * @param Field $field
+	 * @return array of Inputfield names
+	 */
+	public function ___getConfigAllowContext($field) {
+		return array_merge(parent::___getConfigAllowContext($field), ['easymde_options']);
+	}
+
+}

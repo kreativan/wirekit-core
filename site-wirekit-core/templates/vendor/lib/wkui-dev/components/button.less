@@ -1,0 +1,95 @@
+@wk-btn-font-size: 0.9rem;
+@wk-btn-padding: 20px;
+
+// default 
+@wk-btn-default-bg: @wk-bg-muted;
+@wk-btn-default-color: @wk-color-emphasis;
+
+@wk-btn-default-hover-bg: darken(@wk-btn-default-bg, 5%);
+@wk-btn-default-hover-color: @wk-color-emphasis;
+
+// primary
+@wk-btn-primary-bg: @wk-bg-primary;
+@wk-btn-primary-color: white;
+
+@wk-btn-primary-hover-bg: darken(@wk-btn-primary-bg, 5%);
+@wk-btn-primary-hover-color: white;
+
+
+/* =========================================================== 
+  Button
+=========================================================== */
+
+.wk-btn {
+
+  .reset-button();
+
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: middle;
+  -webkit-appearance: none;
+
+  line-height: @wk-control-height;
+  padding: 0 @wk-btn-padding;
+  font-size: @wk-btn-font-size;
+  
+  &:focus,
+  &:active,
+  &:hover {
+    .wk-hook-button-state();
+  }
+
+  .wk-hook-button();
+
+}
+
+.wk-btn-default {
+
+  background: @wk-btn-default-bg;
+  color: @wk-btn-default-color;
+
+  &:focus,
+  &:active,
+  &:hover {
+    background: @wk-btn-default-hover-bg;
+    color: @wk-btn-default-hover-color;
+    .wk-hook-button-default-state();
+  }
+
+  .wk-hook-button-default();
+
+}
+
+.wk-btn-primary {
+
+  background: @wk-btn-primary-bg;
+  color: @wk-btn-primary-color;
+
+  &:focus,
+  &:active,
+  &:hover {
+    background: @wk-btn-primary-hover-bg;
+    color: @wk-btn-primary-hover-color;
+    .wk-hook-button-primary-state();
+  }
+
+  .wk-hook-button-primary();
+
+}
+
+
+// Hooks
+// ========================================================================
+
+.wk-hook-button-root();
+.wk-hook-button-root() {}
+
+.wk-hook-button() {}
+.wk-hook-button-state() {}
+
+.wk-hook-button-default() {}
+.wk-hook-button-default-state() {}
+
+.wk-hook-button-primary() {}
+.wk-hook-button-primary-state() {}

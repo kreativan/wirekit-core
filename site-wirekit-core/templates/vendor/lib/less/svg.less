@@ -1,0 +1,49 @@
+@svg-stroke-width: 1.2;
+@svg-color: #666;
+
+/* =========================================================== 
+  SVG
+=========================================================== */
+
+.svg {
+
+  display: inline-block;
+  position:relative;
+  
+  svg {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+  }
+
+  &.svg-stroke {
+    stroke: @svg-color;
+    svg {
+      stroke: inherit !important;
+      //stroke-width: @svg-stroke-width !important;
+    }
+    .hook-svg-stroke();
+  }
+
+  &.svg-fill {
+    fill: @svg-color;
+    svg * {
+      fill: inherit !important;
+    }
+    .hook-svg-fill();
+  }
+
+  .hook-svg();
+
+}
+
+// Hooks
+// ========================================================================
+.hook-svg-root();
+.hook-svg-root() {}
+
+.hook-svg() {}
+.hook-svg-stroke() {}
+.hook-svg-fill() {}

@@ -1,0 +1,293 @@
+<?php namespace ProcessWire;
+
+/**
+ * AsmSelect is a sortable multiple-select Inputfield
+ * 
+ * Copyright (c) 2009-2020 by Ryan Cramer
+ * 
+ * @property bool $addable Can items be added to selection? (default=true)
+ * @property string $addItemTarget Where to place new selected items in list: top or bottom (default='bottom')
+ * @property bool $animate Animate the the adding/removing of items in the list? (default=false)
+ * @property bool $debugMode Debug mode keeps original select visible (default=false)
+ * @property bool $deletable Can items be removed from selection? (default=true)
+ * @property float|string $deletedOpacity Opacity of deleted item, set to 1.0 to disable opacity adjustment (applicable only if hideDeleted=true)
+ * @property string $deletedPrepend Deleted item values are prepended with this character in the form submission (applicable only if hideDeleted=true) (default='-')
+ * @property string $editLabel Text used in the "edit" link (if editLink is populated)
+ * @property string $editLink Optional URL options can link to with tag {value} replaced by option value, i.e. /path/to/page/edit?id={$value}
+ * @property string $editLinkButtonSelector Button selector for finding buttons that should become modal window buttons
+ * @property string|bool $editLinkModal Whether the edit link (if used) should be modal or "longclick" for longclick modal only (default=true)
+ * @property bool $editLinkOnlySelected When true, edit link only appears for items that were already selected (default=true)
+ * @property bool $fieldset Use fieldset support? (for PW Fieldset types) (default=false)
+ * @property bool $hideDeleted Hide items when deleted. If false, items remain but are marked for deletion (default=true)
+ * @property bool $hideWhenEmpty Hide the <select> when there are no items available to select? (default=false)
+ * @property bool $highlight Use the highlight feature?  (default=false)
+ * @property string $highlightAddedLabel Text that precedes highlight of added item (default='Added: ')
+ * @property string $highlightRemovedLabel Text that precedes highlight of removed item (default='Removed: ')
+ * @property string $removeLabel Text used in the "remove" link
+ * @property bool $sortable Should the list be sortable? (default=true)
+ * @property string $sortLabel Sortable handle/icon
+ * @property int|bool $usePageEdit Use page editor links for selected Page items, when user has edit permission? (default=false)
+ *
+ */
+class InputfieldAsmSelect extends InputfieldSelectMultiple implements InputfieldHasArrayValue, InputfieldHasSortableValue {
+	
+	/**
+	 * Module info
+	 *
+	 * @return array
+	 *
+	 */
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('asmSelect', __FILE__),
+			'version' => 202,
+			'summary' => __('Multiple selection, progressive enhancement to select multiple', __FILE__), // Module Summary
+			'permanent' => true,
+		);
+	}
+
+	/**
+	 * Custom defined AsmSelect options
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $asmOptions = array();
+
+	/**
+	 * Options as specified at init() state (common to all instances)
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $asmDefaults = array();
+
+	/**
+	 * Common option names for asmSelect
+	 * 
+	 * (note this array gets flipped in the constructor)
+	 * 
+	 * @var array
+	 * 
+	 */
+	protected $asmOptionNames = array(
+		// general
+		'addable',
+		'addItemTarget',
+		'animate', 
+		'debugMode',
+		'deletable',
+		'deletedOpacity',
+		'deletedPrepend',
+		'fieldset',
+		'hideDeleted',
+		'hideWhenEmpty',
+		'highlight', 
+		'jQueryUI',
+		'sortable', 
+		
+		// labels
+		'editLabel',
+		'highlightAddedLabel',
+		'highlightRemovedLabel',
+		'removeLabel',
+		'sortLabel',
+		
+		// edit link
+		'editLink',
+		'editLinkButtonSelector',
+		'editLinkModal',
+		'editLinkOnlySelected',
+	);
+
+	/**
+	 * Construct
+	 * 
+	 */
+	public function __construct() {
+		$this->set('usePageEdit', 0);
+		$this->asmOptionNames = array_flip($this->asmOptionNames);
+		parent::__construct();
+	}
+
+	/**
+	 * Init
+	 * 
+	 */
+	public function init() {
+
+		parent::init(); 
+		
+		$this->setAsmSelectOptions(array(
+			'sortable' => true,
+			'fieldset' => false,
+			
+			// an optional edit or detail link where items can be modified or viewed
+			// i.e. /path/to/page/?id={value} where {value} is replaced with option value
+			'editLink' => '',
+			'editLabel' => "<i class='fa fa-fw fa-edit asmIcon'></i>",
+			
+			// only applicable if editLink is set. set to false if you don't want edit link to be modal
+			'editLinkModal' => true,
+		));
+
+		if($this->wire('adminTheme')) $this->setAsmSelectOptions(array(
+			// replace jquery ui icon default with a font-awesome icon
+			'removeLabel' => "<i class='fa fa-trash'></i>",
+			
+			// replace jquery ui icon default with a font-awesome icon
+			'sortLabel' => "<i class='fa fa-fw fa-arrows'></i>",
+		));
+
+		// cancel the 'size' attribute used by select multiple
+		$this->set('size', null); 
+		
+		$this->wire()->config->js('InputfieldAsmSelect', $this->asmOptions);
+		$this->asmDefaults = $this->asmOptions;
+	}
+
+	/**
+	 * Set Inputfield property or AsmSelect option
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 * @return Inputfield|InputfieldAsmSelect|InputfieldSelect
+	 * 
+	 */
+	public function set($key, $value) {
+		if(isset($this->asmOptionNames[$key])) return $this->setAsmSelectOption($key, $value);
+		return parent::set($key, $value);
+	}
+
+	/**
+	 * Set custom option for AsmSelect
+	 * 
+	 * @param string $key
+	 * @param string|bool $value
+	 * @return self
+	 * 
+	 */
+	public function setAsmSelectOption($key, $value) {
+		$this->asmOptions[$key] = $value; 
+		return $this;
+	}
+
+	/**
+	 * Set multiple custom options for AsmSelect
+	 * 
+	 * @param array $options
+	 * @return self
+	 * @since 3.0.169
+	 * 
+	 */
+	public function setAsmSelectOptions(array $options) {
+		$this->asmOptions = array_merge($this->asmOptions, $options);
+		return $this;
+	}
+	
+	/**
+	 * Called before render()
+	 *
+	 * @param Inputfield $parent
+	 * @param bool $renderValueMode
+	 * @return bool
+	 *
+	 */
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+
+		$modules = $this->wire()->modules;
+		$config = $this->wire()->config;
+		
+		// asmSelect requires jQuery UI, so we enforce it being loaded here
+		$modules->get('JqueryCore');
+		
+		/** @var JqueryUI $jQueryUI */
+		$jQueryUI = $modules->get('JqueryUI'); 
+		
+		if(!empty($this->asmOptions['editLink'])) {
+			$jQueryUI->use('modal');
+		}
+
+		if($this->hasFieldtype == 'FieldtypePage' && $this->usePageEdit && empty($this->asmOptions['editLink'])) {
+			$this->setAsmSelectOptions(array(
+				'editLink' => $config->urls->admin . 'page/edit/?id={value}',
+				'editLinkOnlySelected' => false,
+				'editLinkButtonSelector' => '.InputfieldSubmit button.ui-button:visible',
+				'editLinkModal' => true,
+			));
+		}
+
+		// require javascript and css
+		$class = $this->className();
+		$info = self::getModuleInfo();
+		$ver = $info['version'];
+		$jsfile = $config->debug ? 'jquery.asmselect.js' : 'jquery.asmselect.min.js';
+		$url = $config->urls($class);
+
+		$config->scripts->add($url . "asmselect/$jsfile?v=$ver");
+		$config->styles->add($url . "$class.css?v=$ver");
+		$config->styles->add($url . "asmselect/jquery.asmselect.css?v=$ver");
+		
+		// $this->config->js($this->id, $this->asmOptions); // deprecated/legacy
+		
+		return parent::renderReady($parent, $renderValueMode);
+	}
+
+	/**
+	 * Render
+	 * 
+	 * @return string
+	 * 
+	 */
+	public function ___render() {
+	
+		// compile settings unique to this instance into a JSON encoded data-asmopt attribute
+		$settings = array();
+		foreach($this->asmOptions as $key => $value) {
+			if(!isset($this->asmDefaults[$key]) || $this->asmDefaults[$key] != $value) {
+				$settings[$key] = $value;
+			}
+		}
+		$this->attr('data-asmopt', json_encode($settings));
+
+		// ensure selected options are placed as last in the AsmSelect select output
+		$selectedOptions = $this->attr('value'); 
+		foreach($selectedOptions as $id) {
+			if(!isset($this->options[$id])) continue; 
+			$label = $this->options[$id]; 
+			unset($this->options[$id]); 	
+			$this->addOption($id, $label); 
+		}
+
+		return parent::___render();
+	}
+
+	/**
+	 * Field config
+	 * 
+	 * @return InputfieldWrapper
+	 * 
+	 */
+	public function ___getConfigInputfields() {
+		
+		$inputfields = parent::___getConfigInputfields();
+		if($this->hasFieldtype != 'FieldtypePage' || !$this->hasField) return $inputfields;
+		
+		/** @var InputfieldRadios $f */
+		$f = $this->wire()->modules->get('InputfieldRadios');
+		$f->attr('name', 'usePageEdit');
+		$f->label = $this->_('Link selected pages to page editor?');
+		$f->description = $this->_('When enabled, the selected label(s) will link to edit the selected page.');
+		$f->addOption(0, $this->_('No'));
+		$f->addOption(1, 
+			$this->_('Yes') . ' ' . 
+			$this->_('(in modal window)')
+		);
+		$f->attr('value', $this->usePageEdit);
+		$f->optionColumns = 1;
+		$f->collapsed = Inputfield::collapsedBlank;
+		$inputfields->add($f);
+		
+		return $inputfields;
+	}
+}

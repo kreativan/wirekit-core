@@ -1,0 +1,78 @@
+//
+//  Resets
+//
+
+.reset-list() {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.reset-button() {
+  background: none;
+  border: none;
+  padding:0;
+  text-decoration: none;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+/**
+ *  Basic animation properties
+ *  @a = animation name
+ *  @s = duration
+ */
+.animate-mixin(@a: pulse;@s: 1s) {
+  -webkit-animation-duration: @s;
+  animation-duration: @s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-name: @a;
+	animation-name: @a;
+}
+
+/**
+ *  Gradient Hover Mixin
+ *  because gradients doesnt support css transitions...
+ *  Great for buttons...
+*/
+.gradient-hover-mixin(@bg-1, @bg-2, @direction: -90deg) {
+  background: linear-gradient(@direction, @bg-2 0%,@bg-1 50%,@bg-2 100%);
+  background-size: 300%,1px;
+  background-position: 0%;
+  transition: all .5s;
+  &:hover {
+    background-position: 100%;
+    transition: all .5s;
+  }
+}
+
+/**
+ *  Gradient color mixin
+ *  Works great with text & icons fonts
+ */
+.gradient-text-mixin(@color, @color-2, @deg: 90deg) {
+  color: transparent;
+  background-image: -webkit-linear-gradient(@deg, @color-2 0%, @color 100%);
+  background-image: -mox-linear-gradient(@deg, @color-2 0%, @color 100%);
+  background-image: linear-gradient(@deg, @color-2 0%, @color 100%);
+  -webkit-background-clip: text;
+  -mox-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -mox-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+
+/**
+ *  Hover Slide Background
+ *  Slide background color from left to right on hovers
+ */
+.hover-slide-bg-mixin(@bg1, @bg2) {
+  background: linear-gradient(to right, @bg2 50%, @bg1 50%) no-repeat scroll right bottom / 210% 100% rgba(255,255,255,0) !important;
+  transition: all .3s;
+  &:hover {
+    background-position: left bottom !important;
+  }
+}

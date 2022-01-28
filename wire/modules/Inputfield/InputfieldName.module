@@ -1,0 +1,52 @@
+<?php namespace ProcessWire;
+
+/**
+ * An Inputfield for handling ProcessWire "name" fields
+ * 
+ * ProcessWire 3.x, Copyright 2021 by Ryan Cramer
+ * https://processwire.com
+ * 
+ * @property string $sanitizeMethod
+ *
+ */
+class InputfieldName extends InputfieldText {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('Name', __FILE__), // Module Title
+			'version' => 100,
+			'summary' => __('Text input validated as a ProcessWire name field', __FILE__), // Module Summary
+			'permanent' => true, 
+		);
+	}
+
+	public function __construct() {
+		$this->set('sanitizeMethod', 'name'); // method from sanitizer to use for value sanitization
+		parent::__construct();
+	}
+
+	public function init() {
+		parent::init();
+		$this->attr('type', 'text'); 
+		$this->attr('maxlength', Pages::nameMaxLength); 
+		$this->attr('size', 0); 
+		$this->attr('name', 'name'); 
+		$this->set('required', true); 
+		$this->label = $this->_('Name'); // default field label
+		$this->description = $this->_('Any combination of letters (a-z), numbers (0-9) and underscores (no spaces).'); // default field description
+		$this->set('sanitizeMethod', 'name'); // method from sanitizer to use for value sanitization
+	}
+
+	protected function setAttributeValue($value) {
+		$sanitizeMethod = $this->sanitizeMethod; 
+		if($this->isWired()) {
+			$sanitizer = $this->wire()->sanitizer;
+			$value = call_user_func(array($sanitizer, $sanitizeMethod), $value);
+		} else {
+			$sanitizer = wire()->sanitizer;
+			$value = $sanitizer->$sanitizeMethod($value);
+		}
+		return $value; 
+	}
+
+}

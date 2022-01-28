@@ -1,0 +1,697 @@
+<?php namespace ProcessWire;
+
+/**
+ * ProcessWire Page View Process
+ *
+ * Enables viewing or Processes, one of the core components in connecting ProcessWire to HTTP.
+ * 
+ * For more details about how Process modules work, please see: 
+ * /wire/core/Process.php 
+ * 
+ * ProcessWire 3.x, Copyright 2021 by Ryan Cramer
+ * https://processwire.com
+ *
+ * @method string execute($internal = true)
+ * @method string executeExternal()
+ * @method ready(array $data = array())
+ * @method finished(array $data = array())
+ * @method failed(\Exception $e, $reason = '', $page = null, $url = '')
+ * @method sendFile($page, $basename)
+ * @method string pageNotFound($page, $url, $triggerReady = false, $reason = '', \Exception $e = null)
+ * @method string|bool|array|Page pathHooks($path, $out)
+ * @method void userNotAllowed(User $user, $page, PagesRequest $request)
+ *
+ */
+class ProcessPageView extends Process {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('Page View', __FILE__), // getModuleInfo title
+			'summary' => __('All page views are routed through this Process', __FILE__), // getModuleInfo summary 
+			'version' => 106, 
+			'permanent' => true, 
+			'permission' => 'page-view',
+		);
+	}
+
+	/**
+	 * Response types 
+	 *
+	 */
+	const responseTypeError = 0;
+	const responseTypeNormal = 1; 
+	const responseTypeAjax = 2; 
+	const responseTypeFile = 4; 
+	const responseTypeRedirect = 8; 
+	const responseTypeExternal = 16; 
+	const responseTypeNoPage = 32;
+	const responseTypePathHook = 64;
+
+	/**
+	 * Response type (see response type codes above)
+	 *
+	 */
+	protected $responseType = 1; 
+
+	/**
+	 * True if any redirects should be delayed until after API ready() has been issued
+	 * 
+	 */
+	protected $delayRedirects = false; 
+
+	/**
+	 * @var Page|null
+	 * 
+	 */
+	protected $http404Page = null;
+
+	/**
+	 * Return value from first iteration of pathHooks() method (when applicable)
+	 * 
+	 * @var mixed 
+	 * 
+	 */
+	protected $pathHooksReturnValue = false;
+
+	/**
+	 * Construct
+	 * 
+	 */
+	public function __construct() {} // no parent call intentional
+
+	/**
+	 * Init
+	 * 
+	 */
+	public function init() {} // no parent call intentional
+
+	/**
+	 * Retrieve a page, check access, and render
+	 * 
+	 * @param bool $internal True if request should be internally processed. False if PW is bootstrapped externally. 
+	 * @return string Output of request
+ 	 *
+	 */
+	public function ___execute($internal = true) {
+	
+		if(!$internal) return $this->executeExternal();
+
+		$this->responseType = self::responseTypeNormal;
+		$config = $this->wire()->config; 
+		$pages = $this->wire()->pages;
+		$request = $pages->request();
+		$timerKey = $config->debug ? 'ProcessPageView.getPage()' : ''; 
+		
+		if($config->usePoweredBy !== null) header('X-Powered-By:' . ($config->usePoweredBy ? ' ProcessWire CMS' : ''));
+		
+		$pages->setOutputFormatting(true); 
+		
+		if($timerKey) Debug::timer($timerKey); 
+		$page = $this->getPage();
+		if($timerKey) Debug::saveTimer($timerKey, ($page && $page->id ? $page->path : '')); 
+		
+		if($page && $page->id) {
+			return $this->renderPage($page, $request);
+		} else {
+			return $this->renderNoPage($request);
+		}
+	}
+
+	/**
+	 * Get requested page
+	 * 
+	 * @return NullPage|Page
+	 * @throws WireException
+	 * 
+	 */
+	public function getPage() {
+		return $this->wire()->pages->request()->getPage();
+	}
+
+	/**
+	 * Render Page
+	 * 
+	 * @param Page $page
+	 * @param PagesRequest $request
+	 * @return bool|mixed|string
+	 * @throws WireException
+	 * @since 3.0.173
+	 * 
+	 */
+	protected function renderPage(Page $page, PagesRequest $request) {
+	
+		$config = $this->wire()->config;
+		$user = $this->wire()->user;
+		
+		$page->of(true);
+		$originalPage = $page;
+		$page = $request->getPageForUser($page, $user);
+		$code = $request->getResponseCode();
+	
+		if($code == 401 || $code == 403) {
+			$this->userNotAllowed($user, $page, $request); 
+		}
+		
+		if(!$page || !$page->id || $originalPage->id == $config->http404PageID) {
+			$s = 'access not allowed';
+			$e = new Wire404Exception($s, Wire404Exception::codePermission);
+			return $this->pageNotFound($originalPage, $request->getRequestPath(), true, $s, $e);
+		}
+
+		if(!$this->delayRedirects) $this->checkForRedirect($request);
+
+		$this->wire('page', $page);
+		$this->ready();
+		$page = $this->wire()->page; // in case anything changed it
+
+		if($this->delayRedirects) {
+			if($page !== $originalPage) $request->checkScheme($page);
+			$this->checkForRedirect($request);
+		}
+
+		try {
+			$file = $request->getFile();
+			if($file) {
+				$this->responseType = self::responseTypeFile;
+				$this->wire()->setStatus(ProcessWire::statusDownload, array('downloadFile' => $file));
+				$this->sendFile($page, $file);
+
+			} else {
+				$contentType = $this->contentTypeHeader($page, true);
+				$this->wire()->setStatus(ProcessWire::statusRender, array('contentType' => $contentType));
+				if($config->ajax) $this->responseType = self::responseTypeAjax;
+				return $page->render();
+			}
+
+		} catch(Wire404Exception $e) {
+			// 404 exception thrown during page render
+			TemplateFile::clearAll();
+			return $this->renderNoPage($request, array(
+				'reason404' => '404 thrown during page render',
+				'exception404' => $e, 
+				'page' => $page, 
+				'ready' => true, // let it know ready state already executed
+			));
+
+		} catch(\Exception $e) {
+			// other exception thrown during page render (re-throw non 404 exceptions)
+			$this->responseType = self::responseTypeError;
+			$this->failed($e, "Thrown during page render", $page);
+			throw $e; 
+		}
+
+		return '';
+	}
+
+	/**
+	 * Render when no page mapped to request URL
+	 * 
+	 * @param PagesRequest $request
+	 * @param array $options
+	 * @return array|bool|false|string
+	 * @throws WireException
+	 * @since 3.0.173
+	 * 
+	 */
+	protected function renderNoPage(PagesRequest $request, array $options = array()) {
+		
+		$defaults = array(
+			'allow404' => true, // allow 404 to be thrown?
+			'reason404' => 'Requested URL did not resolve to a Page',
+			'exception404' => null, 
+			'ready' => false, // are we executing from the API ready state?
+			'page' => $this->http404Page(), // potential Page object (default is 404 page)
+		);
+		
+		$options = count($options) ? array_merge($defaults, $options) : $defaults;
+		
+		$config = $this->wire()->config;
+		$hooks = $this->wire()->hooks;
+		$input = $this->wire()->input; 
+		$pages = $this->wire()->pages;
+		
+		$requestPath = $request->getRequestPath();
+		$pageNumPrefix = $request->getPageNumPrefix();
+		$pageNumSegment = '';
+		$setPageNum = 0;
+		$page = null;
+		$out = false;
+		
+		$this->setResponseType(self::responseTypeNoPage);
+		
+		if($pageNumPrefix !== null) {
+			// request may have a pagination segment
+			$pageNumSegment = $this->renderNoPagePagination($requestPath, $pageNumPrefix, $request->getPageNum());
+			$setPageNum = $input->pageNum();
+		}
+			
+		if(!$options['ready']) $this->wire('page', $options['page']);
+
+		// run up to 2 times, once before ready state and once after
+		for($n = 1; $n <= 2; $n++) {
+			
+			// only run once if already in ready state
+			if($options['ready']) $n = 2;
+
+			// call ready() on 2nd iteration only, allows for ready hooks to set $page
+			if($n === 2 && !$options['ready']) $this->ready();
+			
+			if(!$hooks->hasPathHooks()) continue;
+
+			$this->setResponseType(self::responseTypePathHook);
+			
+			try {
+				$out = $this->pathHooks($requestPath, $out);
+			} catch(Wire404Exception $e) {
+				$out = false;
+			}
+		
+			// allow for pathHooks() $event->return to persist between init and ready states
+			// this makes it possible for ready() call to examine $event->return from init() call
+			// in case it wants to concatenate it or something
+			if($n === 1) $this->pathHooksReturnValue = $out;
+
+			if(is_object($out) && $out instanceof Page) {
+				// hook returned Page object to set as page to render
+				$page = $out;
+				$out = true;
+			} else {
+				// check if hooks changed $page API variable instead
+				$page = $this->wire()->page;
+			}
+
+			// first hook that determines the $page wins
+			if($page && $page->id && $page->id !== $options['page']->id) break;
+
+			$this->setResponseType(self::responseTypeNoPage);
+		}
+	
+		// did a path hook require a redirect for trailing slash (vs non-trailing slash)?
+		$redirect = $hooks->getPathHookRedirect();
+		if($redirect) {
+			// path hook suggests a redirect for proper URL format
+			$url = $config->urls->root . ltrim($redirect, '/');
+			// if present, add pagination segment back into URL
+			if($pageNumSegment) $url = rtrim($url, '/') . "/$pageNumSegment";
+			$this->redirect($url);
+		}
+		
+		$this->pathHooksReturnValue = false; // no longer applicable once this line reached
+		$hooks->allowPathHooks(false); // no more path hooks allowed
+		
+		if($page && $page->id && $page instanceof Page && $page->id !== $options['page']->id) {
+			// one of the path hooks set the page
+			$this->wire('page', $page);
+			return $this->renderPage($page, $request); 
+		}
+
+		if($out === false) {
+			// hook failed to handle request
+			if($setPageNum > 1) $input->setPageNum(1);
+			if($options['allow404']) {
+				$page = $options['page'];
+				// hooks to pageNotFound() method may expect NullPage rather than 404 page
+				if($page->id == $config->http404PageID) $page = $pages->newNullPage();
+				$out = $this->pageNotFound($page, $requestPath, false, $options['reason404'], $options['exception404']);
+			} else {
+				$out = false;
+			}
+			
+		} else if($out === true) {
+			// hook silently handled the request
+			$out = '';
+			
+		} else if(is_array($out)) {
+			// hook returned array to convert to JSON
+			$jsonFlags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+			$contentTypes = $config->contentTypes;
+			if(isset($contentTypes['json'])) header("Content-Type: $contentTypes[json]");
+			$out = json_encode($out, $jsonFlags);
+		}
+		
+		return $out;
+	}
+
+	/**
+	 * Check for pagination in a no-page request (helper to renderNoPage method)
+	 * 
+	 * - Updates given request path to remove pagination segment.
+	 * - Returns found pagination segment or blank if none.
+	 * - Redirects to non-slash version if pagination segment found with trailing slash.
+	 * 
+	 * @param string $requestPath
+	 * @param string|null $pageNumPrefix
+	 * @param int $pageNum
+	 * @return string Return found pageNum segment or blank if none
+	 * 
+	 */
+	protected function renderNoPagePagination(&$requestPath, $pageNumPrefix, $pageNum) {
+		
+		$config = $this->wire()->config;
+		
+		if($pageNum < 1 || $pageNumPrefix === null) return '';
+
+		// there is a pagination segment present in the request path
+		$slash = substr($requestPath, -1) === '/' ? '/' : '';
+		$requestPath = rtrim($requestPath, '/');
+		$pageNumSegment = $pageNumPrefix . $pageNum;
+		
+		if(substr($requestPath, -1 * strlen($pageNumSegment)) === $pageNumSegment) {
+			// remove pagination segment from request path
+			$requestPath = substr($requestPath, 0, -1 * strlen($pageNumSegment));
+			$setPageNum = $pageNum;
+			// disallow specific "/page1" in URL as it is implied by the lack of pagination segment
+			if($setPageNum === 1) $this->redirect($config->urls->root . ltrim($requestPath, '/'));
+			// enforce no trailing slashes for pagination numbers
+			if($slash) {
+				$this->redirect($config->urls->root . ltrim($requestPath, '/') . $pageNumSegment);
+			}
+			$this->wire()->input->setPageNum($pageNum);
+			
+		} else {
+			// not a pagination segment
+			// add the slash back to restore requestPath
+			$requestPath .= $slash;
+			$pageNumSegment = '';
+		}
+		
+		return $pageNumSegment;
+	}
+
+	/**
+	 * Called when a 401 unauthorized or 403 forbidden request 
+	 * 
+	 * #pw-hooker
+	 * 
+	 * @param User $user
+	 * @param Page|NullPage|null $page
+	 * @param PagesRequest $request
+	 * @since 3.0.186
+	 * 
+	 */
+	protected function ___userNotAllowed(User $user, $page, PagesRequest $request) {
+		
+		$input = $this->wire()->input;
+		$config = $this->wire()->config;
+		$session = $this->wire()->session;
+
+		if(!$session || !$page || !$page->id) return;
+		if($user->isLoggedin()) return;
+
+		$loginRequestURL = $request->getRedirectUrl();
+		$ns = 'ProcessPageView'; // session namespace
+
+		if(empty($loginRequestURL) && $session) {
+			$loginRequestURL = $session->getFor($ns, 'loginRequestURL');
+		}
+
+		if(!empty($loginRequestURL)) return;
+		if($page->id == $config->loginPageID) return;
+		if($input->get('loggedout')) return;
+
+		$loginRequestURL = $input->url(array('page' => $page));
+
+		if(!empty($_GET)) {
+			$queryString = $input->queryStringClean(array(
+				'maxItems' => 10,
+				'maxLength' => 500,
+				'maxNameLength' => 20,
+				'maxValueLength' => 200,
+				'sanitizeName' => 'fieldName',
+				'sanitizeValue' => 'name',
+				'entityEncode' => false,
+			));
+			if(strlen($queryString)) $loginRequestURL .= "?$queryString";
+		}
+
+		$session->setFor($ns, 'loginRequestPageID', $page->id);
+		$session->setFor($ns, 'loginRequestURL', $loginRequestURL);
+	}
+	
+	/**
+	 * Check request for redirect and apply it when appropriate
+	 *
+	 * @param PagesRequest $request
+	 *
+	 */
+	protected function checkForRedirect(PagesRequest $request) {
+		$redirectUrl = $request->getRedirectUrl();
+		if($redirectUrl) $this->redirect($redirectUrl, $request->getRedirectType());
+	}
+
+	/**
+	 * Get and optionally send the content-type header
+	 * 
+	 * @param Page $page
+	 * @param bool $send
+	 * @return string
+	 * 
+	 */
+	protected function contentTypeHeader(Page $page, $send = false) {
+		
+		$config = $this->wire()->config;
+		$contentType = $page->template->contentType;
+		
+		if(!$contentType) return '';
+		
+		if(strpos($contentType, '/') === false) {
+			if(isset($config->contentTypes[$contentType])) {
+				$contentType = $config->contentTypes[$contentType];
+			} else {
+				$contentType = '';
+			}
+		}
+		
+		if($contentType && $send) header("Content-Type: $contentType");
+		
+		return $contentType;
+	}
+
+	/**
+	 * Method executed when externally bootstrapped
+	 * 
+	 * @return string blank string
+	 * 
+	 */
+	public function ___executeExternal() {
+		$this->setResponseType(self::responseTypeExternal);
+		$config = $this->wire()->config; 
+		$config->external = true; 
+		if($config->externalPageID) {
+			$page = $this->wire()->pages->get((int) $config->externalPageID); 
+		} else {
+			$page = $this->wire()->pages->newNullPage();
+		}
+		$this->wire('page', $page);
+		$this->ready();
+		$this->wire()->setStatus(ProcessWire::statusRender, array('contentType' => 'external'));
+		return '';
+	}
+
+	/**
+	 * Hook called when the $page API var is ready, and before the $page is rendered. 
+	 * 
+	 * @param array $data
+	 *
+	 */
+	public function ___ready(array $data = array()) { 
+		$this->wire()->setStatus(ProcessWire::statusReady, $data);
+	}
+
+	/**
+	 * Hook called with the pageview has been finished and output has been sent. Note this is called in /index.php.
+	 * 
+	 * @param array $data
+	 *	
+ 	 */
+	public function ___finished(array $data = array()) { 
+		$this->wire()->setStatus(ProcessWire::statusFinished, $data);
+	}
+
+	/**
+	 * Hook called when the pageview failed to finish due to an Exception or Error.
+	 *
+	 * Sends a copy of the throwable that occurred.
+	 * 
+	 * @param \Throwable $e Exception or Error
+	 * @param string $reason
+	 * @param Page|null $page
+	 * @param string $url
+	 *	
+ 	 */
+	public function ___failed($e, $reason = '', $page = null, $url = '') { 
+		$this->wire()->setStatusFailed($e, $reason, $page, $url); 
+	}
+
+	/**
+	 * Passthru a file for a non-public page
+	 *
+	 * If the page is public, then it just does a 301 redirect to the file.
+	 * 
+	 * @param Page $page
+	 * @param string $basename 
+	 * @param array $options
+	 * @throws Wire404Exception
+	 *
+	 */
+	protected function ___sendFile($page, $basename, array $options = array()) {
+
+		$err = 'File not found';
+
+		if(!$page->hasFilesPath()) {
+			throw new Wire404Exception($err, Wire404Exception::codeFile);
+		}
+
+		$filename = $page->filesPath() . $basename; 
+		
+		if(!file_exists($filename)) {
+			throw new Wire404Exception($err, Wire404Exception::codeFile);
+		}
+	
+		if(!$page->secureFiles()) {
+			// if file is not secured, redirect to it
+			// (potentially deprecated, only necessary for method 2 in checkRequestFile)
+			$this->redirect($page->filesManager->url() . $basename);
+			return;
+		}
+
+		// options for WireHttp::sendFile
+		$defaults = array('exit' => false, 'limitPath' => $page->filesPath());
+		$options = array_merge($defaults, $options);
+		
+		$this->wire()->files->send($filename, $options);
+	}
+
+	/**
+	 * Called when a page is not found, sends 404 header, and displays the configured 404 page instead.
+	 *
+	 * Method is hookable, for instance if you wanted to log 404s. When hooking this method note that it
+	 * must be hooked sometime before the ready state. 
+	 * 
+	 * @param Page|null $page Page that was found if applicable (like if user didn't have permission or $page's template threw the 404). If not applicable then NULL will be given instead.
+	 * @param string $url The URL that the request originated from (like $_SERVER['REQUEST_URI'] but already sanitized)
+	 * @param bool $triggerReady Whether or not the ready() hook should be triggered (default=false)
+	 * @param string $reason Reason why 404 occurred, for debugging purposes (en text)
+	 * @param WireException|Wire404Exception $exception Exception that was thrown or that indicates details of error
+	 * @throws WireException
+	 * @return string
+	 */
+	protected function ___pageNotFound($page, $url, $triggerReady = false, $reason = '', $exception = null) {
+		
+		if(!$exception) {
+			// create exception but do not throw
+			$exception = new Wire404Exception($reason, Wire404Exception::codeNonexist); 
+		}
+
+		$this->failed($exception, $reason, $page, $url); 
+		$this->responseType = self::responseTypeError; 
+		$this->header404();
+
+		$page = $this->http404Page();
+		if($page->id) {
+			$this->wire('page', $page); 
+			if($triggerReady) $this->ready();
+			return $page->render();
+		} else {
+			return "404 page not found";
+		}
+	}
+
+	/**
+	 * Handler for path hooks
+	 * 
+	 * No need to hook this method directly, instead use a path hook. 
+	 * 
+	 * #pw-internal
+	 * 
+	 * @param string $path
+	 * @param bool|string|array|Page Output so far, or false if none
+	 * @return bool|string|array 
+	 *   Return false if path cannot be handled
+	 *   Return true if path handled silently
+	 *   Return string for output to send
+	 *   Return array for JSON output to send
+	 *   Return Page object to make it the page that is rendered
+	 * 
+	 */
+	protected function ___pathHooks($path, $out) {
+		if($path && $out) {} // ignore
+		return $this->pathHooksReturnValue;
+	}
+
+	/**
+	 * @return NullPage|Page
+	 * 
+	 */
+	protected function http404Page() {
+		if($this->http404Page) return $this->http404Page;
+		$config = $this->config;
+		$pages = $this->wire()->pages;
+		$this->http404Page = $config->http404PageID ? $pages->get($config->http404PageID) : $pages->newNullPage(); 
+		return $this->http404Page;
+	}
+	
+	/**
+	 * Send a 404 header, but not more than once per request
+	 * 
+	 */
+	protected function header404() {
+		static $n = 0;
+		if($n) return;
+		$http = new WireHttp();
+		$this->wire($http);
+		$http->sendStatusHeader(404);
+		$n++;
+	}
+
+	/**
+	 * Perform redirect
+	 * 
+	 * @param string $url
+	 * @param bool $permanent
+	 * 
+	 */
+	protected function redirect($url, $permanent = true) {
+		$session = $this->wire()->session;
+		$this->setResponseType(self::responseTypeRedirect);
+		if($permanent === true || $permanent === 301) {
+			$session->redirect($url);
+		} else {
+			$session->location($url);
+		}
+	}
+
+	/**
+	 * Return the response type for this request, as one of the responseType constants
+	 *
+	 * @return int
+	 *
+	 */
+	public function getResponseType() {
+		return $this->responseType; 
+	}
+
+	/**
+	 * Set the response type for this request, see responseType constants in this class
+	 *
+	 * @param int $responseType
+	 *
+	 */
+	public function setResponseType($responseType) {
+		$this->responseType = (int) $responseType; 
+	}
+
+	/**
+	 * Set whether any redirects should be performed after the API ready() call
+	 * 
+	 * This is used by LanguageSupportPageNames to delay redirects until after http/https schema is determined. 
+	 *
+	 * @param bool $delayRedirects
+	 *
+	 */
+	public function setDelayRedirects($delayRedirects) {
+		$this->delayRedirects = $delayRedirects ? true : false;
+	}
+}
+
+

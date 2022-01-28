@@ -1,0 +1,26 @@
+/* Fix weird Uikit JS min-height issue when neighbouring field has no header */
+/* AdminOnSteroids also applies this fix and I can't see why min-height is needed in any case */
+.uk-form-controls { min-height:initial !important; }
+
+.MinimalFieldset > label { display:none !important; }
+.MinimalFieldset > .InputfieldContent { padding:0 !important; }
+.MinimalFieldset > .InputfieldContent > .description { display:none !important; }
+.MinimalFieldset > .InputfieldContent > .notes { display:none !important; }
+
+/* FieldsetPage */
+.MinimalFieldset.InputfieldRepeater > .InputfieldContent > .Inputfields > .InputfieldRepeaterItem { margin:0 !important; }
+.MinimalFieldset.InputfieldRepeater > .InputfieldContent > .Inputfields > .InputfieldRepeaterItem > .InputfieldContent { padding:0 !important; }
+/* Hide error messages in FieldsetPage container (they are repeated in the relevant child inputfield anyway) */
+.MinimalFieldset.InputfieldRepeater > .InputfieldContent > .InputfieldError { display:none; }
+
+
+/* MinimalFieldsetSpaced: distribute vertical space */
+
+.Inputfield.MinimalFieldsetSpaced { display:flex; }
+.MinimalFieldsetSpaced > .InputfieldContent { flex:1; flex-direction:column; }
+.MinimalFieldsetSpaced > .InputfieldContent > .Inputfields { display:flex; flex:1; height:100%; }
+
+/* FieldsetPage */
+.MinimalFieldsetSpaced.InputfieldRepeater > .InputfieldContent > .Inputfields > .InputfieldRepeaterItem { display:flex; }
+.MinimalFieldsetSpaced.InputfieldRepeater > .InputfieldContent > .Inputfields > .InputfieldRepeaterItem > .InputfieldContent { flex:1; flex-direction:column; }
+.MinimalFieldsetSpaced.InputfieldRepeater > .InputfieldContent > .Inputfields > .InputfieldRepeaterItem > .InputfieldContent .Inputfields { display:flex; flex:1; height:100%; }

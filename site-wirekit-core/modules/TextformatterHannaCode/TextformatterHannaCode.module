@@ -1,0 +1,531 @@
+<?php namespace ProcessWire;
+
+require_once(__DIR__ . '/HannaCodes.php');
+
+/**
+ * ProcessWire Hanna Code Textformatter
+ *
+ * Based loosely on the WordPress Hana Code Insert module at: http://wordpress.org/plugins/hana-code-insert/
+ *
+ * Copyright (C) 2021 by Ryan Cramer
+ * Licensed under MPL 2.0
+ * https://processwire.com
+ * 
+ * @property string $openTag
+ * @property string $closeTag
+ * @property string $cachePath
+ * @property bool|int $noAccessed
+ * @property Field $field
+ * @property string $value
+ * @property string $name
+ *
+ */
+
+class TextformatterHannaCode extends Textformatter implements ConfigurableModule {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('Hanna Code Text Formatter', __FILE__), 
+			'version' => 30, 
+			'summary' => __('Easily insert any complex HTML, Javascript or PHP output in your ProcessWire content by creating your own Hanna code tags.', __FILE__),
+			'installs' => 'ProcessHannaCode',
+			'requires' => 'ProcessWire>=3.0.133',
+			'icon' => 'sun-o', 
+		); 
+	}
+
+	/**
+	 * Defaults for configuration
+	 *
+	 */
+	const defaultOpenTag = '[[';
+	const defaultCloseTag = ']]';
+
+	/**
+	 * Open tag setting
+	 *
+	 */
+	protected $openTag = '';
+	
+	/**
+	 * Close tag setting
+	 *
+	 */
+	protected $closeTag = '';
+
+	/**
+	 * Disable tracking of last accessed time?
+	 * 
+	 * @var bool
+	 * 
+	 */
+	protected $noAccessed = true;
+
+	/**
+	 * Page object passed to the Textformatter's formatValue() function
+	 * 
+	 * @var Page
+	 *
+	 */
+	protected $page;
+
+	/**
+	 * Field object passed to the Textformatter's formatValue() function
+	 * 
+	 * @var Field
+	 *
+	 */
+	protected $field;
+
+	/**
+	 * $value passed to the Textformatter's formatValue() function
+	 * 
+	 * @var string
+	 *
+	 */
+	protected $value; 
+
+	/**
+	 * $name of the current Hanna code
+	 * 
+	 * @var string
+	 *
+	 */
+	protected $name;
+
+	/**
+	 * @var HannaCodes|null
+	 * 
+	 */
+	protected $hannaCodes = null;
+
+	/**
+	 * Initialize defaults
+	 *
+	 */
+	public function __construct() {
+		$this->openTag = self::defaultOpenTag;
+		$this->closeTag = self::defaultCloseTag; 
+		parent::__construct();
+	}
+
+	/**
+	 * For the ConfigurableModule interface
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 * @return void
+	 *
+	 */
+	public function __set($key, $value) {
+		// so that Hanna code can modify the original full value
+		if($key === 'value') {
+			$this->value = $value; 
+		} else if($key === 'openTag' || $key === 'closeTag' || $key === 'noAccessed') {
+			// module config properties with dedicated variables
+			$this->$key = $value; 
+		} else {
+			parent::set($key, $value);
+		}
+	}
+
+	/**
+	 * Values that can be retrieved from the $hanna variable passed to all Hanna codes
+	 * 
+	 * @param string $key
+	 * @return mixed
+	 *
+	 */
+	public function __get($key) {
+		switch($key) {
+			case 'field': return $this->field;
+			case 'value': return $this->value;
+			case 'name': return $this->name;
+			case 'openTag': return $this->openTag;
+			case 'closeTag': return $this->closeTag;
+			case 'noAccessed': return $this->noAccessed;
+		}
+		return parent::__get($key); 
+	}
+
+	/**
+	 * For the Textformatter interface
+	 * 
+	 * @param Page $page
+	 * @param Field $field
+	 * @param string $value
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, &$value) {
+		
+		$sanitizer = $this->wire()->sanitizer;
+		$openTag = $this->openTag; 
+		$closeTag = $this->closeTag; 
+		
+		// exit early when possible
+		if(strpos($value, $openTag) === false) return;
+		if(strpos($value, $closeTag) === false) return;
+
+		$regx =	'!' . 
+			'(?:<([a-zA-Z]+)' .		    // 1=optional HTML open tag 
+			'[^>]*>[\s\r\n]*)?' . 		// HTML open tag attributes and whitespace, if present	
+			preg_quote($openTag, '!') . // Hanna Code open tag	
+			'(.+?)' . 			        // 2=tag contents
+			preg_quote($closeTag, '!') .// Hanna Code close tag
+			'(?:[\s\r\n]*</(\1)>)?' . 	// 3=optional close HTML tag
+			'!';	
+
+		if(!preg_match_all($regx, $value, $matches)) return;
+
+		$prevPage = $this->page;
+		$prevField = $this->field;
+		$prevValue = $this->value;
+		
+		$this->page = $page;
+		$this->field = $field;
+		$this->value = $value;
+
+		// save output formatting state and then ensure it is ON
+		$of = $this->page->of();
+		if(!$of) $this->page->of(true);
+
+		foreach($matches[2] as $key => $expression) {
+			
+			if(strpos($expression, '=')) {
+				// expression with attrs
+				$attrs = $this->getAttributes($expression); 
+				if(!isset($attrs['name'])) continue; 
+			} else {	
+				// no attribute expression
+				$attrs = array('name' => $expression); 
+			}
+
+			$name = $sanitizer->name($attrs['name']); 
+			$this->name = $name; 
+			unset($attrs['name']);
+
+			$consume = true; 
+			$replacement = $this->getReplacement($name, $attrs, $consume); 
+			if($replacement === false) continue; 
+
+			$openHTML = $matches[1][$key]; 
+			$closeHTML = $matches[3][$key]; 
+
+			if($consume && $openHTML == $closeHTML) {
+				$this->value = str_replace($matches[0][$key], $replacement, $this->value); 
+			} else {
+				$this->value = str_replace("$openTag$expression$closeTag", $replacement, $this->value); 
+			}
+		}
+
+		// restore output formatting state
+		if(!$of) $this->page->of(false);
+
+		$value = $this->value; 	
+		
+		$this->value = $prevValue;
+		$this->page = $prevPage;
+		$this->field = $prevField;
+	}
+
+	/**
+	 * Process $value to render any Hanna tags within it (for API use)
+	 *
+	 * @param string $value
+	 * @param Page|null $page
+	 * @param field|null $field
+	 * @return string
+	 *
+	 */
+	public function render($value, Page $page = null, Field $field = null) {
+		if(is_null($page)) $page = $this->wire()->page;
+		if(is_null($field)) $field = $this->wire(new Field()); 
+		$this->formatValue($page, $field, $value);
+		return $value; 
+	}
+
+	/**
+	 * Find an return an array of all attributes in string $expression
+	 *
+	 * @param string $expression
+	 * @return array
+	 *
+	 */
+	protected function getAttributes($expression) {
+
+		$attrs = array();
+
+		$regx = 
+			'!(?:^|\b)' .		    // beginning or boundary 
+			'([-_a-z0-9]+)' .	    // 1. attribute name 
+			'\s*=\s*' . 		    // Equals
+			'(' .				    // 2. attribute value, possibly with quotes
+				'(["\']|&quot;)' .	// 3. open quote 
+				'.*?' . 		    // attribute value unquoted
+				'\3' .			    // close quote	
+			'|' .				    // OR 
+				'[^\'",\s]*' .		// unquoted value...
+			'),?' . 			    // optional comma, per PW selector style
+			'!i'; 
+
+		if(!preg_match_all($regx, $expression, $matches)) {
+			return $attrs; 
+		}
+
+		foreach($matches[1] as $key => $name) {
+			$attrs[$name] = trim($matches[2][$key], "'\"");
+		}
+
+		if(empty($attrs['name'])) {
+			// allow for optional [[name_here attrs]] expression
+			// where the 'name' isn't specifically called out as an attribute
+			// but is the first symbol in the expression
+			if(preg_match('!^([-_a-z0-9]+)([\s,]|$)!i', $expression, $matches)) {
+				$attrs['name'] = $matches[1]; 
+			}
+		}
+
+		return $attrs; 
+	}
+
+	/**
+	 * Given the Hanna code name and attributes, retrieve the replacement
+	 *
+	 * @param string $name
+	 * @param array $attrs
+	 * @param bool $consume Whether it should consume surrounding tags or not
+	 * @return string
+	 *
+	 */
+	protected function getReplacement($name, array $attrs, &$consume) {
+
+		$h = $this->hannaCodes()->get($name);
+
+		if(!$h->id) return '';
+		
+		$this->hannaCodes()->touch($h);
+		
+		unset($attrs['name']);
+
+		// set default attributes, that haven't already been set by user
+		$defaultAttrs = $h->attrs;
+		foreach($defaultAttrs as $key => $value) {
+			if(!array_key_exists($key, $attrs)) $attrs[$key] = $value;
+		}
+		
+		if($h->type & HannaCode::typeJS) {
+			$value = $this->getJS($h, $attrs);
+		} else if($h->type & HannaCode::typePHP) {
+			$value = $this->getPHP($h, $attrs);
+		} else {
+			$value = $h->code;
+		}
+
+		// Populate whether or not the surrounding tags should be consumed
+		$consume = $h->isConsuming();
+
+		return $value; 
+	}
+
+	/**
+	 * Create the output for a JS-based Hanna code
+	 *
+	 * @param HannaCode $h 
+	 * @param array $attrs Attributes to include as variables
+	 * @return string
+	 *
+	 */
+	protected function getJS(HannaCode $h, array $attrs) {
+
+		$vars = '';
+		$attr = 'var attr = { ';
+
+		// build a series of $js var statements to represent the attribute name=values
+		foreach($attrs as $key => $value) {
+			$value = str_replace('"', '\\"', $value); 
+			$attr .= "$key: \"$value\", ";
+			$vars .= "\nvar $key=attr.$key;";
+		}
+
+		$attr = rtrim($attr, ", ") . " }; ";
+		$vars = $attr . $vars;
+
+		if(strpos(ltrim($h->code), '<script') !== 0) {
+			// if script tag not already present, add it
+			$js = "<scr" . "ipt type='text/javascript'>$vars\n{$h->code}\n</script>";
+
+		} else if(strlen($vars)) {
+			// script tag is already present
+			// if we have vars to insert, put them after the opening script, but before the code
+			preg_match('/\s*(<script[^>]*>)(.*)/si', $h->code, $matches); 
+			$js = $matches[1] . $vars . $matches[2]; 
+		} else {
+			// script tag already present and no vars to insert
+			$js = $h->code; 
+		}
+		
+		return $js;
+	}
+
+	/**
+	 * Create the output for a PHP-based Hanna code
+	 *
+	 * @param HannaCode $h 
+	 * @param array $attrs Attributes to include as variables
+	 * @return string
+	 * @throws WireException
+	 *
+	 */
+	protected function getPHP(HannaCode $h, array $attrs) {
+		
+		$files = $this->wire()->files;
+		$cachePath = $this->cachePath(true);
+		$file = $cachePath . basename($h->name . '.php');
+		$code = trim($h->code);
+		$php = '<' . '?php';
+		$openPHP = $php;
+		$openPHPNS = "$php namespace ProcessWire;";
+		$firstLine = 'if(!defined("PROCESSWIRE")) die("no direct access");';
+		
+		if(strpos($code, 'namespace') && preg_match('/(namespace\s+ProcessWire(?:;|\s*;))/', $code, $matches)) {
+			$openPHP = $openPHPNS;
+			$code = str_replace($matches[1], '', $code);
+		}
+
+		if(strpos($code, $openPHP) !== 0 && strpos($code, $php) !== 0) {
+			// prepend open PHP tag to code if not already present
+			$code = "$openPHP\n$firstLine\n$code"; 
+		} else {
+			// otherwise insert our $firstLine security check
+			$code = str_replace($openPHP, "$openPHP\n$firstLine\n", $code); 
+		}
+
+		if(is_file($file) && file_get_contents($file) === $code) {
+			// file already there and same as what's in the DB
+		} else {
+			// write new file or overwrite existing
+			if(!$files->filePutContents($file, $code, LOCK_EX)) {
+				throw new WireException("Unable to write file: $file");
+			}
+		}
+
+		/** @var TemplateFile $t */
+		$t = $this->wire(new TemplateFile($file)); 
+
+		// populate user specified attrs
+		foreach($attrs as $key => $value) $t->set($key, $value); 
+
+		// also populate them all into an $attrs array, if preferred
+		$t->set('attr', $attrs); 
+
+		// populate API variables
+		foreach($this->wire('all') as $key => $value) {
+			if($key != 'page') $t->set($key, $value); 
+		}
+
+		// populate $page and $hanna variables that are context specific
+		// note $page may be different from wire('page')
+		$t->set('page', $this->page);
+		$t->set('hanna', $this); 
+
+		return $t->render();
+	}
+
+	/**
+	 * @return HannaCodes
+	 *
+	 */
+	public function hannaCodes() {
+		if(!$this->hannaCodes) $this->hannaCodes = $this->wire(new HannaCodes());
+		return $this->hannaCodes;
+	}
+	
+	/**
+	 * @param bool $create
+	 * @return string
+	 * @throws WireException
+	 *
+	 */
+	public function cachePath($create = false) {
+		$cachePath = $this->wire()->config->paths->cache . 'HannaCode/';
+		if($create && !is_dir($cachePath)) {
+			if(!$this->wire()->files->mkdir($cachePath)) {
+				throw new WireException("Unable to create cache path: $cachePath");
+			}
+		}
+		return $cachePath;
+	}
+
+	/**
+	 * Install this module
+	 *
+	 */
+	public function ___install() {
+		$this->hannaCodes()->install();
+	}
+
+	/**
+	 * Uninstall this module
+	 *
+	 */
+	public function ___uninstall() {
+		parent::___uninstall(); 
+		$this->hannaCodes()->uninstall();
+		$cachePath = $this->cachePath();
+		if($cachePath && is_dir($cachePath)) {
+			$this->message("Removing cache path: $cachePath");
+			$this->wire()->files->rmdir($cachePath, true); 
+		}
+	}
+
+	/**
+	 * Module configuration screen
+	 * 
+	 * @param array $data
+	 * @return InputfieldWrapper
+	 *
+	 */
+	public function getModuleConfigInputfields(array $data) {
+
+		$inputfields = new InputfieldWrapper();
+		$this->wire($inputfields);
+
+		/** @var InputfieldText $f */
+		$f = $this->wire()->modules->get('InputfieldText'); 
+		$f->attr('name', 'openTag'); 
+		$f->attr('value', empty($data['openTag']) ? self::defaultOpenTag : $data['openTag']); 
+		$f->label = $this->_('Open Tag'); 
+		$f->columnWidth = 50;
+		$inputfields->add($f); 
+
+		$f = $this->wire()->modules->get('InputfieldText'); 
+		$f->attr('name', 'closeTag'); 
+		$f->attr('value', empty($data['closeTag']) ? self::defaultCloseTag : $data['closeTag']); 
+		$f->label = $this->_('Close Tag'); 
+		$f->columnWidth = 50;
+		$inputfields->add($f); 
+
+		return $inputfields;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	const TYPE_HTML = 0;
+
+	/**
+	 * @deprecated
+	 */
+	const TYPE_JS = 1;
+
+	/**
+	 * @deprecated
+	 */
+	const TYPE_PHP = 2;
+
+	/**
+	 * @deprecated use
+	 */
+	const TYPE_NOT_CONSUMING = 4;
+
+}

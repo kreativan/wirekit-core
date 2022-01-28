@@ -1,0 +1,36 @@
+/* =========================================================== 
+  Section
+=========================================================== */
+
+.wk-section {
+
+  position: relative;
+  box-sizing: border-box;
+  padding: @wk-section-space 0;
+
+  &.wk-section-s {
+    padding: @wk-section-space-s 0;
+  }
+
+  @media(min-width: @wk-breakpoint-medium) {
+    &.wk-section-l {
+      padding: @wk-section-space-l 0;
+    }
+  }
+
+  @media (max-width: @wk-breakpoint-small) {
+    padding: @wk-section-space-mobile 0;
+  }
+  
+  // Hook
+  .wk-hook-section();
+
+}
+
+// Hooks
+// ========================================================================
+
+.wk-hook-section-root();
+.wk-hook-section-root() {}
+
+.wk-hook-section() {}

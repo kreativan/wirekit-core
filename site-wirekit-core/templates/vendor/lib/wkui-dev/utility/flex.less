@@ -1,0 +1,119 @@
+/* =========================================================== 
+  Flex
+=========================================================== */
+
+.wk-flex {
+  display: flex;
+}
+
+/**
+ * Align items along the main axis of the current line of the flex container
+ * Row: Horizontal
+ */
+
+.wk-flex-left { justify-content: flex-start; }
+.wk-flex-center { justify-content: center; }
+.wk-flex-right { justify-content: flex-end; }
+.wk-flex-between { justify-content: space-between; }
+.wk-flex-around { justify-content: space-around; }
+
+/**
+ * Align items in the cross axis of the current line of the flex container
+ * Row: Vertical
+ */
+
+.wk-flex-stretch { align-items: stretch; }
+.wk-flex-top { align-items: flex-start; }
+.wk-flex-middle { align-items: center; }
+.wk-flex-bottom { align-items: flex-end; }
+
+/* Direction
+ ========================================================================== */
+
+.wk-flex-row { flex-direction: row; }
+.wk-flex-reverse { flex-direction: row-reverse; }
+
+.wk-flex-column { 
+  flex-direction: column; 
+  &.wk-flex-reverse {
+    flex-direction: column-reverse; 
+  }
+}
+
+/* Wrap - Flex items single line (nowrap) or multiline (wrap & wrap-reverse)
+========================================================================== */
+
+.wk-flex-nowrap { flex-wrap: nowrap; }
+.wk-flex-wrap { flex-wrap: wrap; }
+.wk-flex-wrap-reverse { flex-wrap: wrap-reverse; }
+
+/* Size - Width
+========================================================================== */
+
+// 1fr width to the child elements
+.wk-flex-expand > *:not([class*="wk-width-"]) {
+  flex: 1;
+}
+
+// 1fr, 2fr, 3fr
+.wk-flex-1 {flex: 1;}
+.wk-flex-2 {flex: 2;}
+.wk-flex-3 {flex: 3;}
+
+/**
+ * Relative Flex: 1 1 auto
+ * Space is allocated considering content
+ */
+.wk-flex-auto { flex: auto; }
+
+
+/* Item ordering - Default 0
+ ========================================================================== */
+
+.wk-flex-first { order: -1;}
+.wk-flex-last { order: 99;}
+
+
+//  Responsive: Medium
+// =========================================================== 
+
+@media(max-width: @wk-breakpoint-medium) {
+
+  .wk-flex-reverse--md {
+    flex-direction: row-reverse;
+  }
+
+  .wk-flex-column--md {
+    flex-direction: column;
+    justify-content: flex-start;
+    &.wk-flex-reverse--md {
+      flex-direction: column-reverse;
+    }
+  }
+
+}
+
+//  Responsive: Small
+// =========================================================== 
+
+@media(max-width: @wk-breakpoint-small) {
+
+  .wk-flex-reverse--sm {
+    flex-direction: row-reverse;
+  }
+
+  .wk-flex-column--sm {
+    flex-direction: column;
+    justify-content: flex-start;
+    &.wk-flex-reverse--sm {
+      flex-direction: column-reverse;
+    }
+  }
+
+}
+
+// Hooks
+// ========================================================================
+
+.wk-hook-flex-root();
+.wk-hook-flex-root() {}

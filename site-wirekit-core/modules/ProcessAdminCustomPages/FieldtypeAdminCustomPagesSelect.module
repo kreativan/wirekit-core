@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * FieldtypeAdminCustomPagesSelect
+ *
+ * This Fieldtype creates a template selector for "Admin Custom Pages".
+ *
+ * For documentation about the fields used in this class, please see:
+ * /wire/core/Fieldtype.php
+ *
+ * Module by Nico Knoll
+ *
+ * ProcessWire 2.x
+ * Copyright (C) 2010 by Ryan Cramer
+ * Licensed under GNU/GPL v2, see LICENSE.TXT
+ *
+ * http://www.processwire.com
+ * http://www.ryancramer.com
+ *
+ */
+
+class FieldtypeAdminCustomPagesSelect extends Fieldtype {
+
+	 public static $defaultOptionValues = array ();
+
+	 public static function getModuleInfo() {
+		  return array(
+		  'title' => 'Admin Custom Pages Select',
+		  'version' => 100,
+		  'summary' => __('This Fieldtype creates a template selector for "Admin Custom Pages".')
+		  );
+     }
+
+     public function getInputfield(Page $page, Field $field) {
+
+		  $inputfield = $this->modules->get('InputfieldSelect');
+		  $inputfield->showIf = 'process=ProcessAdminCustomPages';
+		  $inputfield->addOption(''); // blank or unselected option
+
+		  $options = $this->getOptions();
+
+		  foreach($options as $option) {
+			  $inputfield->addOption($option['path'],$option['basename']);
+		  }
+		  return $inputfield;
+     }
+
+     private function getOptions() {
+
+		$templateFiles = [];
+
+	    // Not sure but I think it's easier if choose the file directly instead of creating a template first
+	    $globPath = $this->config->paths->templates . "vendor/admin/";
+      $rootPath = $this->config->paths->templates . "admin/";
+	    $files_vendor = $this->rglob('*.php', 0, $globPath);
+      $files_root = $this->rglob('*.php', 0, $rootPath);
+      $files = array_merge($files_vendor, $files_root);
+      array_unique($files);
+
+	    foreach($files as $file) {
+        $basename = str_replace($globPath, '', $file);
+        $basename = str_replace($rootPath, '', $basename);
+		    $templateFiles[] = array(
+		     	'path' 		=> 	str_replace(wire('config')->paths->root, '', $file), // Make path relative
+		     	'basename' 	=> $basename
+		    );
+	    }
+
+	    return $templateFiles;
+     }
+
+
+	// recursive looking for templates
+	private function rglob($pattern = '*', $flags = 0, $path = '') {
+		$paths = @glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT);
+		$files = array();
+		$files = @glob($path.$pattern, $flags);
+
+
+		foreach ($paths as $path) { $files = @array_merge((array)$files,(array)$this->rglob($pattern, $flags, $path)); }
+
+		foreach($files as $key => $file) {
+			if($file == '' || $file == false || !$file) {
+				unset($files[$key]);
+			}
+		}
+
+		return $files;
+	}
+
+
+	public function sanitizeValue(Page $page, Field $field, $value) {
+		  return $value;
+	}
+
+
+     public function getDatabaseSchema(Field $field) {
+		  $schema = parent::getDatabaseSchema($field);
+		  $schema['data'] = 'text NOT NULL';
+		  $schema['keys']['data_exact'] = 'KEY `data_exact` (`data`(255))';
+		  $schema['keys']['data'] = 'FULLTEXT KEY `data` (`data`)';
+
+		  return $schema;
+     }
+
+}

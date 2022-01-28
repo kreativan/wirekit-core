@@ -1,0 +1,995 @@
+<?php namespace ProcessWire;
+
+/**
+ * Tool to display available core and module upgrades for ProcessWire
+ *
+ * ProcessWire 
+ * Copyright (C) 2021 by Ryan Cramer 
+ * Licensed under MPL 2.0
+ * 
+ * https://processwire.com
+ *
+ */
+
+class ProcessWireUpgrade extends Process {
+
+	/**
+	 * Return information about this module (required)
+	 *
+	 */
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'Upgrades', 
+			'summary' => 'Tool that helps you identify and install core and module upgrades.', 
+			'version' => 11, 
+			'author' => 'Ryan Cramer', 
+			'installs' => 'ProcessWireUpgradeCheck', 
+			'requires' => 'ProcessWire>=3.0.0',
+			'icon' => 'coffee'
+		); 
+	}
+
+	const debug = false; 
+	const pageName = 'upgrades';
+	const minVersionPHP = '5.3.8';
+	
+	/**
+	 * Path to /wire/
+	 *
+	 */
+	protected $wirePath = '';
+
+	/**
+	 * Temporary path used by installer for download and ZIP extraction
+	 *
+	 */
+	protected $tempPath = '';
+
+	/**
+	 * Temporary path used by installer for file storage when file system isn't writable
+ 	 *
+	 */
+	protected $cachePath = '';
+
+	/**
+	 * Array of renames (oldPath => newPath) scheduled for __destruct
+	 *
+	 */
+	protected $renames = array(); // scheduled renames to occur after page render
+
+	/**
+	 * Instance of ProcessWireUpgradeCheck
+	 * 
+	 * @var ProcessWireUpgradeCheck
+	 *
+	 */
+	protected $checker = null;
+
+	/**
+	 * Construct
+	 *
+	 */
+	public function __construct() {
+		$this->initPaths();
+		parent::__construct();
+	}
+
+	/**
+	 * API wired
+	 * 
+	 */
+	public function wired() {
+		$this->initPaths(); // duplication from construct intended
+		parent::wired();
+	}
+
+	/**
+	 * Initialize and perform access checks
+	 *
+	 */
+	public function init() {
+		if($this->config->demo) {
+			throw new WireException("This module cannot be used in demo mode");
+		}
+		if(!$this->user->isSuperuser()) {
+			throw new WireException("This module requires superuser");
+		}
+		set_time_limit(3600); 
+		$this->checker = $this->modules->getInstall('ProcessWireUpgradeCheck'); 
+		if(!$this->checker) {
+			throw new WireException("Please go to Modules and click 'Check for new modules' - this will auto-update ProcessWireUpgrade.");
+		}
+		parent::init();
+	}
+
+	/**
+	 * Initialize paths used by this module
+	 * 
+	 */
+	protected function initPaths() {
+		$config = $this->wire()->config;
+		$this->wirePath = $config->paths->root . 'wire/';
+		$this->tempPath = $config->paths->cache . $this->className() . '/';
+		$this->cachePath = $config->paths->cache . 'core-upgrade/';
+	}
+
+	/**
+	 * Get info for either a specific core branch, or for the currently selected core branch
+	 * 
+	 * @param string $name
+	 * @return array
+	 *
+	 */
+	protected function getBranch($name = '') {
+		$branches = $this->checker->getCoreBranches(); 
+		if(empty($name)) $name = $this->session->getFor($this, 'branch');
+		return isset($branches[$name]) ? $branches[$name] : array();
+	}
+
+	/**
+	 * Set the current core branch
+	 * 
+	 * @param string $name
+	 *
+	 */
+	protected function setBranch($name) {
+		$this->session->setFor($this, 'branch', $name); 
+	}
+
+	/**
+	 * Preflight checks before listing modules
+	 * 
+	 * @return string
+	 * 
+	 */
+	protected function preflight() {
+		
+		$phpVersion = PHP_VERSION;
+		
+		if(version_compare($phpVersion, self::minVersionPHP) >= 0) {
+			// good
+		} else {
+			$this->error("Please note that your current PHP version ($phpVersion) is not adequate to upgrade to the latest ProcessWire.");
+		}
+
+		if(!extension_loaded('pdo_mysql')) {
+			$this->error("Your PHP is not compiled with PDO support. PDO is required by ProcessWire.");
+		}
+
+		if(!class_exists('\ZipArchive')) {
+			$this->warning(
+				"Your PHP does not have ZipArchive support. This is required to install core or module upgrades with this tool. " . 
+				"You can still use this tool to identify new versions and install them manually."
+			);
+		}
+		
+		$upgradePaths = array($this->cachePath, $this->tempPath);
+
+		foreach($upgradePaths as $key => $path) {
+			if(!file_exists($path)) unset($upgradePaths[$key]);
+		}
+
+		if(count($upgradePaths)) {
+			$btn = $this->modules->get('InputfieldButton'); /** @var InputfieldButton $btn */
+			$btn->href = "./remove";
+			$btn->value = $this->_('Remove');
+			$btn->icon = 'trash-o';
+			return
+				$this->h('Upgrade files are already present. Please remove them before continuing.') . $this->ul($upgradePaths) . 
+				$this->p($btn->render());
+		}
+		
+		$lastRefresh = $this->session->getFor($this, 'lastRefresh');
+		
+		if(!$lastRefresh || $lastRefresh < (time() - 86400)) {
+			$btn = $this->refreshButton();
+			$btn->value = $this->_('Continue');
+			$btn->icon = 'angle-right';
+			return
+				$this->h('We will load the latest core and module versions from the ProcessWire modules directory.') . 
+				$this->p('Please be patient, this may take a few seconds to complete.') . 
+				$this->p($btn->render()) .
+				$this->lastRefreshInfo(); 
+		}
+
+		return '';
+	}
+
+	/**
+	 * Ask user to select branch or make them remove existing installation files
+	 *
+	 */
+	public function execute() {
+		
+		$sanitizer = $this->sanitizer;
+		$config = $this->config;
+		$modules = $this->modules;
+		
+		$preflight = $this->preflight();
+		if($preflight) return $preflight;
+
+		/** @var MarkupAdminDataTable $table */
+		$table = $modules->get('MarkupAdminDataTable'); 
+		$table->setEncodeEntities(false);
+		$table->headerRow(array(
+			$this->_('Module title'), 
+			$this->_('Module name'), 
+			$this->_('Installed'), 
+			$this->_('Latest'),
+			$this->_('Status'),
+			$this->_('Links'),
+		));
+
+		$items = $this->checker->getVersions();
+		$numPro = 0;
+		
+		if(count($items)) { 
+			foreach($items as $name => $item) {
+				if(empty($item['local'])) continue;
+				if(empty($item['remote'])) { /* not in directory */ }
+				
+				$remote = $sanitizer->entities($item['remote']);
+				$installer = empty($item['installer']) ? '' : $sanitizer->entities($item['installer']);
+				$upgradeLabel = $this->_('Up-to-date'); 
+				$links = [];
+				
+				if($item['new'] > 0) { 
+					$upgradeLabel = $this->_('Upgrade available'); 
+					$remote = $this->b($remote); 
+				} else if($item['new'] < 0) { 
+					$upgradeLabel .= '+';
+				}
+				if(empty($remote)) {
+					$remote = "";
+					$upgradeLabel = "";
+				}
+				if(empty($item['branch'])) {
+					$upgradeURL = $config->urls->admin . "module/?update=" . ($installer ? $installer : $name);
+				} else {
+					$upgradeURL = "./check?branch=$item[branch]";
+				}
+				if($item['new'] > 0) {
+					$upgradeLabel = $this->icon('lightbulb-o') . $upgradeLabel;
+					$upgrade = $this->a($upgradeURL, $upgradeLabel);
+				} else {
+					$upgrade = $this->span($upgradeLabel, 'detail');
+				}
+				$urls = isset($item['urls']) ? $item['urls'] : array();
+				foreach($urls as $key => $url) $urls[$key] = $sanitizer->entities($url);
+				if(!empty($urls['support'])) {
+					$links[] = $this->iconLink('life-ring', $urls['support'], 'Support'); 
+				}
+				if(!empty($urls['repo']) && strpos($urls['repo'], 'github.com')) {
+					$links[] = $this->iconLink('github-alt', $urls['repo'], 'GitHub'); 
+				} else if(!empty($urls['repo'])) {
+					$links[] = $this->iconLink('info-circle', $urls['repo'], 'Details'); 
+				} else if(!empty($item['href'])) {
+					$links[] = $this->iconLink('info-circle', $item['href'], 'Info'); 
+				}
+				if(!empty($urls['dir'])) {
+					$links[] = $this->iconLink('share-alt', $urls['dir'], 'Directory'); 
+				}
+				
+				if(empty($remote) && empty($links)) continue;
+				
+				// else if(!$item['remote']) $upgrade = "<span class='detail'>" . $this->_('Not in directory') . "</span>";
+				$icon = empty($item['icon']) ? wireIconMarkup('plug', 'fw') : wireIconMarkup($this->sanitizer->entities($item['icon']), 'fw');
+				$title = $icon . ' ' . $sanitizer->entities($item['title']);
+				$proLabel = ' ' . $this->span('PRO', 'pro');
+				
+				if($installer && empty($remote)) {
+					$title = $this->tooltip("Upgraded with $installer", $title);
+					if(!empty($item['pro'])) $title .= $proLabel;
+					
+				} else if(!empty($item['pro'])) {
+					$title = $this->a($upgradeURL, $title) . $proLabel;
+					if($item['new'] > 0) {
+						if(!empty($urls['support'])) $upgradeURL = $urls['support'];
+						$protip = 'PRO module upgrade available in ProcessWire VIP support board (login required)';
+						$upgrade = $this->tooltip($protip, $this->aa($upgradeURL, $upgradeLabel));
+						// $title = $this->tooltip($protip, $this->aa($upgradeURL, $title) . $proLabel);
+					}
+					$numPro++;
+					
+				} else {
+					$title = $this->a($upgradeURL, $title); 
+				}
+				
+				$table->row(array(
+					$title,
+					$sanitizer->entities($name), 
+					$sanitizer->entities($item['local']), 
+					$remote,
+					$upgrade,
+					$this->span(implode(' ', $links), 'links')
+				));
+			}
+		}
+
+		return
+			$table->render() . 
+			$this->p($this->refreshButton(true)->render()) . 
+			$this->lastRefreshInfo();
+	}
+
+	/**
+	 * Refresh module versions data
+	 * 
+	 */
+	public function executeRefresh() {
+		$this->session->setFor($this, 'lastRefresh', time());
+		if(method_exists($this->modules, 'resetCache')) $this->modules->resetCache();
+		$this->checker->getVersions(true);
+		$this->message($this->_('Refreshed module versions data'));
+		$this->session->redirect('./');
+	}
+
+	/**
+	 * Remove existing installation files
+	 *
+	 */
+	public function executeRemove() {
+		$paths = array(
+			$this->cachePath, 
+			$this->tempPath,
+		); 
+		foreach($paths as $path) {
+			if(!file_exists($path)) continue;
+			if(wireRmdir($path, true)) {
+				$this->session->message(sprintf($this->_('Removed: %s'), $path));
+			} else {
+				$this->session->error(sprintf($this->_('Permission error removing path (please remove manually): %s'), $path));
+			}
+		}	
+		$this->session->redirect('./'); 
+	}
+
+	/**
+	 * Check the selected branch and compare to current version to see if user wants to continue
+	 *
+	 */
+	public function executeCheck() {
+
+		$this->coreUpgrade();
+		
+		$config = $this->config;
+		$input = $this->input; 
+		$modules = $this->modules;
+		
+		if(!$config->debug) {
+			$this->error(
+				"While optional, we recommend that you enable debug mode during the upgrade so that you will see detailed error messages, should they occur. " . 
+				"Do this by editing /site/config.php and setting the debug option to true. Example: \$config->debug = true;"
+			); 
+		}
+
+		$name = $input->get('branch'); 
+		if(empty($name)) throw new WireException("No branch selected"); 
+		
+		$branch = $this->getBranch($name);
+		if(!count($branch)) throw new WireException("Unknown branch");
+		
+		$this->headline("ProcessWire Core ($name)");
+
+		$this->setBranch($name); 
+		$result = version_compare($config->version, $branch['version']);
+
+		if($result < 0) { 
+			$msg = "The available version ($branch[version]) is newer than the one you currently have ($config->version).";
+
+		} else if($result > 0) {
+			$msg = "The available version ($branch[version]) is older than the one you currently have ($config->version).";
+
+		} else {
+			$msg = "The available version is the same as the one you currently have.";
+		}
+
+		$out = $this->h("Do you want to download and install ProcessWire $branch[name] version $branch[version]?") . $this->p($msg); 
+		
+		/** @var InputfieldButton $btn */
+		$btn = $modules->get('InputfieldButton'); 
+		$btn->href = "./download";
+		$btn->value = $this->_('Download Now'); 
+		$btn->icon = 'cloud-download';
+		$out .= $btn->render();
+
+		$btn = $modules->get('InputfieldButton'); 
+		$btn->href = "./"; 
+		$btn->value = $this->_('Abort'); 
+		$btn->icon = 'times-circle';
+		$btn->addClass('ui-priority-secondary'); 
+		$out .= $btn->render();
+
+		$out .= $this->p("After clicking the download button, be patient, as this may take a minute.", 'detail');
+
+		return $out; 
+	}
+
+	/**
+	 * Download the selected branch ZIP file
+	 *
+	 */
+	public function executeDownload() {
+		
+		$branch = $this->getBranch();
+		if(empty($branch)) throw new WireException("No branch selected"); 
+
+		wireMkdir($this->tempPath); 
+		$http = new WireHttp();
+		$this->wire($http);
+		$zipfile = $http->download($branch['zipURL'], $this->tempPath . "$branch[name].zip"); 
+
+		if(!$zipfile || !file_exists($zipfile) || !filesize($zipfile)) {
+			throw new WireException("Unable to download $branch[zipURL]"); 
+		}
+
+		$this->message("Downloaded version $branch[version] (" . number_format(filesize($zipfile)) . " bytes)"); 
+		$this->session->redirect('./database'); 
+	}
+
+	/**
+	 * Export database or instruct them to do it
+	 *
+	 */
+	public function executeDatabase() {
+		
+		$this->coreUpgrade();
+		
+		$config = $this->config;
+		$input = $this->input; 
+		$session = $this->session;
+		$modules = $this->modules;
+
+		$session->removeFor($this, 'database'); 
+		$branch = $this->getBranch();
+		$canBackup = class_exists('\\ProcessWire\\WireDatabaseBackup');
+
+		if($input->get('backup') && $canBackup) {
+			$options = array(
+				'filename' => $config->dbName . "-" . $config->version . "-" . date('Y-m-d_H-i-s') . ".sql",
+				'description' => "Automatic backup made by ProcessWireUpgrade before upgrading from {$config->version} to $branch[version]."
+			);
+			$backups = $this->database->backups();
+			$file = $backups->backup($options); 
+			$errors = $backups->errors();
+			if(count($errors)) {
+				foreach($errors as $error) $this->error($error);
+			}
+			if($file) {
+				clearstatcache();
+				$bytes = filesize($file); 
+				$file = str_replace($config->paths->root, '/', $file); 
+				$this->message("Backup saved to $file ($bytes bytes) - Please note this location should you later need to restore it."); 
+				$session->setFor($this, 'database', $file); 
+			} else {
+				$this->error("Database backup failed"); 
+			}
+			$session->redirect('./prepare'); 
+		}
+
+		$out = $this->h('Database Backup'); 
+
+		if($canBackup) {
+			$out .= $this->p('Your version of ProcessWire supports automatic database backups.*');
+			
+			/** @var InputfieldButton $btn */
+			$btn = $modules->get('InputfieldButton'); 
+			$btn->href = "./database?backup=1";
+			$btn->value = $this->_('Backup Database Now'); 
+			$btn->icon = 'database';
+			$out .= $btn->render();
+
+			$btn = $modules->get('InputfieldButton'); 
+			$btn->href = "./prepare";
+			$btn->icon = 'angle-right';
+			$btn->value = $this->_('Skip Database Backup'); 
+			$btn->addClass('ui-priority-secondary'); 
+			$out .= $btn->render();
+
+			$out .= $this->p('*We also recommend creating an independent database backup, for instance with PhpMyAdmin.', 'detail');
+
+		} else {
+			$out .= $this->p(
+				"Your current version of ProcessWire does not support automatic database backups. " . 
+				"We recommend making a backup of database `$config->dbName` using a tool like PhpMyAdmin. " . 
+				"Click the button below once you have saved a backup."
+			);
+
+			/** @var InputfieldButton $btn */
+			$btn = $modules->get('InputfieldButton'); 
+			$btn->href = "./prepare";
+			$btn->icon = 'angle-right';
+			$btn->value = $this->_('Confirm'); 
+			$out .= $btn->render();
+		}	
+
+		return $this->out($out); 
+	}
+
+	/**
+	 * Unzip files and prepare them for installation
+	 *
+	 */
+	public function executePrepare() {
+		
+		$config = $this->config;
+		$this->coreUpgrade();
+
+		$error = '';
+		$branch = $this->getBranch();
+		if(empty($branch)) throw new WireException("No branch selected"); 
+		$zipfile = $this->tempPath . "$branch[name].zip"; // site/assets/cache/ProcessWireUpgrade/branch-dev.zip
+
+		if(!file_exists($zipfile)) throw new WireException("Unable to locate ZIP: $zipfile"); 
+		$files = wireUnzipFile($zipfile, $this->tempPath); 
+		if(!count($files)) $error = "No files were found in $zipfile";
+
+		$oldVersion = $config->version;
+		$newVersion = $branch['version'];
+
+		$rootPath = dirname(rtrim($this->wirePath, '/')) . '/'; 
+		$rootTempPath = $this->tempPath;  // site/assets/cache/ProcessWireUpgrade/
+		$wireTempPath = $this->tempPath . 'wire/'; // site/assets/cache/ProcessWireUpgrade/wire/
+		$wireNewName = "wire-$newVersion"; // wire-2.5.0
+
+		if(!$error && !is_dir($wireTempPath)) {
+			// adjust paths according to where they were unzipped, as needed
+			// need to drill down a level from extracted archive
+			// i.e. files[0] may be a dir like /ProcessWire-dev/
+			$rootTempPath = $this->tempPath . trim($files[0], '/') . '/';
+			$wireTempPath = $rootTempPath . "wire/";
+			if(!is_dir($wireTempPath)) $error = "Unable to find /wire/ directory in archive";
+		}
+
+		$indexNewName = "index-$newVersion.php"; // index-2.5.0.php
+		$htaccessNewName = "htaccess-$newVersion.txt"; // htaccess-2.5.0.txt
+		
+		$newIndexData = file_get_contents($rootTempPath . 'index.php');
+		$newIndexVersion = preg_match('/define\("PROCESSWIRE", (\d+)\);/', $newIndexData, $matches) ? (int) $matches[1] : 0;
+		$oldIndexData = file_get_contents($rootPath . 'index.php');
+		$oldIndexVersion = preg_match('/define\("PROCESSWIRE", (\d+)\);/', $oldIndexData, $matches) ? (int) $matches[1] : 0;
+		$indexIsOk = $newIndexVersion === $oldIndexVersion;
+		
+		$oldHtaccessData = file_get_contents($rootTempPath . 'htaccess.txt');
+		$oldHtaccessVersion = preg_match('/@htaccessVersion\s+(\d+)/', $oldHtaccessData, $matches) ? (int) $matches[1] : 0;
+		$newHtaccessData = file_get_contents($rootPath . '.htaccess');
+		$newHtaccessVersion = preg_match('/@htaccessVersion\s+(\d+)/', $newHtaccessData, $matches) ? (int) $matches[1] : 0;
+		$htaccessIsOk = $oldHtaccessVersion === $newHtaccessVersion;
+	
+		$rootWritable = is_writable($rootPath) && is_writable($rootPath . "wire/");
+
+		// determine where we will be moving upgrade files to
+		if($rootWritable) { 
+			// if root path is writable, we can place new dirs/files in the same
+			// location as what they are replacing, i.e. /wire/ and /wire-2.5.0/
+			$wireNewPath = $rootPath . $wireNewName . "/";
+			$htaccessNewFile = $rootPath . $htaccessNewName; 
+			$indexNewFile = $rootPath . $indexNewName;
+
+		} else {
+			// if root is not writable, we will place dirs/files in /site/assets/cache/core-upgrade/ instead. 
+			$cacheUpgradePath = $this->cachePath;
+			$cacheUpgradeURL = str_replace($config->paths->root, '/', $cacheUpgradePath); 
+			$this->warning(
+				"Your file system is not writable, so we are installing files to $cacheUpgradeURL instead. " . 
+				"You will have to copy them manually to your web root."
+			); 
+			wireMkdir($cacheUpgradePath); 
+			$wireNewPath = $cacheUpgradePath . 'wire/';
+			$htaccessNewFile = $cacheUpgradePath . 'htaccess.txt';
+			$indexNewFile = $cacheUpgradePath . 'index.php';
+		}
+
+		if(!$error) {
+			$this->renameNow($wireTempPath, $wireNewPath); // /temp/path/wire/ => /wire-2.5.0/
+			$this->renameNow($rootTempPath . "index.php", $indexNewFile); // /temp/path/index.php => /index-2.5.0.php
+			$this->renameNow($rootTempPath . "htaccess.txt", $htaccessNewFile); // /temp/path/htaccess.txt => /htaccess-2.5.0.txt
+			// remove /temp/path/ as no longer needed since we've taken everything we need out of it above
+			wireRmdir($this->tempPath, true); 
+		}
+
+		if($error) throw new WireException($error); 
+		
+		$wireNewLabel = str_replace($config->paths->root, '/', $wireNewPath); 
+		$indexNewLabel = $rootWritable ? basename($indexNewFile) : str_replace($config->paths->root, '/', $indexNewFile); 
+		$htaccessNewLabel = $rootWritable ? basename($htaccessNewFile) : str_replace($config->paths->root, '/', $htaccessNewFile);
+
+		$out = 	
+			$this->h('Upgrade files copied') . 
+			$this->p(
+				"We have prepared copies of upgrade files for installation. At this point, " .
+				"you may install them yourself by replacing the existing `/wire/` directory with `$wireNewLabel`, " . 
+				"and optionally `index.php` with `$indexNewLabel`, and `.htaccess` with `$htaccessNewLabel`. " . 
+				($rootWritable ? "Or, since your file system is writable, this tool can install them." : "Full instructions are below.")
+			);
+		
+		$items = array();
+
+		if($indexIsOk) {
+			$items[] = "Your `index.php` file appears to be up-to-date, it should be okay to leave your existing one in place.";
+		} else {
+			$items[] = "Your `index.php` file appears to need an update, check that you haven’t made any site-specific customizations to it before replacing it.";
+		}
+
+		if($htaccessIsOk) {
+			$items[] = "Your `.htaccess` file appears to be up-to-date, it should be okay to leave your existing one in place.";
+		} else {
+			$items[] = "Your `.htaccess` file appears to need an update, check for any site-specific customizations before replacing it. You may want to apply updates to it manually.";
+		}
+		
+		$out .= $this->ul($items);
+
+		if($rootWritable) {
+
+			$htaccessNote = '';
+			if(!$htaccessIsOk) {
+				$htaccessNote = 'Since the `.htaccess` file can often have site-specific customizations, it would be best to handle that one manually, unless you know it is unmodified.';
+			}
+				
+			$out .= 
+				$this->h('Want this tool to install the upgrade?') . 
+				$this->p("Check the boxes below for what you’d like us to install. $htaccessNote");
+			
+
+			/** @var InputfieldSubmit $btn */
+			$btn = $this->modules->get('InputfieldSubmit');
+			$btn->attr('name', 'submit_install');
+			$btn->value = $this->_('Install');
+			$btn->icon = 'angle-right';
+
+			$out .= 
+				$this->form('./install/', 
+					$this->p(
+						$this->checkbox('wire', 'Install new core `/wire/` directory', "(old will be renamed to /.wire-$oldVersion/)", true) . 
+						$this->checkbox('index', 'Install new `index.php` file', "(old will be renamed to .index-$oldVersion.php)", !$indexIsOk) . 
+						$this->checkbox('htaccess', 'Install new `.htaccess` file', "(old will be renamed to .htaccess-$oldVersion)", false) 
+					) . 
+					$this->p($btn->render())
+				);
+
+		} else {
+			// root not writable
+
+			$backupInfo = array(
+				"/wire" => "/.wire-$oldVersion", 
+				"/index.php" => "/.index-$oldVersion.php", 
+				"/.htaccess" => "/.htaccess-$oldVersion", 
+			);
+			
+			$renameInfo = array(
+				rtrim($wireNewPath, '/') => "/wire",
+				"$indexNewFile" => "/index.php", 
+				"$htaccessNewFile" => "/.htaccess", 
+			);
+
+			$out .= $this->p(
+				"Your file system is not writable so we can’t automatically install the upgrade files for you. " . 
+				"However, the files are ready for you to move to their destinations."
+			);
+
+			$out .= 
+				$this->h('Backup your existing files') . 
+				$this->p(
+					"While optional, we strongly recommend making backups of everything replaced so that you can always revert back to it if needed. " . 
+					"We recommend doing this by performing the following file rename operations:"
+				);
+			
+			$items = array();
+			foreach($backupInfo as $old => $new) {
+				$items[] = "Rename `$old` to `$new`";
+			}
+			$out .= $this->ul($items);
+
+			$out .= 
+				$this->h('Migrate the new files') . 
+				$this->p('Now you can migrate the new files, renaming them from their temporary location to their destination.'); 
+
+			$items = array();
+			foreach($renameInfo as $old => $new) {
+				$old = str_replace($config->paths->root, '/', $old); 
+				$items[] = "Rename `$old` to `$new`";
+			}
+			$out .= 
+				$this->ul($items) . 
+				$this->p('Once you’ve completed the above steps, your upgrade will be complete.') . 
+				$this->completionNotes();
+		}
+
+		$out .= $this->p('*In many cases, it is not necessary to upgrade the index.php and .htaccess files since they don’t always change between versions.', 'detail');
+
+		return $this->out($out); 
+	}
+
+	/**
+	 * Install prepared files
+	 *
+	 */
+	public function executeInstall() {
+		
+		$this->coreUpgrade();
+		
+		$input = $this->input;
+		$config = $this->config;
+
+		if(!$input->post('submit_install')) throw new WireException('No form received'); 
+		
+		$branch = $this->getBranch();
+		if(empty($branch)) throw new WireException("No branch selected"); 
+		
+		$oldVersion = $config->version;
+		$newVersion = $branch['version'];
+		$rootPath = dirname(rtrim($this->wirePath, '/')) . '/'; 
+		$renames = array();
+
+		if($input->post('wire')) {
+			$renames["wire"] = ".wire-$oldVersion";
+			$renames["wire-$newVersion"] = "wire";
+		}
+		if($input->post('index')) {
+			$renames["index.php"] = ".index-$oldVersion.php";
+			$renames["index-$newVersion.php"] = "index.php";
+		}
+		if($input->post('htaccess')) { 
+			$renames[".htaccess"] = ".htaccess-$oldVersion";
+			$renames["htaccess-$newVersion.txt"] = ".htaccess";
+		}
+
+		foreach($renames as $old => $new) {
+			$this->renameLater($rootPath . $old, $rootPath . $new); 
+		}
+
+		$out = 
+			$this->h('Upgrade completed') . 
+			$this->p($this->b('Double check that everything works before you leave this page')) . 
+			$this->completionNotes();
+
+		return $this->out($out); 
+	}
+
+	/**
+	 * Completion notes
+	 *
+	 */
+	protected function completionNotes() {
+		
+		$config = $this->config;
+		$branch = $this->getBranch();
+		$newVersion = $branch['version']; 
+		$oldVersion = $config->version; 
+		$dbFile = $this->session->getFor($this, 'database'); 
+		$dbNote = '';
+		
+		if($dbFile) $dbNote = "Your database was backed up to this file:<br />`$dbFile`";
+		
+		$frontEndLink = $this->aa($config->urls->root, 'front-end'); 
+		$adminLink = $this->aa($config->urls->admin, 'admin'); 
+		$items = array();
+
+		$items[] = "Test out both the $frontEndLink and $adminLink of your site in full to make sure everything works.";
+		$items[] = "Installed files have permission `$config->chmodFile` and directories `$config->chmodDir`. Double check that these are safe with your web host, especially in a shared hosting environment.";
+
+		if($config->debug) {
+			$items[] = "For production sites, remember to turn off debug mode once your upgrade is complete.";
+		}
+		
+		$out = $this->ul($items);
+	
+		$out .= 
+			$this->p($this->b('If your upgrade did not work…')) . 
+			$this->p(
+				'If you encounter fatal error messages (in the front-end or admin links above), hit reload/refresh in that browser tab until it clears (2-3 times). ' . 
+				'It may take a few requests for ProcessWire to apply any necessary database schema changes. ' . 
+				'Should you determine that the upgrade failed for some reason and you want to revert back to the previous version, ' . 
+				'below are the steps to undo what was just applied.'
+			) . 
+			$this->p('Step 1: Remove the installed updates by renaming or deleting them') . 
+			$this->ul(array(
+				"Delete `/wire/` directory OR rename it to `/.wire-$newVersion/`",
+				"If you replaced the `.htaccess` file: Delete `.htaccess` OR rename it to `.htaccess-$newVersion`", 
+				"If you replaced the `index.php` file: Delete `index.php` OR rename it to `.index-$newVersion.php`"
+			)) . 
+			$this->p('Step 2: Restore backed up files') . 
+			$this->ul(array(
+				"Rename directory `/.wire-$oldVersion/` to `/wire/`",
+				"If applicable: Rename `.htaccess-$oldVersion` to `.htaccess`",
+				"If applicable: Rename `.index-$oldVersion.php` to `index.php`",
+			));
+		
+		if($dbNote) $out .= 
+			$this->p('Step 3: Restore backed up database (if necessary)') . 
+			$this->ul(array($dbNote)); 
+			
+
+		return $out;
+	}
+
+	/**
+	 * Schedule a rename operation, which will occur at __destruct
+	 * 
+	 * @param string $oldPath
+	 * @param string $newPath
+	 *
+	 */
+	protected function renameLater($oldPath, $newPath) {
+		$this->renames[$oldPath] = $newPath; 
+		$old = basename(rtrim($oldPath, '/')); 
+		$new = basename(rtrim($newPath, '/')); 
+		$this->message("Rename $old => $new"); 
+	}
+
+	/**
+	 * Perform a rename now
+	 * 
+	 * @param string $old
+	 * @param string $new
+	 * @return bool
+	 * @throws WireException
+	 *
+	 */
+	protected function renameNow($old, $new) {
+
+		$result = true; 
+
+		// for labels
+		$_old = str_replace($this->config->paths->root, '/', $old); 
+		$_new = str_replace($this->config->paths->root, '/', $new); 
+
+		if(!file_exists($old)) {
+			$this->error("$_old does not exist"); 
+			return $result; 
+		}
+
+		if(file_exists($new)) {
+			$this->message("$_new already exists (we left it untouched)"); 
+			return $result; 
+		}
+	
+		$result = rename($old, $new); 	
+
+		if($result) { 
+			$this->message("Renamed $_old => $_new"); 
+		} else {
+			$this->error("Unable to rename $_old => $_new"); 
+			if(basename(rtrim($new, '/')) == 'wire') {
+				throw new WireException("Upgrade aborted. Unable to rename $_old => $_new"); 
+			}
+		}
+
+		return $result; 
+	}
+	
+	protected function coreUpgrade() {
+		$this->headline($this->_('Core upgrade')); 
+	}
+
+	/**
+	 * @param bool $showInHeader
+	 * @return InputfieldButton
+	 * 
+	 */
+	protected function refreshButton($showInHeader = false) {
+		/** @var InputfieldButton $btn */
+		$btn = $this->modules->get('InputfieldButton');
+		$btn->href = './refresh';
+		$btn->value = $this->_('Refresh');
+		$btn->icon = 'refresh';
+		if($showInHeader && method_exists($btn, 'showInHeader')) $btn->showInHeader(true);
+		return $btn;
+	}
+
+	/**
+	 * @param bool $paragraph
+	 * @return string
+	 * 
+	 */
+	protected function lastRefreshInfo($paragraph = true) {
+		$lastRefresh = $this->session->getFor($this, 'lastRefresh');
+		$lastRefresh = $lastRefresh ? wireRelativeTimeStr($lastRefresh) : $this->_('N/A');
+		$out = sprintf($this->_('Last refresh: %s'), $lastRefresh);
+		if($paragraph) $out = $this->p($out, 'detail last-refresh-info');
+		return $out;
+	}
+
+	/**
+	 * Process rename operations
+	 *
+	 */
+	public function __destruct() {
+		if(!count($this->renames)) return;
+		//$rootPath = dirname(rtrim($this->wirePath, '/')) . '/'; 
+		foreach($this->renames as $oldPath => $newPath) {
+			if(file_exists($newPath)) {	
+				$n = 0;
+				do { 
+					$newPath2 = $newPath . "-" . (++$n); 
+				} while(file_exists($newPath2)); 
+				if(rename($newPath, $newPath2)) {
+					$this->message("Renamed $newPath => $newPath2");
+				}
+			}
+			$old = basename(rtrim($oldPath, '/')); 
+			$new = basename(rtrim($newPath, '/')); 
+			if(rename($oldPath, $newPath)) {
+				$this->message("Renamed $old => $new"); 
+			} else {
+				$this->error("Unable to rename $old => $new"); 		
+			}
+		}
+		$this->renames = array();
+	}
+	
+	public function h($str, $h = 2) { return "<h$h>$str</h$h>"; }
+	public function p($str, $class = '') { return $class ? "<p class='$class'>$str</p>" : "<p>$str</p>"; }
+	public function a($href, $label, $class = '') { return ($class ? "<a class='$class' " : "<a ") . "href='" . $this->sanitizer->entities($href) . "'>$label</a>"; }
+	public function aa($href, $label, $class = '') { return str_replace('<a', "<a target='_blank'", $this->a($href, $label, $class)); }
+	public function span($str, $class = '') { return $class ? "<span class='$class'>$str</span>" : "<span>$str</span>"; }
+	public function b($str, $class = '') { return $class ? "<strong class='$class'>$str</strong>" : "<strong>$str</strong>"; }
+	public function ul(array $items) { return "<ul class='bullets'><li>" . implode('</li><li>', $items) . '</li></ul>'; }
+	public function form($action, $content) { return "<form action='$action' method='post'>$content</form>"; }
+	public function icon($name, $fw = true) { return wireIconMarkup($name, ($fw ? 'fw' : '')); }
+	public function iconLink($icon, $href, $tooltip) { return str_replace('<a', "<a title='$tooltip'", $this->aa($href, $this->icon($icon), 'pw-tooltip')); }
+	public function tooltip($tooltip, $markup) { return "<span class='pw-tooltip' title='$tooltip'>$markup</span>"; }
+	
+	public function checkbox($name, $label, $note = '', $checked = false) {
+		$adminTheme = $this->wire()->adminTheme;
+		$checkboxClass = $adminTheme ? $this->wire()->adminTheme->getClass('input-checkbox') : '';
+		$checked = $checked ? 'checked' : '';
+		$note = $note ? $this->span($note, 'detail') : '';
+		return "<div><label><input type='checkbox' class='$checkboxClass' name='$name' $checked value='1'> $label $note</label></div>";
+	}
+	
+	protected function out($out) {
+		if(strpos($out, '`') === false) return $out;
+		$out = preg_replace('/[`]([^<\n`]+?)[`]/', '<code>$1</code>', $out);
+		return $out;
+	}
+	
+	/**
+	 * Install
+	 *
+	 */
+	public function ___install() {
+
+		// create the page our module will be assigned to
+		$page = new Page();
+		$page->template = 'admin';
+		$page->name = self::pageName; 
+
+		// installs to the admin "Setup" menu ... change as you see fit
+		$page->parent = $this->pages->get($this->config->adminRootPageID)->child('name=setup');
+		$page->process = $this; 
+
+		// we will make the page title the same as our module title
+		// but you can make it whatever you want
+		$info = self::getModuleInfo();
+		$page->title = $info['title'];
+
+		// save the page
+		$page->save();
+
+		// tell the user we created this page
+		$this->message("Created Page: {$page->path}"); 
+	}
+
+	/**
+	 * Uninstall
+	 *
+	 */
+	public function ___uninstall() {
+
+		// find the page we installed, locating it by the process field (which has the module ID)
+		// it would probably be sufficient just to locate by name, but this is just to be extra sure.
+		$moduleID = $this->modules->getModuleID($this); 
+		$page = $this->pages->get("template=admin, process=$moduleID, name=" . self::pageName . "|core-upgrade"); 
+
+		if($page->id) {
+			// if we found the page, let the user know and delete it
+			$this->message("Deleting Page: {$page->path}"); 
+			$page->delete();
+		}
+
+		wireRmdir($this->tempPath, true); 
+	}
+
+}
+

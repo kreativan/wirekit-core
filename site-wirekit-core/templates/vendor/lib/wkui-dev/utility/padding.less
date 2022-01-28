@@ -1,0 +1,31 @@
+/* =========================================================== 
+  Padding
+=========================================================== */
+
+.wk-padding {
+  padding: @wk-padding;
+}
+
+.wk-padding-s {
+  padding: @wk-padding-s;
+}
+
+.wk-padding-m {
+  padding: @wk-padding-m;
+  @media(max-width: @wk-breakpoint-small) {
+    padding: @wk-padding;
+  }
+}
+
+.wk-padding-l {
+  padding: @wk-padding-l;
+  @media(max-width: @wk-breakpoint-small) {
+    padding: @wk-padding;
+  }
+}
+
+// Hooks
+// ========================================================================
+
+.wk-hook-padding-root();
+.wk-hook-padding-root() {}

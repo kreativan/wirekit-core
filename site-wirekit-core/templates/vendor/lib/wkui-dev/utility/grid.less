@@ -1,0 +1,124 @@
+@wk-grid-gap: @wk-padding;
+@wk-grid-gap-s: @wk-padding-s;
+@wk-grid-gap-m: @wk-padding-m;
+@wk-grid-gap-l: @wk-padding-l;
+
+/**
+ *  Grid based on css grid
+ *  eg: "wk-grid wk-grid-4 wk-grid-2--md wk-grid-1--sm"
+ *  custom: "wk-grid wk-grid-40-60 wk-grid-2--md wk-grid-1--sm"
+ *  align items horizontaly: "wk-grid-left wk-grid-right wk-grid-center wk-grid-strech-h" 
+ *  align items vertically: "wk-grid-top wk-grid-bottom wk-grid-middle wk-grid-strech-v" 
+ */
+
+.wk-grid {
+
+  display: grid;
+  grid-auto-columns: auto;
+
+  &:not(.wk-grid-collapse) {
+    grid-gap: @wk-grid-gap;
+  }
+
+  &.wk-grid-s {
+    grid-gap: @wk-grid-gap-s;
+  }
+
+  &.wk-grid-m {
+    grid-gap: @wk-grid-gap-m;
+  }
+
+  &.wk-grid-l {
+    grid-gap: @wk-grid-gap-l;
+  }
+
+  // 1st item expand, 2nd auto
+  &.wk-grid-auto-first {
+    grid-template-columns: auto 1fr;
+  }
+
+  // 1st item auto, 2nd expend
+  &.wk-grid-auto-last {
+    grid-template-columns: 1fr auto;
+  }
+
+  // Custom grid size in % example
+  // Follow this pattern: 40-60, 30-70 etc..
+  &.wk-grid-40-60 {
+    grid-template-columns: 40% 60%;
+  }
+
+  // Equal sizes
+  &.wk-grid-6 {grid-template-columns: repeat(6, 1fr);}
+  &.wk-grid-5 {grid-template-columns: repeat(5, 1fr);}
+  &.wk-grid-4 {grid-template-columns: repeat(4, 1fr);}
+  &.wk-grid-3 {grid-template-columns: repeat(3, 1fr);}
+  &.wk-grid-2 {grid-template-columns: 1fr 1fr;}
+  &.wk-grid-1 {grid-template-columns: 1fr;}
+
+  // Align items horizontaly
+  &.wk-grid-left {justify-items: start;}
+  &.wk-grid-right {justify-items: end;}
+  &.wk-grid-center {justify-items: center;}
+  &.wk-grid-strech-h {justify-items: stretch;}
+
+  // Align items vertically
+  &.wk-grid-top {align-items: start;}
+  &.wk-grid-bottom {align-items: end;}
+  &.wk-grid-middle {align-items: center;}
+  &.wk-grid-strech-v {align-items: stretch;}
+
+  // Grid item covers avalable space
+  &.wk-grid-cover {
+    justify-items: stretch;
+    align-items: stretch;
+  }
+
+  // Order grid items
+  & > .wk-grid-first {order: -1;}
+  & > .wk-grid-last {order: 99;}
+
+
+  //  Medium
+  // ===========================================================
+
+  @media(max-width: @wk-breakpoint-medium) {
+
+    &.wk-grid-4--md {grid-template-columns: repeat(4, 1fr);}
+    &.wk-grid-3--md {grid-template-columns: repeat(3, 1fr);}
+    &.wk-grid-2--md {grid-template-columns: 1fr 1fr;}
+    &.wk-grid-1--md {grid-template-columns: 1fr;}
+
+    & > .wk-grid-first--md {order: -1;}
+    & > .wk-grid-last--md {order: 99;}
+
+    &.wk-grid-gap-l {
+      grid-gap: @wk-grid-gap-m;
+    }
+
+  }
+
+  //  Small
+  // ===========================================================
+  @media(max-width: @wk-breakpoint-small) {
+
+    &.wk-grid-2--sm {grid-template-columns: 1fr 1fr;}
+    &.wk-grid-1--sm {grid-template-columns: 1fr;}
+
+    & > .wk-grid-first--sm {order: -1;}
+    & > .wk-grid-last--sm {order: 99;}
+
+  }
+
+  // Hook
+  .wk-hook-grid();
+
+}
+
+
+// Hooks
+// ========================================================================
+.wk-hook-grid-root();
+.wk-hook-grid-root() {}
+
+.wk-hook-grid() {}

@@ -1,0 +1,38 @@
+/* =========================================================== 
+  Backgroud
+=========================================================== */
+
+.wk-light {
+  .light();
+  .wk-hook-light();
+}
+
+.wk-bg-primary {
+
+  background: @wk-bg-primary;
+
+  & when (@wk-bg-primary-mode = dark) {
+    .light();
+  }
+
+}
+
+.wk-bg-muted {
+  background: @wk-bg-muted;
+}
+
+.wk-bg-dark {
+  background: @wk-bg-dark;
+  .wk-light();
+}
+
+.wk-bg-white {
+  background: @wk-bg-white;
+}
+
+// Hooks
+// ========================================================================
+.wk-hook-background-root();
+.wk-hook-background-root() {}
+
+.wk-hook-light() {}
