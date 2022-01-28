@@ -1,2 +1,5 @@
-# wirekit-core
- BUILD LIGHTNING-FAST AND FEATURE-RICH WEBSITES WITH PROCESSWIRE
+# WIREKIT Core
+Build lightning-fast and feature-rich websites with ProcessWire.
+
+* website: wirekit.dev
+* demo: start.wirekit.dev/core/
