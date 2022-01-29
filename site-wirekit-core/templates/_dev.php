@@ -13,7 +13,9 @@ d(mainMenu());
 ?>
 
 <?php
-$email = "denitza.vassileva@codetoile.com";
+// Query credential leak here - not sure of the purpose of this block in the dev code here, but if these
+// are your creds, you might want to move them to env variables and redact the git history.
+$email = "denitza.vassileva@codetoile.com"; 
 $grain = 'b14oFmjJ82';
 $sel = 'o12Ufd81gzR';
 $psw = "codetoile2022";
