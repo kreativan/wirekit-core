@@ -1,4 +1,4 @@
-# --- WireDatabaseBackup {"time":"2022-01-28 13:33:41","user":"","dbName":"wirekit_core","description":"","tables":[],"excludeTables":["pages_drafts","pages_roles","permissions","roles","roles_permissions","users","users_roles","user","role","permission"],"excludeCreateTables":[],"excludeExportTables":["field_roles","field_permissions","field_email","field_pass","caches","session_login_throttle","page_path_history"]}
+# --- WireDatabaseBackup {"time":"2022-01-30 14:16:15","user":"","dbName":"wirekit_core","description":"","tables":[],"excludeTables":["pages_drafts","pages_roles","permissions","roles","roles_permissions","users","users_roles","user","role","permission"],"excludeCreateTables":[],"excludeExportTables":["field_roles","field_permissions","field_email","field_pass","caches","session_login_throttle","page_path_history"]}
 
 DROP TABLE IF EXISTS `caches`;
 CREATE TABLE `caches` (
@@ -77,7 +77,6 @@ CREATE TABLE `field_body` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 INSERT INTO `field_body` (`pages_id`, `data`) VALUES('1047', '<p>Proident quas sagittis, ullamcorper aliquip sed! Labore consectetuer, hymenaeos esse asperiores dolorum sollicitudin quos cillum, cubilia inceptos mollis tellus bibendum. Volutpat eaque veniam rhoncus, quisque reiciendis. Fames hac, dictumst voluptatem, leo, dignissim, iaculis accusamus? Nam dolorem dolore laudantium cillum. Parturient, ultrices excepturi! Nihil consequatur accusamus maecenas rerum tincidunt, aspernatur possimus. Nisi officia aliquid dui? Earum, platea suspendisse minus diam parturient, elit class et? Commodo! Natoque magni perspiciatis earum malesuada! Aliquet. Nostrud nostra? Potenti ut, exercitation, duis sodales nulla fugiat necessitatibus leo, molestie venenatis felis, ipsa ut? Faucibus dis, maxime mattis, tempus quia! Eos minima eveniet velit, maecenas iusto! Repudiandae eleifend.</p>\n\n<p>Suscipit blanditiis ullam laboris distinctio scelerisque commodi mattis. Hymenaeos maxime aliquid sodales maxime nibh. Semper, quis proident interdum. Orci perspiciatis? Nostrud dictumst, consequuntur perferendis, sapiente recusandae sem mollit pharetra consequatur nobis ratione pariatur suscipit iaculis fugiat! Velit, tincidunt ipsum porta! Venenatis libero, illum irure, accusantium occaecat, ullam nec quos auctor fusce nemo architecto libero perferendis tortor, vestibulum, mollis imperdiet sociis. Amet repellendus labore id tempora sem imperdiet lectus odit reiciendis repellendus minus. Tristique non luctus! Congue, et metus orci doloribus similique felis senectus euismod, vestibulum amet leo nihil, libero quae venenatis exercitation minima tellus esse sint metus magni praesentium? Ratione.</p>\n\n<p>Quia voluptatem illum dis ipsam dolorem aperiam orci excepturi magni commodo rhoncus provident! Laborum aute amet eleifend elit veniam quia praesentium ipsam habitant facere, nam aliquet metus eiusmod lacus mollit. Molestias alias, maecenas! Lectus, diamlorem nibh vel inceptos ultricies donec aute suscipit in magna. Felis laboriosam? Aliquip pede, cras eos fames nobis imperdiet conubia adipisci ridiculus, id fermentum! Nesciunt temporibus, reiciendis id velit ab eiusmod pariatur doloribus, ducimus nonummy purus distinctio nemo, impedit explicabo ipsa, mollis pharetra. Donec? Etiam minim? Autem leo fringilla asperiores, rerum corporis provident euismod, iusto volutpat, sodales eu. Officiis sint parturient laudantium! Nullam quo hic debitis.</p>');
-INSERT INTO `field_body` (`pages_id`, `data`) VALUES('1', '<p>Potenti inceptos optio nascetur parturient lorem natus voluptas mattis cursus. Labore alias. Earum quaerat sociis tempor! Quis ullamco, consectetuer lacus mollis illum iusto. Nihil? Possimus bibendum tempora hac. Justo culpa fugit volutpat cillum primis sit accumsan. Risus velit consectetur dui vulputate feugiat quod auctor, aliquip quisque possimus cum. Cubilia neque. Qui, viverra vehicula odit quidem, excepturi nunc fermentum, voluptatem tempora, vulputate vitae cras mauris, porta sunt? Est eum justo quaerat. Interdum, sagittis quo mollit commodo? Veritatis, penatibus! Wisi adipisci repellendus, deleniti, consequat fames illum. Eveniet dolorum aliquet repudiandae odit doloremque? Necessitatibus blanditiis. Turpis, cras accusamus consequatur, asperiores nec porta! Ultrices.</p>');
 INSERT INTO `field_body` (`pages_id`, `data`) VALUES('27', '<h2 style=\"text-align:center;\">ooops...<strong><em> </em></strong></h2>\n\n<h1 style=\"text-align:center;\"><strong><em>404 </em></strong></h1>\n\n<h3 style=\"text-align:center;\">Page Not Found</h3>');
 
 DROP TABLE IF EXISTS `field_email`;
@@ -125,7 +124,6 @@ CREATE TABLE `field_headline` (
   FULLTEXT KEY `data` (`data`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `field_headline` (`pages_id`, `data`) VALUES('1', '{WireKit} Core');
 INSERT INTO `field_headline` (`pages_id`, `data`) VALUES('1000', '{Search} Website');
 
 DROP TABLE IF EXISTS `field_images`;
@@ -448,40 +446,6 @@ INSERT INTO `field_select_page` (`pages_id`, `data`, `sort`) VALUES('1038', '103
 INSERT INTO `field_select_page` (`pages_id`, `data`, `sort`) VALUES('1045', '1047', '0');
 INSERT INTO `field_select_page` (`pages_id`, `data`, `sort`) VALUES('1121', '1047', '0');
 
-DROP TABLE IF EXISTS `field_seo`;
-CREATE TABLE `field_seo` (
-  `pages_id` int(10) unsigned NOT NULL,
-  `data` text NOT NULL,
-  `meta_inherit` tinyint(3) unsigned NOT NULL,
-  `opengraph_inherit` tinyint(3) unsigned NOT NULL,
-  `twitter_inherit` tinyint(3) unsigned NOT NULL,
-  `robots_inherit` tinyint(3) unsigned NOT NULL,
-  `sitemap_inherit` tinyint(3) unsigned NOT NULL,
-  `structuredData_inherit` tinyint(3) unsigned NOT NULL,
-  `sitemap_include` tinyint(3) unsigned NOT NULL,
-  PRIMARY KEY (`pages_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-INSERT INTO `field_seo` (`pages_id`, `data`, `meta_inherit`, `opengraph_inherit`, `twitter_inherit`, `robots_inherit`, `sitemap_inherit`, `structuredData_inherit`, `sitemap_include`) VALUES('1047', '{\"meta_title\":\"inherit\",\"meta_description\":\"inherit\",\"meta_keywords\":\"inherit\",\"meta_canonicalUrl\":\"inherit\",\"opengraph_title\":\"inherit\",\"opengraph_description\":\"inherit\",\"opengraph_image\":\"inherit\",\"opengraph_imageAlt\":\"inherit\",\"opengraph_type\":\"inherit\",\"opengraph_locale\":\"inherit\",\"opengraph_siteName\":\"inherit\",\"twitter_card\":\"inherit\",\"twitter_site\":\"inherit\",\"twitter_creator\":\"inherit\",\"robots_noIndex\":\"inherit\",\"robots_noFollow\":\"inherit\",\"structuredData_breadcrumb\":\"inherit\",\"sitemap_include\":\"inherit\",\"sitemap_priority\":\"inherit\",\"sitemap_changeFrequency\":\"inherit\"}', '1', '1', '1', '1', '1', '1', '1');
-
-DROP TABLE IF EXISTS `field_seo_tab`;
-CREATE TABLE `field_seo_tab` (
-  `pages_id` int(10) unsigned NOT NULL,
-  `data` int(11) NOT NULL,
-  PRIMARY KEY (`pages_id`),
-  KEY `data` (`data`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
-DROP TABLE IF EXISTS `field_seo_tab_end`;
-CREATE TABLE `field_seo_tab_end` (
-  `pages_id` int(10) unsigned NOT NULL,
-  `data` int(11) NOT NULL,
-  PRIMARY KEY (`pages_id`),
-  KEY `data` (`data`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
 DROP TABLE IF EXISTS `field_static`;
 CREATE TABLE `field_static` (
   `pages_id` int(10) unsigned NOT NULL,
@@ -524,7 +488,6 @@ CREATE TABLE `field_summary` (
   FULLTEXT KEY `data` (`data`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `field_summary` (`pages_id`, `data`) VALUES('1', 'Build lightning-fast and feature-rich websites with ProcessWire');
 
 DROP TABLE IF EXISTS `field_tab`;
 CREATE TABLE `field_tab` (
@@ -732,15 +695,12 @@ INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`)
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('5', '1', '0', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('3', '92', '1', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('3', '97', '3', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '104', '7', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '44', '4', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('80', '1', '0', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '105', '6', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '76', '3', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('100', '138', '6', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '76', '3', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '1', '0', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '100', '5', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '103', '6', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '79', '2', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '1', '0', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('2', '99', '2', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('2', '111', '3', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('99', '1', '0', NULL);
@@ -751,25 +711,18 @@ INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`)
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('100', '1', '0', '{\"columnWidth\":50}');
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('101', '117', '5', '{\"showIf\":\"link_type=1106|1108\"}');
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '126', '10', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '79', '2', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('105', '104', '4', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '103', '5', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '104', '8', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('80', '103', '2', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('105', '105', '3', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('106', '1', '0', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '44', '4', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '78', '1', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '105', '7', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('80', '78', '1', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '76', '3', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '109', '4', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '79', '2', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('106', '1', '0', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '1', '0', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '100', '5', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '133', '3', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '112', '4', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '109', '5', '{\"description\":\"\",\"label\":\"Media \\/ Images\"}');
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '137', '6', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '125', '7', '{\"label\":\"Scripts & Styles\"}');
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '123', '8', '{\"description\":\"\"}');
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '1', '0', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '78', '1', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('101', '1', '0', '{\"columnWidth\":50}');
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '1', '0', '{\"collapsed\":\"4\"}');
@@ -781,15 +734,13 @@ INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`)
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('101', '116', '4', '{\"columnWidth\":30,\"showIf\":\"link_type=1107\"}');
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('100', '119', '7', '{\"label\":\"Submenu \\/ Dropdown\",\"showIf\":\"submenu_type=1115\"}');
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('97', '124', '9', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('80', '78', '1', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('80', '105', '3', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('80', '104', '4', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('100', '117', '5', '{\"showIf\":\"link_type=1106|1108\"}');
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('105', '103', '2', NULL);
-INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('105', '76', '1', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('105', '1', '0', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('105', '76', '1', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('107', '1', '0', NULL);
 INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('108', '1', '0', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('83', '79', '2', NULL);
+INSERT INTO `fieldgroups_fields` (`fieldgroups_id`, `fields_id`, `sort`, `data`) VALUES('1', '78', '1', NULL);
 
 DROP TABLE IF EXISTS `fields`;
 CREATE TABLE `fields` (
@@ -822,9 +773,6 @@ INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('99
 INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('100', 'FieldtypeTextarea', 'search_index', '0', '', '{\"collapsed\":4}');
 INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('101', 'FieldtypeTextarea', 'text', '32768', 'Text', '{\"inputfieldClass\":\"InputfieldTextarea\",\"contentType\":0,\"minlength\":0,\"maxlength\":0,\"showCount\":0,\"rows\":3}');
 INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('102', 'FieldtypeTextarea', 'markdown', '32768', 'Markdown', '{\"textformatters\":[\"TextformatterMarkdownExtra\",\"TextformatterHannaCode\"],\"inputfieldClass\":\"InputfieldEasyMDE\",\"contentType\":0,\"minlength\":0,\"maxlength\":0,\"showCount\":0,\"rows\":5}');
-INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('103', 'FieldtypeFieldsetTabOpen', 'seo_tab', '0', 'SEO', '{\"closeFieldID\":104}');
-INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('104', 'FieldtypeFieldsetClose', 'seo_tab_END', '0', 'Close an open fieldset', '{\"description\":\"This field was added automatically to accompany fieldset \'seo_tab\'.  It should be placed in your template\\/fieldgroup wherever you want the fieldset to end.\",\"openFieldID\":103}');
-INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('105', 'FieldtypeSeoMaestro', 'seo', '0', 'SEO', '{\"meta_title\":\"{title}\",\"opengraph_title\":\"{seo.meta.title}\",\"opengraph_description\":\"{seo.meta.description}\",\"opengraph_type\":\"website\",\"twitter_card\":\"summary\",\"robots_noIndex\":0,\"robots_noFollow\":0,\"structuredData_breadcrumb\":1,\"sitemap_include\":1,\"sitemap_priority\":\"0.5\",\"sitemap_changeFrequency\":\"monthly\",\"inputfield_meta_show\":1,\"inputfield_meta\":[\"title\",\"description\",\"keywords\",\"canonicalUrl\"],\"inputfield_opengraph_show\":1,\"inputfield_opengraph\":[\"title\",\"description\",\"image\",\"imageAlt\",\"type\",\"locale\",\"siteName\"],\"inputfield_twitter_show\":1,\"inputfield_twitter\":[\"card\",\"site\",\"creator\"],\"inputfield_robots_show\":1,\"inputfield_robots\":[\"noIndex\",\"noFollow\"],\"inputfield_structuredData_show\":1,\"inputfield_structuredData\":[\"breadcrumb\"],\"inputfield_sitemap_show\":1,\"inputfield_sitemap\":[\"include\",\"priority\",\"changeFrequency\"],\"schemaVersion\":2}');
 INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('106', 'FieldtypeText', 'subtitle', '0', 'Subtitle', '');
 INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('109', 'FieldtypeImage', 'media', '32768', 'Media', '{\"fileSchema\":271,\"extensions\":\"gif jpg jpeg png\",\"maxFiles\":0,\"outputFormat\":0,\"descriptionRows\":1,\"useTags\":1,\"gridMode\":\"grid\",\"focusMode\":\"on\",\"resizeServer\":0,\"clientQuality\":90,\"maxReject\":0,\"dimensionsByAspectRatio\":0,\"defaultValuePage\":0,\"inputfieldClass\":\"InputfieldImage\",\"themeColor\":\"none\",\"icon\":\"picture-o\",\"collapsed\":0,\"description\":\"Upload iamges here to use them in editor\"}');
 INSERT INTO `fields` (`id`, `type`, `name`, `flags`, `label`, `data`) VALUES('111', 'FieldtypeText', 'page_icon', '32768', 'Page Icon', '{\"minlength\":0,\"maxlength\":2048,\"showCount\":0,\"size\":0,\"tags\":\"vendor\",\"collapsed\":0}');
@@ -993,9 +941,6 @@ INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('170', 
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('171', 'TextformatterMarkdownExtra', '1', '{\"flavor\":\"2\",\"uninstall\":\"\",\"submit_save_module\":\"Submit\"}', '2021-03-05 12:47:45');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('172', 'TextformatterNewlineBR', '1', '', '2021-03-05 12:48:00');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('173', 'FieldtypeAdminCustomPagesSelect', '1', '', '2021-03-05 12:55:50');
-INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('179', 'SeoMaestro', '3', '{\"sitemapEnable\":1,\"sitemapPath\":\"sitemap.seomaestro.xml\",\"sitemapCache\":\"120\",\"baseUrl\":\"\",\"defaultLanguage\":\"en\",\"uninstall\":\"\",\"submit_save_module\":\"Submit\"}', '2021-03-05 12:56:21');
-INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('180', 'FieldtypeSeoMaestro', '1', '', '2021-03-05 12:56:21');
-INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('181', 'InputfieldSeoMaestro', '0', '', '2021-03-05 12:56:21');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('182', 'FileValidatorImage', '0', '', '2021-03-05 12:56:30');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('183', 'InputfieldEasyMDE', '0', '', '2021-03-05 12:56:37');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('191', 'MinimalFieldset', '10', '', '2021-03-05 12:59:00');
@@ -1011,7 +956,7 @@ INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('202', 
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('204', 'TextformatterVideoOrSocialPostEmbed', '1', '{\"maxWidth\":640,\"maxHeight\":480,\"responsive\":\"\",\"clearCache\":\"\",\"uninstall\":\"\",\"submit_save_module\":\"Submit\"}', '2021-03-05 13:04:33');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('217', 'LazyCron', '3', '', '2021-06-22 15:53:25');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('209', 'InputfieldTextTags', '0', '', '2021-05-27 06:17:53');
-INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('243', 'WireKit', '3', '{\"hide_system_pages\":\"2\",\"hide_for\":\"2\",\"sys_pages\":[],\"less_compiler\":\"1\",\"less_suffix\":\"\",\"uninstall\":\"\",\"submit_save_module\":\"Submit\",\"custom_routing\":\"1\",\"is_routing\":\"1\",\"is_hooks\":\"1\",\"last_compile_time\":\"1643012936\",\"compiler\":\"1\"}', '2021-12-11 05:13:53');
+INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('243', 'WireKit', '3', '{\"hide_system_pages\":\"2\",\"hide_for\":\"2\",\"sys_pages\":[],\"less_compiler\":\"1\",\"less_suffix\":\"\",\"custom_routing\":\"1\",\"is_routing\":\"1\",\"is_hooks\":\"1\",\"last_compile_time\":\"1643012936\",\"compiler\":\"1\"}', '2021-12-11 05:13:53');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('235', 'FieldtypeJsonData', '1', '', '2021-09-29 11:22:46');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('236', 'InputfieldJsonData', '0', '', '2021-09-29 11:22:46');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('239', 'MenuManager', '1', '{\"show_home\":\"1\",\"main_menu_source\":\"1037\",\"mobile_menu_source\":\"1037\",\"hide_menus\":[],\"uninstall\":\"\",\"submit_save_module\":\"Submit\",\"home_htmx\":\"1\"}', '2021-09-29 11:23:07');
@@ -1050,7 +995,7 @@ CREATE TABLE `pages` (
   KEY `published` (`published`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1126 DEFAULT CHARSET=utf8;
 
-INSERT INTO `pages` (`id`, `parent_id`, `templates_id`, `name`, `status`, `modified`, `modified_users_id`, `created`, `created_users_id`, `published`, `sort`) VALUES('1', '0', '1', 'home', '9', '2022-01-24 15:46:10', '41', '2021-03-05 12:45:14', '2', '2021-03-05 12:45:14', '0');
+INSERT INTO `pages` (`id`, `parent_id`, `templates_id`, `name`, `status`, `modified`, `modified_users_id`, `created`, `created_users_id`, `published`, `sort`) VALUES('1', '0', '1', 'home', '9', '2022-01-30 14:01:59', '41', '2021-03-05 12:45:14', '2', '2021-03-05 12:45:14', '0');
 INSERT INTO `pages` (`id`, `parent_id`, `templates_id`, `name`, `status`, `modified`, `modified_users_id`, `created`, `created_users_id`, `published`, `sort`) VALUES('2', '1', '2', 'admin', '1035', '2022-01-24 14:36:27', '40', '2021-03-05 12:45:14', '2', '2021-03-05 12:45:14', '7');
 INSERT INTO `pages` (`id`, `parent_id`, `templates_id`, `name`, `status`, `modified`, `modified_users_id`, `created`, `created_users_id`, `published`, `sort`) VALUES('3', '2', '2', 'page', '21', '2021-03-05 12:45:14', '41', '2021-03-05 12:45:14', '2', '2021-03-05 12:45:14', '0');
 INSERT INTO `pages` (`id`, `parent_id`, `templates_id`, `name`, `status`, `modified`, `modified_users_id`, `created`, `created_users_id`, `published`, `sort`) VALUES('6', '3', '2', 'add', '1045', '2021-12-20 14:14:24', '41', '2021-03-05 12:45:14', '2', '2021-03-05 12:45:14', '1');
@@ -1284,17 +1229,17 @@ INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, 
 INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('3', 'user', '3', '8', '0', '{\"useRoles\":1,\"noChildren\":1,\"parentTemplates\":[2],\"slashUrls\":1,\"pageClass\":\"User\",\"noGlobal\":1,\"noMove\":1,\"noTrash\":1,\"noSettings\":1,\"noChangeTemplate\":1,\"nameContentTab\":1}');
 INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('4', 'role', '4', '8', '0', '{\"noChildren\":1,\"parentTemplates\":[2],\"slashUrls\":1,\"pageClass\":\"Role\",\"noGlobal\":1,\"noMove\":1,\"noTrash\":1,\"noSettings\":1,\"noChangeTemplate\":1,\"nameContentTab\":1}');
 INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('5', 'permission', '5', '8', '0', '{\"noChildren\":1,\"parentTemplates\":[2],\"slashUrls\":1,\"guestSearchable\":1,\"pageClass\":\"Permission\",\"noGlobal\":1,\"noMove\":1,\"noTrash\":1,\"noSettings\":1,\"noChangeTemplate\":1,\"nameContentTab\":1}');
-INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('1', 'home', '1', '0', '0', '{\"useRoles\":1,\"noParents\":1,\"slashUrls\":1,\"compile\":3,\"modified\":1643267138,\"ns\":\"ProcessWire\",\"roles\":[37]}');
-INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('29', 'basic-page', '83', '0', '0', '{\"slashUrls\":1,\"compile\":3,\"modified\":1643270191,\"ns\":\"ProcessWire\"}');
-INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('26', 'search', '80', '0', '0', '{\"noChildren\":1,\"noParents\":-1,\"allowPageNum\":1,\"slashUrls\":1,\"pageLabelField\":\"fa-search title\",\"compile\":3,\"modified\":1643267373,\"ns\":\"ProcessWire\"}');
+INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('1', 'home', '1', '0', '0', '{\"useRoles\":1,\"noParents\":1,\"slashUrls\":1,\"compile\":3,\"modified\":1643551425,\"ns\":\"ProcessWire\",\"roles\":[37]}');
+INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('29', 'basic-page', '83', '0', '0', '{\"slashUrls\":1,\"compile\":3,\"modified\":1643549591,\"ns\":\"ProcessWire\"}');
+INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('26', 'search', '80', '0', '0', '{\"noChildren\":1,\"noParents\":-1,\"allowPageNum\":1,\"slashUrls\":1,\"pageLabelField\":\"fa-search title\",\"compile\":3,\"modified\":1643549644,\"ns\":\"ProcessWire\"}');
 INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('46', 'menu-item', '100', '0', '0', '{\"noChildren\":1,\"parentTemplates\":[45],\"slashUrls\":1,\"noSettings\":1,\"noChangeTemplate\":1,\"noShortcut\":1,\"compile\":3,\"tags\":\"-Vendor\",\"modified\":1643026046}');
 INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('43', 'system', '97', '8', '0', '{\"noParents\":-1,\"allowPageNum\":1,\"urlSegments\":1,\"slashUrls\":1,\"pageLabelField\":\"fa-cog title\",\"noSettings\":1,\"noChangeTemplate\":1,\"noUnpublish\":1,\"compile\":3,\"tags\":\"System\",\"modified\":1643275641,\"tabContent\":\"General\",\"ns\":\"ProcessWire\"}');
 INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('45', 'menu', '99', '0', '0', '{\"childTemplates\":[46],\"parentTemplates\":[43],\"slashUrls\":1,\"pageLabelField\":\"fa-bars title\",\"compile\":3,\"label\":\"menu\",\"tags\":\"Vendor\",\"modified\":1643289876}');
 INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('47', 'repeater_menu', '101', '8', '0', '{\"noChildren\":1,\"noParents\":1,\"slashUrls\":1,\"pageClass\":\"RepeaterPage\",\"noGlobal\":1,\"compile\":3,\"modified\":1614951178}');
 INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('52', 'system-page', '106', '0', '0', '{\"childTemplates\":[52],\"parentTemplates\":[43,52],\"slashUrls\":1,\"compile\":3,\"tags\":\"Vendor\",\"modified\":1641311876}');
-INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('51', '404', '105', '0', '0', '{\"noParents\":-1,\"slashUrls\":1,\"compile\":3,\"modified\":1643118811,\"ns\":\"ProcessWire\"}');
-INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('53', 'htmx', '107', '0', '0', '{\"noChildren\":1,\"noParents\":-1,\"allowPageNum\":1,\"urlSegments\":1,\"slashUrls\":1,\"pageLabelField\":\"fa-html5 title\",\"compile\":3,\"tags\":\"Vendor\",\"modified\":1643350891,\"ns\":\"ProcessWire\"}');
-INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('54', 'ajax', '108', '0', '0', '{\"noChildren\":1,\"noParents\":-1,\"allowPageNum\":1,\"urlSegments\":1,\"slashUrls\":1,\"pageLabelField\":\"fa-code title\",\"compile\":3,\"tags\":\"Vendor\",\"modified\":1643301607,\"ns\":\"ProcessWire\"}');
+INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('51', '404', '105', '0', '0', '{\"noParents\":-1,\"slashUrls\":1,\"compile\":3,\"modified\":1643549666,\"ns\":\"ProcessWire\"}');
+INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('53', 'htmx', '107', '0', '0', '{\"noChildren\":1,\"noParents\":-1,\"allowPageNum\":1,\"urlSegments\":1,\"slashUrls\":1,\"pageLabelField\":\"fa-html5 title\",\"compile\":3,\"tags\":\"Vendor\",\"modified\":1643548904,\"ns\":\"ProcessWire\"}');
+INSERT INTO `templates` (`id`, `name`, `fieldgroups_id`, `flags`, `cache_time`, `data`) VALUES('54', 'ajax', '108', '0', '0', '{\"noChildren\":1,\"noParents\":-1,\"allowPageNum\":1,\"urlSegments\":1,\"slashUrls\":1,\"pageLabelField\":\"fa-code title\",\"compile\":3,\"tags\":\"Vendor\",\"modified\":1643548903,\"ns\":\"ProcessWire\"}');
 
 DROP TABLE IF EXISTS `textformatter_video_embed`;
 CREATE TABLE `textformatter_video_embed` (
@@ -1316,4 +1261,4 @@ CREATE TABLE `textformatter_video_or_social_embed` (
 
 UPDATE pages SET created_users_id=41, modified_users_id=41, created=NOW(), modified=NOW();
 
-# --- /WireDatabaseBackup {"numTables":52,"numCreateTables":59,"numInserts":598,"numSeconds":0}
+# --- /WireDatabaseBackup {"numTables":49,"numCreateTables":56,"numInserts":576,"numSeconds":0}

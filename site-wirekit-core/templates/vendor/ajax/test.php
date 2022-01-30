@@ -8,10 +8,9 @@ if($input->get->something) {
 
 $response = [
   "status" => "success",
-  "get" => $_GET,
+  "notification" => "Ajax request was ok!",
+  "GET" => $_GET,
 ];
 
-header('Content-type: application/json');
-echo json_encode($response);
-
-exit();
+// JSON Reponse
+$ajax->jsonResponse($response);

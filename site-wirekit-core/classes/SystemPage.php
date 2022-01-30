@@ -34,6 +34,7 @@ class SystemPage extends Page {
   /**
    *  Favicon
    *  @param string $size
+   *  @example $system->favicon("16")
    *  @return bool|string false or favicon url
    */
   function favicon($size = "16") {
@@ -45,7 +46,7 @@ class SystemPage extends Page {
   /**
    *  Get System Settings
    *  @param string $f - $static field name
-   *  @example $system->static->site_name == $sustem->settings("site_name");
+   *  @example $system->static->site_name == $system->settings("site_name");
    *  @return string|array
    */
   public function settings($f = "") {

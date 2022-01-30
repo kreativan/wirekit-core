@@ -38,8 +38,7 @@
 require_once("_init.php");
 
 // is allowed?
-$allowed_paths = setting("htmx_allowed_paths");
-if(!$htmx->allowHTMX($allowed_paths)) throw new Wire404Exception();
+if(!$htmx->allowHTMX()) throw new Wire404Exception();
 
 $htmx_file = $htmx->htmxFile();
 $htmx_data = $htmx->htmxData();

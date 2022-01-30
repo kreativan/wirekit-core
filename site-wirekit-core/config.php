@@ -44,7 +44,6 @@ $config->urls->set("ass", $config->urls->templates."assets/");
 $config->paths->set("ass", $config->paths->templates."assets/");
 $config->prependTemplateFile = '_init.php';
 $config->useFunctionsAPI = true; 
-$config->tableSalt = '455002250a6635e5b4888819cc2ebf9a8049c81a'; 
 $config->defaultAdminTheme = 'AdminThemeUikit';
 $config->usePageClasses = true;
 $config->advanced = true;

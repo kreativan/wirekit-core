@@ -100,10 +100,10 @@ class HtmxPage extends Page {
    *  Is file path is allowed
    *  based on htmx_allowed_paths
    *  and custom rules
-   *  @param array $allowed_paths - array of folders as segments1
    *  @return bool
    */
-  public function allowHTMX($allowed_paths = []) {
+  public function allowHTMX() {
+    $allowed_paths = setting("htmx_allowed_paths");
     $segment1 = wire("input")->urlSegment1;
     $segment2 = wire("input")->urlSegment2;
     if (!$segment1) return false;

@@ -7,6 +7,7 @@ class MenuPage extends Page {
       "{{home}}" => wire("pages")->get("/")->url,
       "{{system}}" => wire("system")->url,
       "{{htmx}}" => wire("htmx")->url,
+      "{{ajax}}" => wire("ajax")->url,
       "{{lang}}" => wire("user")->language,
     ];
     return $shortcodes;
@@ -231,7 +232,7 @@ class MenuPage extends Page {
       if($page_link != "") $attr .= " hx-push-url='{$page_link->url}'";
       if($onclick && $onclick != "") $attr .= " onclick=$onclick";
     } elseif ($link_type == "ajax") {
-      $onclick = "wirekit.ajaxReq('$item->link')";
+      $onclick = "wirekit.ajaxReq('{$this->linkShortCodes($item->link)}')";
       $attr .= " onclick=$onclick";
     } elseif ($link_type == "htmx") {
       $htmx_url = wire("htmx")->url . $item->link;

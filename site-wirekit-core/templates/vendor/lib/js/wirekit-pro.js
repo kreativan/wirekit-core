@@ -8,7 +8,7 @@
  *  @method mobileMenu - init mobile menu offcanvas
  *  @method htmx - htmx related helpers
  */
- var wirekit = (function () {
+var wirekit = (function () {
 
 	'use strict';
 

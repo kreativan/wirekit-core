@@ -36,9 +36,10 @@ if($custom_css) {
   array_unique($css_files);
 }
 
-// meta_title
-$meta_title = !empty($meta_title) ? $meta_title : false;
-
+// Meta file and meta_data
+$meta_data = !empty($meta) ? $meta : setting("meta");
+$meta_file = $config->paths->templates . "vendor/inc/meta.php";
+$_meta_file = $config->paths->templates . "_meta.php";
 ?>
 
 <!DOCTYPE html>
@@ -66,12 +67,13 @@ $meta_title = !empty($meta_title) ? $meta_title : false;
     <link rel="apple-touch-icon" href="<?= $system->favicon("180") ?>">
   <?php endif;?>
 
-  <?php if($meta_title) : ?>
-    <title><?= $meta_title ?></title>
-  <?php endif;?>
-  
   <?php
-    $files->include($config->paths->templates . "_meta.php");
+    // if _meta use it, if not use /vendor/inc/meta/
+    if(file_exists($_meta_file)) {
+      $files->include($_meta_file);
+    } else {
+      $files->include($meta_file, $meta_data);
+    }
   ?>
 
   <!-- Preload Less/scss -->

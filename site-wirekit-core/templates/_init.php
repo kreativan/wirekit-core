@@ -41,13 +41,24 @@ setting([
   "footer" => "layout/base/footer.php",
   "mobile_header" => "/",
 
+  /**
+   *  Meta Tags
+   *  Set default meta tags here
+   */
+  "meta" => [
+    "title" => $page->title,
+    "description" => "",
+    "image" => "",
+    "generator" => "wirekit.dev",
+  ],
+
   // css files to load in head
   "css_files" => [],
 
   // js files to load in head
   "js_files" => [
-    $config->urls->lib . "js/wirekit-core.js{$suffix}",
-    $config->urls->lib . "js/wirekit-ui.js{$suffix}",
+    $config->urls->lib . "js/wirekit-core.js",
+    $config->urls->lib . "js/wirekit-ui.js",
   ],
 
   // less files to compile

@@ -11,10 +11,6 @@
 
 class UserPage extends User {
 
-  public function sayHello() {
-    return "Hello $this->name";
-  }
-
   /**
    * Get current language code
    * @return string 
