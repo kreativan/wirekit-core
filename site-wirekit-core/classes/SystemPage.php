@@ -45,7 +45,7 @@ class SystemPage extends Page {
   /**
    *  Get System Settings
    *  @param string $f - $static field name
-   *  @example $system->static->site_name == $sustem->settings("site_name");
+   *  @example $system->static->site_name == $system->settings("site_name");
    *  @return string|array
    */
   public function settings($f = "") {
