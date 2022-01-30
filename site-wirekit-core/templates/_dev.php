@@ -13,16 +13,6 @@ d(mainMenu());
 ?>
 
 <?php
-$email = "denitza.vassileva@codetoile.com";
-$grain = 'b14oFmjJ82';
-$sel = 'o12Ufd81gzR';
-$psw = "codetoile2022";
-$hash = hash('sha1', $grain.$psw.$sel);
-d($hash);
-?>
-
-
-<?php
 echo "</div>"; 
 foot();
 ?>
