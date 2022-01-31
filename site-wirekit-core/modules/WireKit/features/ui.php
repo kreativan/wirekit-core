@@ -1,6 +1,8 @@
 <?php namespace ProcessWire; 
 head([
-  "meta_title" => "WireKit UI",
+  "meta" => [
+    "title" => "WireKit UI",
+  ]
 ]); 
 ?>
 

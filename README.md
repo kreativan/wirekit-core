@@ -30,7 +30,8 @@ You can build your website navigation as traditional (page reload) way, or take 
 WireKit comes with menu manager built in. It is based on processwire templates and pages, which gives us much flexibility... With custom admin UI, you can manage all site navigation and menus in one place.
 
 ### System and Site Settings
-Site settings in wirekit are handled with system page and custom field that will generate settings fields from the json file. This way we can define site settings based on a project. Json file is located at `/vendor/json/system.json`, to change it, and add your own options, just copy `system.json` file to the `/templates/assets/json/` folder, and do your changes there. This way your settings will not be overwritten during the updates.        
+Site settings in wirekit are handled with system page and custom field that will generate settings fields from the json file. This way we can define site settings based on a project.     
+Json file is located at `/vendor/json/system.json`. To change it, and add your own options, just copy `system.json` file to the `/templates/assets/json/` folder, and do your changes there. This way your settings will not be overwritten during the updates.        
 `$system` is a global variable in wirekit, so you can access the system page via api from anywhere as `$system` in template files, `$this->system` in modules, and `wire("system")` from anywhere. To get the site settings use `$system->settings("field_name")`.
 
 ### _init.php
@@ -169,11 +170,12 @@ head([
 
 ### HTMX
 HTMX (<a href="https://htmx.org/">htmx.org</a>) is the first class citizen in wirekit. It's used for SPA like navigation, rendering dynamic content etc... It's a very powerful tool, easy and real joy to use, it fits perfect into wirekit "html first" idea and workflow...       
-Wirekit uses "layouts" as reusable components, and they are exposed at the htmx end-point by default on `/system/htmx/`. This way you can fetch any content, any time, anywhere using simple htmx request with any html element. Example:    
-`hx-get="/system/hrmx/layout/product/card/"`     
+Wirekit uses "layouts" as reusable components, and they are exposed at the htmx end-point by default on `/system/htmx/`. This way you can fetch any content, any time, anywhere using simple htmx request with any html element. 
+Example:    
+`hx-get="/system/htmx/layout/product/card/"`     
 or     
-`hx-get="<?= $htmx->url ?>layout/product/card/"`     
-Will call for `/templates/layout/product/card.php` file. This way you can for example lazy load product card using htmx...
+`hx-get="<?= $htmx->url ?>layout/product/card/"`   
+This will call for `/templates/layout/product/card.php` file. And this way we can for example lazy load product card using htmx...
 
 ### Ajax
 All front-end logic in wirekit is imagined to be handled with ajax. Wirekit provides `/system/ajax/` end-point where you can send request and handle your logic. For example:    
@@ -207,7 +209,7 @@ exit();
 
 ### WireKit UI
 
-Wirekit UI is minimal css/less library used in WireKit Core by default. It is a work in progress, and im planing to work on it more in the future. It's mostly utility classes with flex and grid that can help you build quick layouts and prototypes. More about it will be avalable in official docs, for now if you are interested, can take a look at `/vendor/lib/wkui-dev/` folder and <a href="https://start.wirekit.dev/core/wirekit/ui/">This Example</a>
+Wirekit UI is minimal css/less library used in WireKit Core by default. It is a work in progress, and im planing to work on it more in the future. It's mostly utility classes with flex and grid that can help you build quick layouts and prototypes. More about it will be avalable in official docs, for now if you are interested, take a look at `/vendor/lib/wkui-dev/` folder and <a href="https://start.wirekit.dev/core/wirekit/ui/">this example</a>
 
 ### What's next?
 

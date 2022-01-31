@@ -1,6 +1,8 @@
 <?php namespace ProcessWire; 
 head([
-  "meta_title" => "WireKit: Routing",
+  "meta" => [
+    "title" => "WireKit: Routing",
+  ]
 ]); 
 ?>
 

@@ -1,7 +1,10 @@
 <?php namespace ProcessWire; 
 head([
-  "meta_title" => "WireKit: SVG Icons",
-  "js" => [$modules->get("WireKit")->module_url."/listjs/dist/list.min.js"]
+  "js" => [$modules->get("WireKit")->module_url."/listjs/dist/list.min.js"],
+  "js" => [$modules->get("WireKit")->module_url."/listjs/dist/list.min.js"],
+  "meta" => [
+    "title" => "WireKit: SVG Icons",
+  ]
 ]);
 
 $folders = [];
