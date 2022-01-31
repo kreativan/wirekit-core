@@ -55,8 +55,8 @@
   event.preventDefault();
     let mobileMenuContainer = document.querySelector("#mobile-menu-container");
     let mobileButton = document.querySelector("#mobile-menu-button");
-    mobileButton.classList.toggle("wk-active");
-    mobileMenuContainer.classList.toggle("wk-active");
+    mobileButton.classList.toggle("w-active");
+    mobileMenuContainer.classList.toggle("w-active");
     let isLoaded = mobileMenuContainer.querySelector("#mobile-menu");
     if(!isLoaded) {
       fetch(`${cms.htmx}${mobile_menu_path}?page_id=${page_id}`)
@@ -79,14 +79,14 @@
     if(arg === "menu" || arg === "menu-item") {
       let menuItems =  document.querySelectorAll(".menu-item, .submenu-item");
       // reset all menu items active classes
-      menuItems.forEach(e => { e.classList.remove("wk-active")})
+      menuItems.forEach(e => { e.classList.remove("w-active")})
       // get clicked menu-item or submenu-item parent node (li)
       // add active class
       let li = event.target.parentNode;
-      li.classList.add("wk-active");
+      li.classList.add("w-active");
       if(li.classList.contains("submenu-item")) {
         let li2 = event.target.closest(".menu-item");
-        li2.classList.add("wk-active");
+        li2.classList.add("w-active");
       }
       // Do stuff after htmx Load
       event.target.addEventListener("htmx:afterOnLoad", function() {
@@ -98,8 +98,8 @@
         // Close mobile menu
         let mobileMenuContainer = document.querySelector("#mobile-menu-container");
         let mobileButton = document.querySelector("#mobile-menu-button");
-        if (mobileMenuContainer) mobileMenuContainer.classList.remove("wk-active");
-        if (mobileButton) mobileButton.classList.remove("wk-active");
+        if (mobileMenuContainer) mobileMenuContainer.classList.remove("w-active");
+        if (mobileButton) mobileButton.classList.remove("w-active");
       });
     }
 

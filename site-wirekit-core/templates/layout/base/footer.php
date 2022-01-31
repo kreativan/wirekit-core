@@ -2,9 +2,9 @@
 
 <footer id="footer">
 
-  <div class="wk-container wk-text-center">
+  <div class="w-container w-text-center">
   
-    <div class="wk-border-top wk-padding wk-text-small">
+    <div class="w-border-top w-padding w-text-small">
       <p>Copyright © <?= date("Y") ?> <?= $system->settings("site_name") ?>. All Rights Reserved</p>
     </div>
 

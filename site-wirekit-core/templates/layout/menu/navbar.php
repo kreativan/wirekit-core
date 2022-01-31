@@ -4,7 +4,7 @@
 
   <?php foreach(mainMenu() as $item) : ?>
     
-    <li class="<?= menuItemClass($item, "wk-") ?>">
+    <li class="<?= menuItemClass($item, "w-") ?>">
 
       <a href="<?= $item["href"] ?>" 
         title="<?= $item["link_title"] ?>" 
@@ -21,7 +21,7 @@
           $child_pages = $pages->get("id={$item["page_id"]}")->children();
         ?>
         
-        <div class="navbar-menu-dropdown wk-anim-fade wk-anim-fast">
+        <div class="navbar-menu-dropdown w-anim-fade w-anim-fast">
           <ul class="navbar-menu-dropdown-nav">
             <?php foreach($child_pages as $child) :?>
               <li>
@@ -35,10 +35,10 @@
 
       <?php elseif ($item["submenu_type"] == "custom" && $item["submenu"]) : ?>
 
-        <div class="navbar-menu-dropdown wk-anim-fade wk-anim-fast">
+        <div class="navbar-menu-dropdown w-anim-fade w-anim-fast">
           <ul class="navbar-menu-dropdown-nav">
             <?php foreach($item["submenu"] as $subitem) :?>
-              <li class="<?= menuItemClass($subitem, "wk-") ?>">
+              <li class="<?= menuItemClass($subitem, "w-") ?>">
                 <a href="<?= $subitem["href"] ?>" 
                   title="<?= $subitem["link_title"] ?>" 
                   <?= $subitem["attr"] ?> 

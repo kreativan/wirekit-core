@@ -15,11 +15,11 @@
    * @param {String} target 
    * @param {String} cls 
    */
-  methods.toggle = function(target = "", cls = "wk-open") {
+  methods.toggle = function(target = "", cls = "w-open") {
     event.preventDefault();
     let e = event.target;
     if(e.nodeName == "A" || e.nodeName == "BUTTON") {
-      e.classList.toggle("wk-toggle-on");
+      e.classList.toggle("w-toggle-on");
       if(target === "") {
         let sub = e.nextElementSibling;
         sub.classList.toggle(cls);

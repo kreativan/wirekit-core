@@ -2,37 +2,37 @@
   Backgroud
 =========================================================== */
 
-.wk-light {
+.w-light {
   .light();
-  .wk-hook-light();
+  .w-hook-light();
 }
 
-.wk-bg-primary {
+.w-bg-primary {
 
-  background: @wk-bg-primary;
+  background: @w-bg-primary;
 
-  & when (@wk-bg-primary-mode = dark) {
+  & when (@w-bg-primary-mode = dark) {
     .light();
   }
 
 }
 
-.wk-bg-muted {
-  background: @wk-bg-muted;
+.w-bg-muted {
+  background: @w-bg-muted;
 }
 
-.wk-bg-dark {
-  background: @wk-bg-dark;
-  .wk-light();
+.w-bg-dark {
+  background: @w-bg-dark;
+  .w-light();
 }
 
-.wk-bg-white {
-  background: @wk-bg-white;
+.w-bg-white {
+  background: @w-bg-white;
 }
 
 // Hooks
 // ========================================================================
-.wk-hook-background-root();
-.wk-hook-background-root() {}
+.w-hook-background-root();
+.w-hook-background-root() {}
 
-.wk-hook-light() {}
+.w-hook-light() {}

@@ -4,7 +4,7 @@ head([
 ]); 
 ?>
 
-<div class="wk-container wk-margin-l">
+<div class="w-container w-margin-l">
   <div id="message-404">
     <?= $page->body ?>
   </div>

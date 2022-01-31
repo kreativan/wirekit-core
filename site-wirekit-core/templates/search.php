@@ -3,27 +3,27 @@ head();
 $i = 0;
 ?>
 
-<div class="wk-container wk-container-s wk-margin-l">
+<div class="w-container w-container-s w-margin-l">
 
-  <h1 class="wk-h2 wk-text-center">
+  <h1 class="w-h2 w-text-center">
     <?= $page->headline() ?>
   </h1>
 
-  <div class="wk-margin wk-padding wk-bg-muted">
+  <div class="w-margin w-padding w-bg-muted">
     <form action="./" method="GET">
-      <div class="wk-flex wk-flex-wrap">
-        <div class="wk-width-80 wk-width-100--sm">
+      <div class="w-flex w-flex-wrap">
+        <div class="w-width-80 w-width-100--sm">
           <input 
-            class="wk-input wk-bg-white" 
+            class="w-input w-bg-white" 
             type="text" 
             name="q" 
             placeholder="<?= __("Enter a search term...") ?>"
             value="<?= $input->get->q ?>" 
           />
         </div>
-        <div class="wk-width-20 wk-width-100--sm">
+        <div class="w-width-20 w-width-100--sm">
           <input 
-            class="wk-btn wk-btn-primary wk-width-100" 
+            class="w-btn w-btn-primary w-width-100" 
             type="submit" 
             name="submit" 
             value="<?= __("Search") ?>" 
@@ -49,17 +49,17 @@ $i = 0;
 
     <div>
 
-      <h3 class="wk-margin-remove">
-        <a class="wk-link" href="<?= $item->url ?>">
+      <h3 class="w-margin-remove">
+        <a class="w-link" href="<?= $item->url ?>">
           <?= $item->title ?>
         </a>
       </h3>
 
-      <p class="wk-text-muted wk-margin-remove">
+      <p class="w-text-muted w-margin-remove">
         <?= $page->markWord($input->get->q, $item->url); ?>
       </p>
 
-      <p class="wk-margin-s">
+      <p class="w-margin-s">
         <?php
           $text = !empty($item->text) ? $item->text : $item->body;
           $text = $sanitizer->truncate($text, 240);
@@ -74,13 +74,13 @@ $i = 0;
   <?php
     render("layout/common/pagination.php", [
       "items" => $page->results(),
-      "class" => "wk-flex-center wk-margin-medium-top",
+      "class" => "w-flex-center w-margin-medium-top",
     ]);
   ?>
 
   <?php else :?>
 
-  <p class="wk-h4 wk-text-muted wk-margin-m wk-text-center">
+  <p class="w-h4 w-text-muted w-margin-m w-text-center">
     <?= __("No search results") ?>
   </p>
 

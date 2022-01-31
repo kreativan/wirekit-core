@@ -1,8 +1,8 @@
 <?php namespace ProcessWire; ?>
 
-<div class="wk-container wk-pos-relative">
+<div class="w-container w-pos-relative">
 
-  <div id="navbar" class="wk-flex wk-flex-middle wk-flex-between wk-pos-relative">
+  <div id="navbar" class="w-flex w-flex-middle w-flex-between w-pos-relative">
 
     <div id="logo">
         <?php if(!empty($system->logo)) : ?>
@@ -10,20 +10,20 @@
           <img src="<?= $system->logo->url ?>" alt="<?= $system->settings("site_name") ?>" />
         </a>
         <?php else : ?>
-        <h3 class="wk-margin-remove wk-text-bold wk-text-up">
-          <a class="wk-reset-link" href="<?= $pages->get("/")->url ?>">
+        <h3 class="w-margin-remove w-text-bold w-text-up">
+          <a class="w-reset-link" href="<?= $pages->get("/")->url ?>">
             <em><?= $system->settings("site_name") ?></em>
           </a>
         </h3>
         <?php endif;?>
     </div>
 
-    <div id="navigation" class="wk-visible-tablet">
+    <div id="navigation" class="w-visible-tablet">
       <?php render("layout/menu/navbar.php"); ?>
     </div>
 
-    <div id="mobile-menu-button" class="wk-hidden-tablet">
-      <button class="wk-reset-btn wk-flex wk-flex-middle" type="button" 
+    <div id="mobile-menu-button" class="w-hidden-tablet">
+      <button class="w-reset-btn w-flex w-flex-middle" type="button" 
         onclick="wirekit.mobileMenu('<?= $page->id ?>')"
       >
         <?php svg("menu", ["size" => "36px","color" => "#111",]); ?>
@@ -33,7 +33,7 @@
 
   </div>
 
-  <div id="mobile-menu-container" class="wk-hidden-tablet">
+  <div id="mobile-menu-container" class="w-hidden-tablet">
     <!-- we will inject mobile-menu here -->
   </div>
 

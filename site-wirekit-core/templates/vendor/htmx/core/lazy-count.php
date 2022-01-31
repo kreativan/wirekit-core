@@ -7,7 +7,7 @@
     hx-trigger="load delay:1s"
     hx-vars='{"s": "3"}'
   >
-    Content below will be lazy loaded with a <b class="wk-anim-fade">4s</b> delay...
+    Content below will be lazy loaded with a <b class="w-anim-fade">4s</b> delay...
   </p>
 <?php elseif($input->get->s == "3") :?>
   <p 
@@ -16,7 +16,7 @@
     hx-trigger="load delay:1s"
     hx-vars='{"s": "2"}'
   >
-    Content below will be lazy loaded with a <b class="wk-anim-fade">3s</b> delay...
+    Content below will be lazy loaded with a <b class="w-anim-fade">3s</b> delay...
   </p>
 <?php elseif($input->get->s == "2") :?>
   <p 
@@ -25,7 +25,7 @@
     hx-trigger="load delay:1s"
     hx-vars='{"s": "1"}'
   >
-    Hold on... Only <b class="wk-anim-fade">2</b> seconds more...
+    Hold on... Only <b class="w-anim-fade">2</b> seconds more...
   </p>
 <?php elseif($input->get->s == "1") :?>
   <p 
@@ -34,7 +34,7 @@
     hx-trigger="load delay:1s"
     hx-vars='{"s": "0", "title": "Lazy Loaded Content Title"}'
   >
-    Hold on... Only <b class="wk-anim-fade">1</b> more second...
+    Hold on... Only <b class="w-anim-fade">1</b> more second...
   </p>
 <?php elseif($input->get->s == "0") : ?>
   <?php render("vendor/htmx/core/lazy.php"); ?>

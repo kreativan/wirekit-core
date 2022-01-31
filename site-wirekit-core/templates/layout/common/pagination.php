@@ -19,9 +19,9 @@ if($items->count) {
     'nextItemClass'                 => "pagination-next",
     'previousItemClass'             => "pagination-prev",
     'lastItemClass'                 => "pagination-last",
-    'currentItemClass'              => "wk-active",
-    'listMarkup'                    => "<ul class='wk-pagination $class'>{out}</ul>",
-    'itemMarkup'                    => "<li class='{class} wk-margin-remove'>{out}</li>",
+    'currentItemClass'              => "w-active",
+    'listMarkup'                    => "<ul class='w-pagination $class'>{out}</ul>",
+    'itemMarkup'                    => "<li class='{class} w-margin-remove'>{out}</li>",
     'linkMarkup'                    => "<a href='{url}{$urlSegment}'><span>{out}</span></a>"
   ));
 

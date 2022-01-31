@@ -2,7 +2,7 @@
 head(); 
 ?>
 
-<div class="wk-container wk-margin-l">
+<div class="w-container w-margin-l">
 
   <h1><?= $page("headline|title") ?></h1>
 

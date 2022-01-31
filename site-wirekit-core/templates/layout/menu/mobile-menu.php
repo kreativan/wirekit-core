@@ -10,10 +10,10 @@ $id = $modules->get("MenuManager")->mobile_menu_source;
 $menu = $pages->get("id=$id");
 ?>
 
-<ul id="mobile-menu" class="wk-reset-list">
+<ul id="mobile-menu" class="w-reset-list">
   <?php foreach($menu->items() as $item) : ?>
   <?php if($item["is_visible"]) : ?>
-  <li class="<?= menuItemClass($item, "wk-") ?>">
+  <li class="<?= menuItemClass($item, "w-") ?>">
     <a href="<?= $item["href"] ?>" title="<?= $item["link_title"] ?>" <?= $item["attr"] ?> 
       <?php if($item["submenu"]) :?>
         onclick="wkui.toggle()"
@@ -22,9 +22,9 @@ $menu = $pages->get("id=$id");
       <?= $item["title"] ?>
     </a>
     <?php if($item["submenu"] && $item["submenu_type"] == "custom") :?>
-      <ul class="menu-subnav wk-reset-list">
+      <ul class="menu-subnav w-reset-list">
         <?php foreach($item["submenu"] as $subitem) :?>
-          <li class="<?= menuItemClass($subitem, "wk-") ?>">
+          <li class="<?= menuItemClass($subitem, "w-") ?>">
             <a href="<?= $subitem["href"] ?>" title="<?= $subitem["link_title"] ?>" <?= $subitem["attr"] ?>>
               <?= $subitem["title"] ?>
             </a>

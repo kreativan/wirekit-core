@@ -12,7 +12,7 @@ $word_limit = !empty($word_limit) ? $word_limit : 25;
 
 ?>
 
-<ul class="wk-breadcrumb<?= $class ?>">
+<ul class="w-breadcrumb<?= $class ?>">
 
   <?php foreach($page->parents() as $item) :?>
     <li>
@@ -22,7 +22,7 @@ $word_limit = !empty($word_limit) ? $word_limit : 25;
     </li>
   <?php endforeach;?>
 
-  <li class="wk-active">
+  <li class="w-active">
     <span>
       <?= $sanitizer->truncate($page->title, $word_limit); ?>
     </span>

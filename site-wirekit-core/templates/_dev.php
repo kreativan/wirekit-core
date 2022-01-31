@@ -9,8 +9,8 @@ head([
     "canonical" => $meta_url,
   ],
 ]);
-echo "<div class='wk-container wk-margin-l'>";
-echo "<h1 class='wk-text-center'>{$system->settings("site_name")} - Development</h1>";
+echo "<div class='w-container w-margin-l'>";
+echo "<h1 class='w-text-center'>{$system->settings("site_name")} - Development</h1>";
 ?>
 
 <?php

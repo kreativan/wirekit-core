@@ -2,7 +2,7 @@
   Flex
 =========================================================== */
 
-.wk-flex {
+.w-flex {
   display: flex;
 }
 
@@ -11,31 +11,31 @@
  * Row: Horizontal
  */
 
-.wk-flex-left { justify-content: flex-start; }
-.wk-flex-center { justify-content: center; }
-.wk-flex-right { justify-content: flex-end; }
-.wk-flex-between { justify-content: space-between; }
-.wk-flex-around { justify-content: space-around; }
+.w-flex-left { justify-content: flex-start; }
+.w-flex-center { justify-content: center; }
+.w-flex-right { justify-content: flex-end; }
+.w-flex-between { justify-content: space-between; }
+.w-flex-around { justify-content: space-around; }
 
 /**
  * Align items in the cross axis of the current line of the flex container
  * Row: Vertical
  */
 
-.wk-flex-stretch { align-items: stretch; }
-.wk-flex-top { align-items: flex-start; }
-.wk-flex-middle { align-items: center; }
-.wk-flex-bottom { align-items: flex-end; }
+.w-flex-stretch { align-items: stretch; }
+.w-flex-top { align-items: flex-start; }
+.w-flex-middle { align-items: center; }
+.w-flex-bottom { align-items: flex-end; }
 
 /* Direction
  ========================================================================== */
 
-.wk-flex-row { flex-direction: row; }
-.wk-flex-reverse { flex-direction: row-reverse; }
+.w-flex-row { flex-direction: row; }
+.w-flex-reverse { flex-direction: row-reverse; }
 
-.wk-flex-column { 
+.w-flex-column { 
   flex-direction: column; 
-  &.wk-flex-reverse {
+  &.w-flex-reverse {
     flex-direction: column-reverse; 
   }
 }
@@ -43,50 +43,50 @@
 /* Wrap - Flex items single line (nowrap) or multiline (wrap & wrap-reverse)
 ========================================================================== */
 
-.wk-flex-nowrap { flex-wrap: nowrap; }
-.wk-flex-wrap { flex-wrap: wrap; }
-.wk-flex-wrap-reverse { flex-wrap: wrap-reverse; }
+.w-flex-nowrap { flex-wrap: nowrap; }
+.w-flex-wrap { flex-wrap: wrap; }
+.w-flex-wrap-reverse { flex-wrap: wrap-reverse; }
 
 /* Size - Width
 ========================================================================== */
 
 // 1fr width to the child elements
-.wk-flex-expand > *:not([class*="wk-width-"]) {
+.w-flex-expand > *:not([class*="w-width-"]) {
   flex: 1;
 }
 
 // 1fr, 2fr, 3fr
-.wk-flex-1 {flex: 1;}
-.wk-flex-2 {flex: 2;}
-.wk-flex-3 {flex: 3;}
+.w-flex-1 {flex: 1;}
+.w-flex-2 {flex: 2;}
+.w-flex-3 {flex: 3;}
 
 /**
  * Relative Flex: 1 1 auto
  * Space is allocated considering content
  */
-.wk-flex-auto { flex: auto; }
+.w-flex-auto { flex: auto; }
 
 
 /* Item ordering - Default 0
  ========================================================================== */
 
-.wk-flex-first { order: -1;}
-.wk-flex-last { order: 99;}
+.w-flex-first { order: -1;}
+.w-flex-last { order: 99;}
 
 
 //  Responsive: Medium
 // =========================================================== 
 
-@media(max-width: @wk-breakpoint-medium) {
+@media(max-width: @w-breakpoint-medium) {
 
-  .wk-flex-reverse--md {
+  .w-flex-reverse--md {
     flex-direction: row-reverse;
   }
 
-  .wk-flex-column--md {
+  .w-flex-column--md {
     flex-direction: column;
     justify-content: flex-start;
-    &.wk-flex-reverse--md {
+    &.w-flex-reverse--md {
       flex-direction: column-reverse;
     }
   }
@@ -96,16 +96,16 @@
 //  Responsive: Small
 // =========================================================== 
 
-@media(max-width: @wk-breakpoint-small) {
+@media(max-width: @w-breakpoint-small) {
 
-  .wk-flex-reverse--sm {
+  .w-flex-reverse--sm {
     flex-direction: row-reverse;
   }
 
-  .wk-flex-column--sm {
+  .w-flex-column--sm {
     flex-direction: column;
     justify-content: flex-start;
-    &.wk-flex-reverse--sm {
+    &.w-flex-reverse--sm {
       flex-direction: column-reverse;
     }
   }
@@ -115,5 +115,5 @@
 // Hooks
 // ========================================================================
 
-.wk-hook-flex-root();
-.wk-hook-flex-root() {}
+.w-hook-flex-root();
+.w-hook-flex-root() {}

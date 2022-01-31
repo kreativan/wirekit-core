@@ -78,8 +78,8 @@ setting([
    *  @example ["global-font-family" => $system->font_family]
    */
   "less_vars" => [
-    "wk-font" => "Jost, Sans Serif",
-    "wk-font-base" => "Jost, Sans Serif",
+    "w-font" => "Jost, Sans Serif",
+    "w-font-base" => "Jost, Sans Serif",
   ],
 
   // expose some js varibles

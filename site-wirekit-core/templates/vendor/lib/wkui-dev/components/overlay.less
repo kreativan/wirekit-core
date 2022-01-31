@@ -1,52 +1,52 @@
-@wk-overlay-bg: #111;
-@wk-overlay-opacity: 60%;
-@wk-overlay-opacity-light: 30%;
-@wk-overlay-duration: .3s;
+@w-overlay-bg: #111;
+@w-overlay-opacity: 60%;
+@w-overlay-opacity-light: 30%;
+@w-overlay-duration: .3s;
 
 /* =========================================================== 
   Overlay
 =========================================================== */
 
-.wk-overlay-container {
+.w-overlay-container {
   position: relative;
-  .wk-hook-overlay-container();
+  .w-hook-overlay-container();
 }
 
-.wk-overlay {
+.w-overlay {
 
   /* main */
   display: block;
   overflow: hidden;
-  .wk-pos-cover();
+  .w-pos-cover();
 
   /* bg */
   &:before {
     content: "";
     display: block;
-    background: fade(@wk-overlay-bg, @wk-overlay-opacity);
+    background: fade(@w-overlay-bg, @w-overlay-opacity);
     z-index: 0;
-    .wk-pos-cover();
-    .wk-hook-overlay-before();
+    .w-pos-cover();
+    .w-hook-overlay-before();
   }
 
   /* show on hover */
-  &.wk-overlay-hover {
+  &.w-overlay-hover {
     opacity: 0;
-    transition: all @wk-overlay-duration;
+    transition: all @w-overlay-duration;
     &:hover {
       opacity: 1;
     }
-    .wk-hook-overlay-hover() 
+    .w-hook-overlay-hover() 
   }
 
   /* light */
-  &.wk-overlay-light:before {
-    background: fade(@wk-overlay-bg, @wk-overlay-opacity-light);
+  &.w-overlay-light:before {
+    background: fade(@w-overlay-bg, @w-overlay-opacity-light);
   }
 
   /* content center */
-  &.wk-overlay-center { 
-    .wk-overlay-content {
+  &.w-overlay-center { 
+    .w-overlay-content {
       position: relative;
       z-index: 2;
       height: 100%;
@@ -57,16 +57,16 @@
     }
   }
 
-  .wk-hook-overlay()
+  .w-hook-overlay()
 
 }
 
 //  Hooks
 // ===========================================================
-.wk-hook-overlay-root();
-.wk-hook-overlay-root() {}
+.w-hook-overlay-root();
+.w-hook-overlay-root() {}
 
-.wk-hook-overlay() {}
-.wk-hook-overlay-before() {}
-.wk-hook-overlay-hover() {}
-.wk-hook-overlay-container() {}
+.w-hook-overlay() {}
+.w-hook-overlay-before() {}
+.w-hook-overlay-hover() {}
+.w-hook-overlay-container() {}

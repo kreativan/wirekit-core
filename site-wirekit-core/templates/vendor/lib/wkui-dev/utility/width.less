@@ -6,7 +6,7 @@
  * 1.   Dont let flex element to shrink, should keep the width
  * 2. `max-width` is needed for the pixel-based classes
  */
-[class*="wk-width"] {
+[class*="w-width"] {
   /* 1 */
   flex-shrink: 0;
   box-sizing: border-box;
@@ -22,7 +22,7 @@
  *    if they have zero width and padding and the predecessor is 100% wide.
  */
 
-.wk-width-expand {
+.w-width-expand {
   flex: 1;
   flex-shrink: 1;
   /* 1 */
@@ -33,55 +33,55 @@
  *  Sizes  
  */
 
-.wk-width-auto {width: auto;}
-.wk-width-20 {width: 20%;}
-.wk-width-25 {width: 25%;}
-.wk-width-30 {width: 30%;}
-.wk-width-33 {width: ~'calc(100% * 1 / 3.001)';}
-.wk-width-40 {width: 40%;}
-.wk-width-50 {width: 50%;}
-.wk-width-60 {width: 60%;}
-.wk-width-70 {width: 70%;}
-.wk-width-75 {width: 75%;}
-.wk-width-80 {width: 80%;}
-.wk-width-100 {width: 100%;}
+.w-width-auto {width: auto;}
+.w-width-20 {width: 20%;}
+.w-width-25 {width: 25%;}
+.w-width-30 {width: 30%;}
+.w-width-33 {width: ~'calc(100% * 1 / 3.001)';}
+.w-width-40 {width: 40%;}
+.w-width-50 {width: 50%;}
+.w-width-60 {width: 60%;}
+.w-width-70 {width: 70%;}
+.w-width-75 {width: 75%;}
+.w-width-80 {width: 80%;}
+.w-width-100 {width: 100%;}
 
 //  Desktop
 // ===========================================================
 
-@media(min-width: @wk-breakpoint-desktop) {
+@media(min-width: @w-breakpoint-desktop) {
 
-  .wk-width-50--xl {width: 50%;}
+  .w-width-50--xl {width: 50%;}
   
 }
 
 //  Medium
 // ===========================================================
 
-@media(max-width: @wk-breakpoint-medium) {
+@media(max-width: @w-breakpoint-medium) {
 
-  .wk-width-expand--md {flex: 1 !important;}
-  .wk-width-25--md {flex: none; width: 25%;}
-  .wk-width-30--md {flex: none; width: 30%;}
-  .wk-width-33--md {flex: none; width: 100% / 3;}
-  .wk-width-40--md {flex: none; width: 40%;}
-  .wk-width-50--md {flex: none; width: 50%;}
-  .wk-width-60--md {flex: none; width: 60%;}
-  .wk-width-70--md {flex: none; width: 70%;}
-  .wk-width-75--md {flex: none; width: 75%;}
-  .wk-width-80--md {flex: none; width: 75%;}
-  .wk-width-100--md {flex: none; width: 100%;}
+  .w-width-expand--md {flex: 1 !important;}
+  .w-width-25--md {flex: none; width: 25%;}
+  .w-width-30--md {flex: none; width: 30%;}
+  .w-width-33--md {flex: none; width: 100% / 3;}
+  .w-width-40--md {flex: none; width: 40%;}
+  .w-width-50--md {flex: none; width: 50%;}
+  .w-width-60--md {flex: none; width: 60%;}
+  .w-width-70--md {flex: none; width: 70%;}
+  .w-width-75--md {flex: none; width: 75%;}
+  .w-width-80--md {flex: none; width: 75%;}
+  .w-width-100--md {flex: none; width: 100%;}
 
 }
 
 //  Small
 // ===========================================================
 
-@media(max-width: @wk-breakpoint-small) {
+@media(max-width: @w-breakpoint-small) {
 
-  .wk-width-expand--sm {flex: 1 !important;}
-  .wk-width-50--sm {flex: none; width: 50%;}
-  .wk-width-100--sm {flex: none; width: 100%;}
+  .w-width-expand--sm {flex: 1 !important;}
+  .w-width-50--sm {flex: none; width: 50%;}
+  .w-width-100--sm {flex: none; width: 100%;}
 
 }
 
@@ -89,5 +89,5 @@
 // Hooks
 // ========================================================================
 
-.wk-hook-width-root();
-.wk-hook-width-root() {}
+.w-hook-width-root();
+.w-hook-width-root() {}

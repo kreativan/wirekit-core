@@ -2,11 +2,11 @@
 head(); 
 ?>
 
-<div class="wk-container wk-margin-l">
+<div class="w-container w-margin-l">
 
-  <div class="hero-text wk-margin-bottom-m wk-text-center">
-    <h1><em class="wk-text-up wk-text-bold">WireKit</em> Core</h1>
-    <h3 class="wk-text-up">
+  <div class="hero-text w-margin-bottom-m w-text-center">
+    <h1><em class="w-text-up w-text-bold">WireKit</em> Core</h1>
+    <h3 class="w-text-up">
       Build lightning-fast and feature-rich websites with ProcessWire
     </h3>
   </div>

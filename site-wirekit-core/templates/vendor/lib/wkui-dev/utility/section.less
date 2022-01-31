@@ -2,35 +2,35 @@
   Section
 =========================================================== */
 
-.wk-section {
+.w-section {
 
   position: relative;
   box-sizing: border-box;
-  padding: @wk-section-space 0;
+  padding: @w-section-space 0;
 
-  &.wk-section-s {
-    padding: @wk-section-space-s 0;
+  &.w-section-s {
+    padding: @w-section-space-s 0;
   }
 
-  @media(min-width: @wk-breakpoint-medium) {
-    &.wk-section-l {
-      padding: @wk-section-space-l 0;
+  @media(min-width: @w-breakpoint-medium) {
+    &.w-section-l {
+      padding: @w-section-space-l 0;
     }
   }
 
-  @media (max-width: @wk-breakpoint-small) {
-    padding: @wk-section-space-mobile 0;
+  @media (max-width: @w-breakpoint-small) {
+    padding: @w-section-space-mobile 0;
   }
   
   // Hook
-  .wk-hook-section();
+  .w-hook-section();
 
 }
 
 // Hooks
 // ========================================================================
 
-.wk-hook-section-root();
-.wk-hook-section-root() {}
+.w-hook-section-root();
+.w-hook-section-root() {}
 
-.wk-hook-section() {}
+.w-hook-section() {}

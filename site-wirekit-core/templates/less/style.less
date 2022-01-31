@@ -2,20 +2,20 @@
   Vars
 =========================================================== */
 
-@wk-container: 1100px;
+@w-container: 1100px;
 
-@wk-font-size: 18px;
-@wk-line-height: 1.7;
+@w-font-size: 18px;
+@w-line-height: 1.7;
 
-@wk-color-global: #444;
-@wk-color-emphasis: #111;
-@wk-color-muted: #888;
+@w-color-global: #444;
+@w-color-emphasis: #111;
+@w-color-muted: #888;
 
 // margin
-@wk-margin: 20px;
-@wk-margin-s: 10px;
-@wk-margin-m: 40px;
-@wk-margin-l: 70px;
+@w-margin: 20px;
+@w-margin-s: 10px;
+@w-margin-m: 40px;
+@w-margin-l: 70px;
 
 //--------------------------------------------------------
 //  Header
@@ -24,16 +24,16 @@
 
 #header {
 
-  margin-top: @wk-margin-m;
+  margin-top: @w-margin-m;
 
-  @media(max-width: @wk-breakpoint-small) {
-    margin-top: @wk-margin;
+  @media(max-width: @w-breakpoint-small) {
+    margin-top: @w-margin;
   }
 
   #logo {
     a {
       font-size: 1.5rem;
-      color: @wk-color-heading !important;
+      color: @w-color-heading !important;
     }
   }
 
@@ -50,7 +50,7 @@
       position: relative;
       padding: 0 10px;
       & > a {
-        color: @wk-color-global;
+        color: @w-color-global;
         text-decoration: none;
         text-transform: uppercase;
         font-size: 0.9rem;
@@ -59,8 +59,8 @@
       &:hover a,
       &:focus a,
       &:active a,
-      &.wk-active a {
-        color: @wk-bg-primary;
+      &.w-active a {
+        color: @w-bg-primary;
       }
     }
 
@@ -94,11 +94,11 @@
         display: block;
         text-decoration: none;
         font-size: 0.9rem;
-        color: @wk-color-global !important;      
+        color: @w-color-global !important;      
       }
-      &.wk-active a,
+      &.w-active a,
       &:hover a {
-        color: @wk-bg-primary !important;   
+        color: @w-bg-primary !important;   
       }
     }
 
@@ -114,10 +114,10 @@
 #mobile-menu-container {
   display: none;
   margin-top:15px;
-  border-top: 1px solid @wk-border-color;
-  border-bottom: 1px solid @wk-border-color;
+  border-top: 1px solid @w-border-color;
+  border-bottom: 1px solid @w-border-color;
   padding: 15px 0;
-  &.wk-active {
+  &.w-active {
     display: block;
   }
 }
@@ -125,7 +125,7 @@
   .svg + .svg {
     display: none;
   }
-  &.wk-active {
+  &.w-active {
     .svg:first-child {display: none;}
     .svg + .svg {display: block;}
   }
@@ -133,35 +133,35 @@
 #mobile-menu {
 
   a {
-    color: @wk-color-global;
+    color: @w-color-global;
     text-decoration: none;
     font-size: 1.3rem;
   }
 
-  .wk-active > a {
-    color: @wk-bg-primary;
+  .w-active > a {
+    color: @w-bg-primary;
   }
 
   .menu-item {
     position: relative;
     a {display: block;}
-    &.wk-parent > a:after {
+    &.w-parent > a:after {
       content: "+";
       position: absolute;
       right:10px;
       top: 0;
       font-size: 1.4rem;
     }
-    &.wk-parent > a.wk-toggle-on:after {
+    &.w-parent > a.w-toggle-on:after {
       content: "--";
     }
   }
 
   .menu-subnav {
-    &:not(.wk-open) {display: none;}
+    &:not(.w-open) {display: none;}
     padding: 10px;
     margin: 5px 0;
-    background-color: @wk-bg-muted;
+    background-color: @w-bg-muted;
     li > a {
       margin: 5px 0;
       font-size: 1rem;
@@ -185,7 +185,7 @@
     margin-top:10px;
     margin-bottom: 50px;
   }
-  @media(max-width: @wk-breakpoint-small) {
+  @media(max-width: @w-breakpoint-small) {
     h1 {font-size: 2.6rem;}
     h3 {margin-bottom: 0px;}
   }
