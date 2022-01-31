@@ -175,12 +175,12 @@ Example:
 `hx-get="/system/htmx/layout/product/card/"`     
 or     
 `hx-get="<?= $htmx->url ?>layout/product/card/"`   
-This will call for `/templates/layout/product/card.php` file. And this way we can for example lazy load product card using htmx...
+This will call for `/templates/layout/product/card.php` file. And this way we can for example lazy load product card using htmx... More about htmx integration will be in the docs.
 
 ### Ajax
 All front-end logic in wirekit is imagined to be handled with ajax. Wirekit provides `/system/ajax/` end-point where you can send request and handle your logic. For example:    
 Http request to `/system/ajax/contact/` will call for `/templates/ajax/contact.php` file. This way you can create unlimited number of end-points, some can be just json responses, some business logic, up to you...     
-Up to two url segments are suported for now: `/ajax/file-name/` and `/ajax/folder/file-name/`.
+Up to two url segments are suported for now: `/ajax/file-name/` and `/ajax/folder/file-name/`.    
 Simple fetch request:     
 ```
 <script>
