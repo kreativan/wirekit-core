@@ -8,8 +8,8 @@ Build lightning-fast and feature-rich websites with ProcessWire.
 * Updates: <a href="https://github.com/kreativan/wirekit-updates" target="_blank">WireKit Updates Repo</a> 
 * Docs: Coming soon...
 
-WireKit is processwire site profile. It provides modules, layouts, helpers and basic structure as a starting point for building any kind of websites.    
-Primary focus is on building front-end, rather then providing APIs. It's, i would say "html first".     
+WireKit is processwire site profile, it provides modules, layouts, helpers and basic structure as a starting point for building any kind of websites.    
+Primary focus is on building front-end, rather then providing APIs. It is, i would say "html first".     
 
 Some principals that wirekit try to follow:
 * Plug and play features
@@ -20,20 +20,24 @@ Some principals that wirekit try to follow:
 * Easy to edit and customize markup.
 * All front-end logic should be ajax based.
 
-## Starters
+### Starters
 WireKit should provide quick start for your projects, so idea is to have starters for different purposes and usecases. WireKit Core is the first minimal starter, and more will come. There is a WireKit PRO starter in works, the premium one, but more about that some other time. Starters with different front-end frameworks should also be expected, Boostrap Starter for example...
 
-## Navigation
+### Navigation
 You can build your website navigation as traditional (page reload) way, or take advantage of SPA (single page app) type of navigation that wirekit provides out of the box. In both ways, we are keeping all of the SEO benifits that MPA (multi page apps), SSR (server side rendering), "traditional" websites provide.
 
-## Menu Manager
+### Menu Manager
 WireKit comes with menu manager built in. It is based on processwire templates and pages, which gives us much flexibility... With custom admin UI, you can manage all site navigation and menus in one place.
 
-## _init.php
-This file is automatically included in all tempalte files. We are using it to include our functions and manage wirekit settings using `setting()` function. Along with settings, here you can add js and css files that will be loaded in `<head>`, pass less files to the parser, define google font etc... 
+### System and Site Settings
+Site settings in wirekit are handled with system page and custom field that will generate settings fields from the json file. This way we can define site settings based on a project. Json file is located at `/vendor/json/system.json`, to change it, and add your own options, just copy `system.json` file to the `/templates/assets/json/` folder, and do your changes there. This way your settings will not be overwritten during the updates.        
+`$system` is a global variable in wirekit, so you can access the system page via api from anywhere as `$system` in template files, `$this->system` in modules, and `wire("system")` from anywhere. To get the site settings use `$system->settings("field_name")`.
 
-## Style
-WireKit provides less and scss compiler out of the box, so you can choose which preprocessor (if any) will be used on front-end. I would recommend using *less*, if there is a choise, as the compiler is more flexible at the moment.    
+### _init.php
+This file is automatically included in all template files. We are using it to include our functions and manage wirekit settings using `setting()` function. Along with settings, here you can add js and css files that will be loaded in `<head>`, add less files to the parser, define google font etc... 
+
+### Style
+WireKit provides less and scss compiler out of the box, so you can choose which preprocessor (if any) will be used on front-end. I would recommend using **less**, if there is a choice, as the compiler is more flexible at the moment.    
 
 #### Less
 If you are using less preprocessor, you can pass less files to the compiler from any folder. Not just files, but also variables...    
@@ -94,7 +98,7 @@ $helper->scss($folder, $file_name);
 $helper->scss("{$config->paths->templates}scss/", "style.scss");
 ```
 
-## head() and foot()
+### head() and foot()
 Each page needs to have header and footer, right!? As wirekit is using direct output method, we need to add them manually to each template file. To make it easier and more flexible, wirekit have `head()` and `foot()` functions for this purpose. Template file:
 ```
 <?php namespace ProcessWire;
@@ -132,7 +136,7 @@ head([
 <?php foot(); ?>
 ```
 
-## Meta
+### Meta
 WireKit has simple way of managing meta tags. You can define defaults in _init.php `setting()` function, but can also set meta tags individually for each page in `head()` function.
 ```
 setting([
@@ -163,7 +167,7 @@ head([
 ]); 
 ```
 
-## HTMX
+### HTMX
 HTMX (<a href="https://htmx.org/">htmx.org</a>) is the first class citizen in wirekit. It's used for SPA like navigation, rendering dynamic content etc... It's a very powerful tool, easy and real joy to use, it fits perfect into wirekit "html first" idea and workflow...       
 Wirekit uses "layouts" as reusable components, and they are exposed at the htmx end-point by default on `/system/htmx/`. This way you can fetch any content, any time, anywhere using simple htmx request with any html element. Example:    
 `hx-get="/system/hrmx/layout/product/card/"`     
@@ -171,7 +175,7 @@ or
 `hx-get="<?= $htmx->url ?>layout/product/card/"`     
 Will call for `/templates/layout/product/card.php` file. This way you can for example lazy load product card using htmx...
 
-## Ajax
+### Ajax
 All front-end logic in wirekit is imagined to be handled with ajax. Wirekit provides `/system/ajax/` end-point where you can send request and handle your logic. For example:    
 Http request to `/system/ajax/contact/` will call for `/templates/ajax/contact.php` file. This way you can create unlimited number of end-points, some can be just json responses, some business logic, up to you...     
 Up to two url segments are suported for now: `/ajax/file-name/` and `/ajax/folder/file-name/`.
@@ -201,11 +205,11 @@ echo json_encode($response);
 exit();
 ```
 
-## WireKit UI
+### WireKit UI
 
 Wirekit UI is minimal css/less library used in WireKit Core by default. It is a work in progress, and im planing to work on it more in the future. It's mostly utility classes with flex and grid that can help you build quick layouts and prototypes. More about it will be avalable in official docs, for now if you are interested, can take a look at `/vendor/lib/wkui-dev/` folder and <a href="https://start.wirekit.dev/core/wirekit/ui/">This Example</a>
 
-## What is Next?
+### What's next?
 
 I will continue working on this project, and have many ideas for it, but no timeline and road map for now. Definitly first on the list is official wirekit website and documentation.
 
