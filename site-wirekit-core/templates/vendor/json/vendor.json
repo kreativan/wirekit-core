@@ -1,6 +1,7 @@
 {
   "version": "0.0.2",
   "framework": "WireKit",
-  "website": "https://www.wirekit.dev",
-  "developer": "kreativan.dev"
+  "api": "api.wirekit.dev",
+  "developer": "kreativan.dev",
+  "website": "https://www.wirekit.dev"
 }
