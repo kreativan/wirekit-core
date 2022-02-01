@@ -61,8 +61,8 @@ setting([
    *  @example ["global-font-family" => $system->font_family]
    */
   "less_vars" => [
-    "wk-font" => "Jost, Sans Serif",
-    "wk-font-base" => "Jost, Sans Serif",
+    "w-font" => "Jost, Sans Serif",
+    "w-font-base" => "Jost, Sans Serif",
   ],
 
   ...
@@ -222,3 +222,5 @@ Here's some ideas:
 * Customizer for UIkit, WireKit UI and/or other framworks. To manage colors/fonts/backgrounds/ etc... from the admin UI
 * User management on front-end. Login, registration, user profile
 * UI Library. One click install layouts, pages, structured content etc... 
+* SEO Module for managing meta tags in admin ui, sitemap etc…
+* WireKit Tools. Manage wirekit related stuff with custom admin ui... menus, fields, options…
