@@ -13,7 +13,7 @@
 class SearchPage extends Page {
 
   public function headline() {
-    $str_start = "<em class='wk-text-bold wk-text-up'>";
+    $str_start = "<em class='w-text-bold w-text-up'>";
     $str_end = "</em>";
     $headline = str_replace("{", $str_start, $this("headline|title"));
     $headline = str_replace("}", $str_end, $headline);
@@ -46,7 +46,7 @@ class SearchPage extends Page {
    *  @param string $text
    *  @return string
    */
-  public function markWord($word, $text, $class = "tm-text-bg") {
+  public function markWord($word, $text, $class = "w-text-bg") {
     $word_parts = explode(" ", $word);
     if(count($word_parts) > 1) {
       foreach($word_parts as $w) {

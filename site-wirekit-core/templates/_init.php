@@ -57,8 +57,8 @@ setting([
 
   // js files to load in head
   "js_files" => [
-    $config->urls->lib . "js/wirekit-core.js",
-    $config->urls->lib . "js/wirekit-ui.js",
+    $config->urls->lib . "js/wirekit-core.js?v2",
+    $config->urls->lib . "js/wirekit-ui.js?v2",
   ],
 
   // less files to compile
@@ -87,6 +87,7 @@ setting([
   "js_vars" => [
     "debug" => $config->debug,
     "lang" => ($user->language) ? $user->language->name : null,
+    "vendor" => $system->vendor(),
     "htmx" => $htmx->url,
     "ajax" => $ajax->url,
     "mobileMenuPath" => "layout/menu/mobile-menu/",

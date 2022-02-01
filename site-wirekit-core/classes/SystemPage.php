@@ -77,27 +77,4 @@ class SystemPage extends Page {
     $this->save();
   }
 
-  /**
-   *  Vendor Data
-   *  reads the vendor.json from vendor/jeson/ and assets/json/ folders
-   *  @param string $field_name
-   */
-  public function vendor($field_name = "") {
-    $vendor_json = wire("config")->paths->templates . "vendor/json/vendor.json";
-    $assets_json = wire("config")->paths->templates . "assets/json/vendor.json";
-    $vendor_json_data = file_get_contents($vendor_json);
-    $vendor_data = json_decode($vendor_json_data, true);
-    if(file_exists($assets_json)) {
-      $assets_json_data = file_get_contents($assets_json);
-      $assets_data = json_decode($assets_json_data, true);
-      $assets_data["framework"] = $vendor_data["framework"];
-      $data = array_merge($vendor_data, $assets_data);
-    }
-    if($field_name != "") {
-      return isset($data[$field_name]) && !empty($data[$field_name]) ? $data[$field_name] : false;
-    } else {
-      return $data;
-    }
-  }
-
 }

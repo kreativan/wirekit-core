@@ -1,4 +1,4 @@
-# WIREKIT Core
+# **WIREKIT** Core
 Build lightning-fast and feature-rich websites with ProcessWire.
 
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/kreativan/wirekit-core?include_prereleases&label=version)
