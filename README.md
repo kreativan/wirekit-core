@@ -219,6 +219,7 @@ Here's some ideas:
 * WireKit PRO
 * UIkit Starter
 * Boostrap Starter
+* Online updates. 1 click updates using custom module ui and github.
 * Customizer for UIkit, WireKit UI and/or other framworks. To manage colors/fonts/backgrounds/ etc... from the admin UI
 * User management on front-end. Login, registration, user profile
 * UI Library. One click install layouts, pages, structured content etc... 
