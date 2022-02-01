@@ -1,9 +1,8 @@
 /**
- *  wirekit 
+ *  wirekit-core
  *
  *  @method formData - Collect data from form inputs
  *  @method formClear - Clear data from the form inputs
- *  @method toggle - toggle open class on next sibling or target element
  *  @method mobileMenu - init mobile menu
  *  @method htmx - htmx related helpers
  */
@@ -48,7 +47,8 @@
   }
 
   /**
-   *  Load mobile menu inside offcanvas component
+   *  Load #mobile-menu inside #mobile-menu-container element
+   *  on #mobile-menu-button click
    *  @param {Int|String} page_id - current page id
    */
   methods.mobileMenu = function(page_id, mobile_menu_path = cms.mobileMenuPath) {
@@ -69,8 +69,8 @@
   }
 
   /**
-   *  Function to run with htmx
-   *  Usually this function are used inline
+   *  HTMX Helper funtion
+   *  Usually used inline
    *  @example onclick="wirekit.htmx('menu')"
    */
   methods.htmx = function(arg) {
@@ -103,7 +103,7 @@
       });
     }
 
-    // Update browser title based on title="" attribute
+    // Update browser title based on data-title
     // Scroll to top
     if(arg === "page") {
       let title = event.target.getAttribute("data-title");
