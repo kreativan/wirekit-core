@@ -17,9 +17,8 @@ if(setting("preprocessor") == "less") {
 
 /**
  *  Custom - passed in head() function
- *  @var array js => js files to load in <head>
- *  @var array css => css files to load in <head>
- *  @var string meta_title
+ *  @var array js => ["file_1.js", "file_2.js"] files to load in <head>
+ *  @var array css => ["file_1.css", "file_2.css"] css files to load in <head>
  */
 
 // js
@@ -36,7 +35,12 @@ if($custom_css) {
   array_unique($css_files);
 }
 
-// Meta file and meta_data
+/**
+ *  Meta Data
+ *  Meta data based on setting("meta") and head(["meta"])
+ *  Meta files: if _meta.php exists, will be used,
+ *  otherwise /vendor/inc/meta.php
+ */
 $meta_data = !empty($meta) ? $meta : setting("meta");
 $meta_file = $config->paths->templates . "vendor/inc/meta.php";
 $_meta_file = $config->paths->templates . "_meta.php";

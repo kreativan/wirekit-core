@@ -78,7 +78,7 @@ $less_files = [
 ];
 
 $less_vars = [
-  "wk-bg-prmary" => "blue",
+  "w-bg-primary" => "blue",
 ];
 
 // helper is global variable in wirekit
@@ -126,8 +126,8 @@ In `head()` function we can add js and css files to be included in the `<head>`,
 ```
 <?php namespace ProcessWire;
 head([
-  "css" => "css_file_url.css",
-  "js" => "js_file_url.js",
+  "css" => ["css_file_url.css"],
+  "js" => ["js_file_url.js"],
   "meta" => [...]
 ]); 
 ?>
