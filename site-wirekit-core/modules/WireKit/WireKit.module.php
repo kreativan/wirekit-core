@@ -63,13 +63,13 @@ class WireKit extends WireData implements Module {
       ]);
 
       $suffix = ($this->config->debug) ? "?v=".time() : "";
-      $this->config->styles->append($this->module_url."/admin.css");
-      $this->config->scripts->append($this->module_url."/drag-drop-sort.js");
-      $this->config->scripts->append($this->module_url."/wirekit.js{$suffix}");
+      $this->config->styles->append($this->module_url."/assets/admin.css");
+      $this->config->scripts->append($this->module_url."/assets/drag-drop-sort.js");
+      $this->config->scripts->append($this->module_url."/assets/wirekit.js");
 
       include("actions.php");
       include("actions-ajax.php");
-      include("actions-ajax-group.php");
+      include("actions-ajax-bulk.php");
 
       // Drag & drop sort
       if($this->input->post->action == "drag_drop_sort") {

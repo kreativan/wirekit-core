@@ -153,7 +153,7 @@
       let strArray = JSON.stringify(items);
       console.log(items);
       let formData = new FormData();
-      formData.append("ajax_group", action_name);
+      formData.append("ajax_bulk", action_name);
       formData.append("admin_items", strArray);
 
       const response = await fetch("./", {

@@ -5,9 +5,9 @@
  *  @link http://www.kraetivan.dev
 */
 
-$ajax_group = $this->input->get->ajax_group;
+$ajax_bulk = $this->input->get->ajax_bulk;
 
-if($ajax_group) {
+if($ajax_bulk) {
 
   // disable all notice for ajax actions
   // to prevent errors and return fails
@@ -23,7 +23,7 @@ if($ajax_group) {
   //  Publish
   //
 
-  if($ajax_group == "publish") {
+  if($ajax_bulk == "publish") {
 
     foreach($items as $p) {
       if($p->isUnpublished()) {
@@ -47,7 +47,7 @@ if($ajax_group) {
   //  Hide
   //
 
-  if($ajax_group == "hide") {
+  if($ajax_bulk == "hide") {
 
     foreach($items as $p) {
       if($p->isHidden()) {
@@ -71,7 +71,7 @@ if($ajax_group) {
   //  Trash
   //
 
-  if($ajax_group == "trash") {
+  if($ajax_bulk == "trash") {
 
     foreach($items as $p) $p->trash();
     exit();
@@ -82,7 +82,7 @@ if($ajax_group) {
   //  Delete
   //
 
-  if($ajax_group == "delete") {
+  if($ajax_bulk == "delete") {
     
     foreach($items as $p) $this->pages->delete($p);
     exit();
@@ -92,7 +92,7 @@ if($ajax_group) {
   //
   //  Restore
   //
-  if($ajax_group == "restore") {
+  if($ajax_bulk == "restore") {
 
     foreach($items as $p) $this->pages->restore($p);
     exit();
