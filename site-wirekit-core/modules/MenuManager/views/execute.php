@@ -29,89 +29,78 @@ include("_tabs.php");
 
       <tbody id="ivm-sortable">
         <?php if($items->count) :?>
-          <?php foreach($items as $item) :?>
+        <?php foreach($items as $item) :?>
 
-            <?php
-              $class = $item->isHidden() || $item->isUnpublished() ? "is-hidden" : "";
-              $link_type = $item->link_type->name;
+        <?php
+          $class = $item->isHidden() || $item->isUnpublished() ? "is-hidden" : "";
+          $link_type = $item->link_type->name;
 
-              $link = "-";
-              if(($link_type == 'page' || $link_type == "page-ajax") && !empty($item->select_page)) {
-                $page_link = $this->pages->get("id={$item->select_page}");
-                if($page_link->parent->id == "1") {
-                  $link =  "/{$page_link->name}/";
-                } else {
-                  $link = "/{$page_link->parent->name}/{$page_link->name}/";
-                }
-              } elseif($link_type == 'none') {
-                $link = "-";
-              } else {
-                $link = $item->link;
+          $link = "-";
+          if(($link_type == 'page' || $link_type == "page-ajax") && !empty($item->select_page)) {
+            $page_link = $this->pages->get("id={$item->select_page}");
+            if($page_link->parent->id == "1") {
+              $link =  "/{$page_link->name}/";
+            } else {
+              $link = "/{$page_link->parent->name}/{$page_link->name}/";
+            }
+          } elseif($link_type == 'none') {
+            $link = "-";
+          } else {
+            $link = $item->link;
+          }
+        ?>
+
+        <tr class="ajax-item <?= $class ?>" data-sort="<?= $item->sort ?>" data-id="<?= $item->id ?>">
+
+          <td class="uk-table-shrink">
+            <div class="handle">
+              <i class='fa fa-bars'></i>
+            </div>
+          </td>
+
+          <td>
+            <a href="<?= $helper->pageEditLink($item->id) ?>">
+              <?= $item->title ?>
+            </a>
+          </td>
+
+          <td class="uk-text-small">
+            <em>
+              <?= $item->link_type->title ?>
+            </em>
+          </td>
+
+          <td class="uk-text-small">
+            <?= $link ?>
+          </td>
+
+          <td class="uk-text-small">
+            <?php 
+              if($item->submenu_type == "2") {
+                echo "custom ({$item->menu->count})";
+              } elseif($item->submenu_type == "3") {
+                echo "child pages";
               }
             ?>
+          </td>
 
-            <tr class="ajax-item <?= $class ?>"
-              data-sort="<?= $item->sort ?>"
-              data-id="<?= $item->id ?>"
-            >
+          <td class="ivm-actions uk-text-right" style="width: 120px;padding-right: 20px;">
+            <button class="btn" onclick="wirekit.togglePage(<?= $item->id ?>)" title="Show / Hide" uk-tooltip>
+              <i class="fa fa-toggle-<?= $item->isUnpublished() ? "off" : "on" ?> fa-lg"></i>
+            </button>
+            <button class="btn uk-text-danger" onclick="wirekit.trashPage(<?= $item->id ?>)" title="Trash" uk-tooltip>
+              <i class="fa fa-times-circle fa-lg"></i>
+            </button>
+          </td>
 
-              <td class="uk-table-shrink">
-                <div class="handle">
-                  <i class='fa fa-bars'></i>
-                </div>
-              </td>
-
-              <td>
-                <a href="<?= $helper->pageEditLink($item->id) ?>">
-                  <?= $item->title ?>
-                </a>
-              </td>
-
-              <td>
-                <em>
-                  <?= $item->link_type->title ?>
-                </em>
-              </td>
-
-              <td>
-                <?= $link ?>
-              </td>
-
-              <td>
-                <?php 
-                  if($item->submenu_type == "2") {
-                    echo "custom ({$item->menu->count})";
-                  } elseif($item->submenu_type == "3") {
-                    echo "child pages";
-                  }
-                ?>
-              </td>
-
-              <td class="ivm-actions uk-text-right" style="width: 120px;padding-right: 20px;">
-                <button class="btn" 
-                  onclick="togglePage(<?= $item->id ?>)"
-                  title="Show / Hide" 
-                  uk-tooltip
-                >
-                  <i class="fa fa-toggle-<?= $item->isUnpublished() ? "off" : "on" ?> fa-lg"></i>
-                </button>
-                <button class="btn uk-text-danger" 
-                  onclick="trashPage(<?= $item->id ?>)"
-                  title="Trash"
-                  uk-tooltip
-                >
-                <i class="fa fa-times-circle fa-lg"></i>
-                </button>
-              </td>
-
-            </tr>
-          <?php endforeach; ?>
+        </tr>
+        <?php endforeach; ?>
         <?php else :?>
-          <tr>
-            <td colspan="100%">
-              <h3 class='uk-margin-remove'>No items to display</h3>
-            </td>
-          </tr>
+        <tr>
+          <td colspan="100%">
+            <h3 class='uk-margin-remove'>No items to display</h3>
+          </td>
+        </tr>
         <?php endif;?>
       </tbody>
 
