@@ -11,7 +11,7 @@ class WireKit extends WireData implements Module {
     return array(
       'title' => 'WireKit',
       'version' => 100,
-      'summary' => 'WireKit helper. Admin UI, less parser, helper methods...',
+      'summary' => 'Main WireKit module...',
       'icon' => 'codepen',
       'author' => "Ivan Milincic",
       "href" => "https://kreativan.dev",
@@ -30,10 +30,8 @@ class WireKit extends WireData implements Module {
     $system_page = $this->pages->get("template=system");
     $htmx_page = $this->pages->get("template=htmx");
     $ajax_page = $this->pages->get("template=ajax");
-    $wirekit_module = $this->modules->get("WireKit");
-
-    $this->wire("helper", $wirekit_module, true);
-    $this->wire("wirekit", $wirekit_module, true);
+    
+    $this->wire("wirekit", $this, true);
     $this->wire("system", $system_page, true);
     $this->wire("htmx", $htmx_page, true);
     $this->wire("ajax", $ajax_page, true);
@@ -60,8 +58,8 @@ class WireKit extends WireData implements Module {
 
       // console.log(ProcessWire.config.wirekit);
       $this->config->js('wirekit', [
-        'ajax' => "/ajax/",
-        'html' => "/htmx/",
+        'ajax' => "/system/ajax/",
+        'html' => "/system/htmx/",
       ]);
 
       $suffix = ($this->config->debug) ? "?v=".time() : "";
@@ -228,67 +226,6 @@ class WireKit extends WireData implements Module {
     }
   }
 
-  // check if webp is supported
-  public function isWebp() {
-    return (strpos($_SERVER['HTTP_ACCEPT'], 'image/webp' ) !== false) ? true : false;
-  }
-
-  /**
-   *  Format page strings
-   *  extract page variables
-   *  @param string $string  eg: {title} or {select_page.url}
-   *  @example $this->format("{select_page.url}") will get $page->select_page->url
-   *  @return string
-   */
-  public function formatPageString($string) {
-    $page = wire("page");
-    $string = ltrim($string);
-    $string = preg_replace('/\s\s+/', ' ', $string);
-    $text = preg_match_all('#\{(.*?)\}#', $string, $matches);
-    $arr = $matches[0];
-    $i = 0;
-    foreach($arr as $item) {
-      $n = $i++;
-      $str = $matches[1][$n];
-      $str = explode(".", $str);
-      $sl1 = $str[0];
-      $sl2 = isset($str[1]) ? $str[1] : "";
-      $selector = !empty($sl2) ? $page->{$sl1}->{$sl2} : $page->{$sl1};
-      $string = str_replace($item, $selector, $string);
-    }
-    $string = strip_tags($string);
-    $string = wire("sanitizer")->removeNewlines($string);
-    return $string;
-  }
-
-  /**
-   * Variables included with the route file
-   * @return array
-   */
-  public function routeData() {
-
-    $array = [];
-    $input = wire("input");
-    $sanitizer = wire("sanitizer");
-
-    // Set language using lang GET variable
-    // eg: ?lang=en
-    $language = "";
-    if(wire("input")->get->lang) {
-      $lang = wire("input")->get->lang;
-      $language = wire("languages")->get("id|name|title={$lang}");
-      wire("user")->setLanguage($language);
-    }
-    $array["language"] = $language;
-
-    return $array;
-
-  }
-
-  //-------------------------------------------------------- 
-  //  Modules
-  //-------------------------------------------------------- 
-
   /**
    *  Save Module Settings
    *  @param string $module     module class name
@@ -434,26 +371,6 @@ class WireKit extends WireData implements Module {
     $minifier = new \MatthiasMullie\Minify\CSS();
     $minifier->add($css_string);
     return $minifier->minify();
-  }
-
-  /* =========================================================== 
-    Validator
-  =========================================================== */
-  
-  /**
-   * Validate Data/Form with Valitron
-   * @param array $array
-   * @example 
-   *    $v = $helper->validator($_POST)
-   *    $v = $v->rule('email', 'email');
-   *    $v->validate()
-   *    $v->errors()      
-   */
-  public function validator($array) {
-    require_once(__DIR__."/valitron/src/Valitron/Validator.php");
-    Valitron\Validator::lang($this->user->lang());
-    $v = new Valitron\Validator($array);
-    return $v;
   }
 
 }

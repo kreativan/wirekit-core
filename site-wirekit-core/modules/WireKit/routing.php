@@ -29,6 +29,6 @@ $this->addHook('/wirekit/{file_name}/?', function($event) {
   $file_name = $event->arguments(1);
   $file = __DIR__ . "/features/{$file_name}.php";
   if(!file_exists($file)) return false; // throw 404
-  $this->files->include($file, wire("helper")->routeData());
+  $this->files->include($file);
   return true;
 });

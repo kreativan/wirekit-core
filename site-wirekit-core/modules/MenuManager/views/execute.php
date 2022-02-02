@@ -59,7 +59,7 @@ include("_tabs.php");
           </td>
 
           <td>
-            <a href="<?= $helper->pageEditLink($item->id) ?>">
+            <a href="<?= $wirekit->pageEditLink($item->id) ?>">
               <?= $item->title ?>
             </a>
           </td>

@@ -1,4 +1,4 @@
-# --- WireDatabaseBackup {"time":"2022-02-02 11:08:45","user":"","dbName":"wirekit_core","description":"","tables":[],"excludeTables":["pages_drafts","pages_roles","permissions","roles","roles_permissions","users","users_roles","user","role","permission"],"excludeCreateTables":[],"excludeExportTables":["field_roles","field_permissions","field_email","field_pass","caches","session_login_throttle","page_path_history"]}
+# --- WireDatabaseBackup {"time":"2022-02-02 13:14:41","user":"","dbName":"wirekit_core","description":"","tables":[],"excludeTables":["pages_drafts","pages_roles","permissions","roles","roles_permissions","users","users_roles","user","role","permission"],"excludeCreateTables":[],"excludeExportTables":["field_roles","field_permissions","field_email","field_pass","caches","session_login_throttle","page_path_history"]}
 
 DROP TABLE IF EXISTS `caches`;
 CREATE TABLE `caches` (
@@ -840,7 +840,7 @@ CREATE TABLE `modules` (
   `created` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `class` (`class`)
-) ENGINE=MyISAM AUTO_INCREMENT=247 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=248 DEFAULT CHARSET=utf8;
 
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('1', 'FieldtypeTextarea', '1', '', '2021-03-05 12:45:14');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('2', 'FieldtypeNumber', '64', '', '2021-09-08 08:27:02');
@@ -945,6 +945,7 @@ INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('170', 
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('171', 'TextformatterMarkdownExtra', '1', '{\"flavor\":\"2\",\"uninstall\":\"\",\"submit_save_module\":\"Submit\"}', '2021-03-05 12:47:45');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('172', 'TextformatterNewlineBR', '1', '', '2021-03-05 12:48:00');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('173', 'FieldtypeAdminCustomPagesSelect', '1', '', '2021-03-05 12:55:50');
+INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('247', 'WireKitHelper', '1', '', '2022-02-02 13:13:22');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('182', 'FileValidatorImage', '0', '', '2021-03-05 12:56:30');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('183', 'InputfieldEasyMDE', '0', '', '2021-03-05 12:56:37');
 INSERT INTO `modules` (`id`, `class`, `flags`, `data`, `created`) VALUES('191', 'MinimalFieldset', '10', '', '2021-03-05 12:59:00');
@@ -1266,4 +1267,4 @@ CREATE TABLE `textformatter_video_or_social_embed` (
 
 UPDATE pages SET created_users_id=41, modified_users_id=41, created=NOW(), modified=NOW();
 
-# --- /WireDatabaseBackup {"numTables":49,"numCreateTables":56,"numInserts":581,"numSeconds":0}
+# --- /WireDatabaseBackup {"numTables":49,"numCreateTables":56,"numInserts":582,"numSeconds":0}

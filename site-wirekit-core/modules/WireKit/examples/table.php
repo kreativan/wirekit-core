@@ -31,7 +31,7 @@ $items = $pages->find("template=order, sort=-created, limit=50");
           <?php
             $files->include("./inc/drop-menu.php", [
               "item" => $item,
-              "helper" => $helper,
+              "wirekit" => $wirekit,
             ]);
           ?>
         </td>

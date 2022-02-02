@@ -81,10 +81,10 @@ $_meta_file = $config->paths->templates . "_meta.php";
   ?>
 
   <!-- Preload Less/scss -->
-  <?php if($helper->compiler != "1" && setting("preprocessor") == "less") :?>
+  <?php if($wirekit->compiler != "1" && setting("preprocessor") == "less") :?>
   <link rel="preload" href="<?= $config->urls->ass."css/main-less.css"; ?>" as="style">
-  <?php elseif($helper->compiler != "1" && setting("preprocessor") == "scss") :?>
-  <link rel="preload" href="<?= $helper->scss() ?>" as="style">
+  <?php elseif($wirekit->compiler != "1" && setting("preprocessor") == "scss") :?>
+  <link rel="preload" href="<?= $wirekit->scss() ?>" as="style">
   <?php endif; ?>  
   
   <!-- Preload CSS -->
@@ -104,9 +104,9 @@ $_meta_file = $config->paths->templates . "_meta.php";
     
   <!-- Less/scss -->
   <?php if(setting("preprocessor") == "less") : ?>
-  <link rel="stylesheet" type="text/css" href="<?= $helper->less($less_files, $less_vars, "main-less"); ?>">
+  <link rel="stylesheet" type="text/css" href="<?= $wirekit->less($less_files, $less_vars, "main-less"); ?>">
   <?php elseif(setting("preprocessor") == "scss") :?>
-  <link rel="stylesheet" type="text/css" href="<?= $helper->scss(); ?>">
+  <link rel="stylesheet" type="text/css" href="<?= $wirekit->scss(); ?>">
   <?php endif; ?>
 
   <?php if(count($css_files) > 0) : ?>

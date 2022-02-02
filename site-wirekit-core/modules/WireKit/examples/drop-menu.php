@@ -17,7 +17,7 @@
 
         <!-- Edit -->
         <li>
-          <a href="<?= $helper->pageEditLink($item->id) ?>">
+          <a href="<?= $wirekit->pageEditLink($item->id) ?>">
             <i class="fas fa-pen-alt uk-text-emphasis"></i>
             Edit
           </a>
@@ -25,7 +25,7 @@
 
         <!-- Delete -->
         <li>
-          <a href="<?= $helper->actionURL("trash", $item->id) ?>" onclick="modalConfirm()">
+          <a href="<?= $wirekit->actionURL("trash", $item->id) ?>" onclick="modalConfirm()">
             <i class="ivm-in-drop-icon fas fa-trash uk-text-danger"></i>
             Trash
           </a>

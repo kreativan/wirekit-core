@@ -89,10 +89,10 @@ class WireKitConfig extends ModuleConfig {
       $compiler_set->add($f);
 
       $html = '
-        <code>$helper = $modules->get("WireKit");</code><br /> 
-        <code>'.htmlspecialchars('<link rel="stylesheet" type="text/css" href="<?= $helper->less($less_files_array, $less_vars, "main-css"); ?>">').'</code>
+        <code>$wirekit = $modules->get("WireKit");</code><br /> 
+        <code>'.htmlspecialchars('<link rel="stylesheet" type="text/css" href="<?= $wirekit->less($less_files_array, $less_vars, "main-css"); ?>">').'</code>
         <br />
-        <code>'.htmlspecialchars('<link rel="stylesheet" type="text/css" href="<?= $helper->scss(); ?>">').'</code>
+        <code>'.htmlspecialchars('<link rel="stylesheet" type="text/css" href="<?= $wirekit->scss(); ?>">').'</code>
       ';
       $f = $this->wire('modules')->get("InputfieldMarkup");
       $f->attr('name', 'less_markup');
