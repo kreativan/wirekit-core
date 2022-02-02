@@ -191,7 +191,7 @@ fetch(`${cms.ajax}test/?id=123`)
   })
 </script>
 ``` 
-In `/tempates/ajax/text.php`
+In `/tempates/ajax/test.php`
 ```
 <?php namespace ProcessWire
 
@@ -225,3 +225,4 @@ Here's some ideas:
 * UI Library. One click install layouts, pages, structured content etc... 
 * SEO Module for managing meta tags in admin ui, sitemap etc…
 * WireKit Tools. Manage wirekit related stuff with custom admin ui... menus, fields, options…
+* Building WireKit specific modules: blog, booking, shooping cart...
