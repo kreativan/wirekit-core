@@ -24,6 +24,7 @@ if($config->debug) $suffix = "?" . time();
  */
 setting([
   
+  "default_lang" => $system->settings("default_lang"),
   "preprocessor" => "less", // less or scss
   "overrides" => false, // overrides in /layout-ovrr/ or specified folder
   "dynamic_assets" => true, // use loadJS() and  loadCSS()
