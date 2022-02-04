@@ -81,8 +81,8 @@ $less_vars = [
   "w-bg-primary" => "blue",
 ];
 
-// helper is global variable in wirekit
-$helper->less($less_files, $less_vars, "output-file-name");
+// wirekit is global variable 
+$wirekit->less($less_files, $less_vars, "output-file-name");
 ```
 
 #### scss
@@ -95,8 +95,8 @@ setting([
 ```
 If you want to use wirekit less compiler "manually", you can do so:
 ```
-$helper->scss($folder, $file_name);
-$helper->scss("{$config->paths->templates}scss/", "style.scss");
+$wirekit->scss($folder, $file_name);
+$wirekit->scss("{$config->paths->templates}scss/", "style.scss");
 ```
 
 ### head() and foot()
