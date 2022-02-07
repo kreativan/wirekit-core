@@ -2,7 +2,7 @@
 /**
  *  init.php
  *  this file is included in /templates/_init.php
- *  Used by the core to possibly add new features trough updates
+ *  Used by the core to possibly add new features through updates
  */
 
 // func
